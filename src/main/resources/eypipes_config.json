@@ -1,0 +1,89 @@
+{
+  "_comment": "EyPipes Mod Configuration File - Edit these values to customize the mod behavior",
+  
+  "crop_settings": {
+    "_comment": "Settings for the Erbapipa crop",
+    "growth_chance": 0.5,
+    "_growth_chance_description": "Probability of crop growing each random tick (0.0-1.0)",
+    "max_age": 7,
+    "_max_age_description": "Maximum age the crop can reach before being harvestable",
+    "grow_upper_age": 4,
+    "_grow_upper_age_description": "Age at which the crop starts growing the upper part",
+    "requires_support": true,
+    "_requires_support_description": "Whether the crop needs a solid block below to grow"
+  },
+  
+  "drying_rack_settings": {
+    "_comment": "Settings for the Erbapipa Drying Rack",
+    "drying_time_ticks": 4000,
+    "_max_items_description": "Tick time for drying",
+    "requires_sunlight": false,
+    "_requires_sunlight_description": "Whether drying requires direct sunlight access"
+  },
+  
+  "loot_settings": {
+    "_comment": "Settings for crop drops and loot tables",
+    "erbapipa_drop_rolls": 0.9,
+    "_erbapipa_drop_rolls_description": "Base rolls for erbapipa/seeds drop pool (0.0-1.0)",
+    "seeds_bonus_rolls": 0.7,
+    "_seeds_bonus_rolls_description": "Additional rolls for bonus seeds when crop is mature (0.0-1.0)",
+    "seeds_fortune_probability": 0.17142858,
+    "_seeds_fortune_probability_description": "Probability modifier for Fortune enchantment on seed drops (0.0-1.0)",
+    "fortune_affects_drops": true,
+    "_fortune_description": "Whether Fortune enchantment affects drop rates",
+    "erbapipa_drop_percentage": 100.0,
+    "_erbapipa_drop_percentage_description": "Percentage chance to drop erbapipa when crop is mature (0.0-100.0)",
+    "seeds_drop_percentage": 100.0,
+    "_seeds_drop_percentage_description": "Percentage chance to drop seeds when harvesting (0.0-100.0)"
+  },
+  
+  "recipe_settings": {
+    "_comment": "Settings for crafting and processing recipes",
+    "cutting_output_count": 2,
+    "_cutting_output_description": "Number of cut erbapipa produced when cutting dried erbapipa",
+    "enable_knife_tag_support": true,
+    "_knife_tag_description": "Whether to use conventional knife tags for cutting recipes"
+  },
+  
+  "compost_settings": {
+    "_comment": "Settings for composting integration",
+    "erbapipa_seeds_compost_chance": 0.3,
+    "_seeds_compost_description": "Chance for erbapipa seeds to increase compost level (0.0-1.0)",
+    "erbapipa_compost_chance": 0.65,
+    "_erbapipa_compost_description": "Chance for erbapipa to increase compost level (0.0-1.0)"
+  },
+  
+  "gameplay_settings": {
+    "_comment": "General gameplay settings",
+    "enable_tall_crop_mechanics": true,
+    "_tall_crop_description": "Whether erbapipa grows as a tall crop (2 blocks high)",
+    "breaking_upper_breaks_lower": true,
+    "_breaking_behavior_description": "Whether breaking the upper part also breaks the lower part",
+    "fertilizer_effectiveness": 1.0,
+    "_fertilizer_description": "Multiplier for bone meal and other fertilizer effectiveness (1.0 = normal)"
+  },
+  
+  "performance_settings": {
+    "_comment": "Performance and optimization settings",
+    "tick_rate_multiplier": 1.0,
+    "_tick_rate_description": "Multiplier for how often the mod processes ticks (1.0 = normal)",
+    "max_drying_racks_per_chunk": 64,
+    "_max_racks_description": "Maximum number of drying racks allowed per chunk (0 = unlimited)"
+  },
+  
+  "integration_settings": {
+    "_comment": "Settings for mod integration",
+    "farmers_delight_integration": true,
+    "_farmers_delight_description": "Whether to enable Farmer's Delight integration features",
+    "jei_integration": true,
+    "_jei_description": "Whether to show recipes in JEI (Just Enough Items)"
+  },
+  
+  "debug_settings": {
+    "_comment": "Debug and development settings",
+    "enable_debug_logging": false,
+    "_debug_logging_description": "Whether to enable detailed debug logging",
+    "show_growth_particles": false,
+    "_growth_particles_description": "Whether to show particles when crops grow"
+  }
+}

@@ -1,0 +1,6 @@
+{
+    "parent": "minecraft:block/crop",
+    "textures": {
+        "crop": "eypipes:block/erbapipa_crop_stage3"
+    }
+}

@@ -1,0 +1,17 @@
+{
+    "type": "minecraft:crafting_shaped",
+    "pattern": [
+        "SWS",
+        "BGB",
+        "SWS"
+    ],
+    "key": {
+        "S": { "item": "minecraft:stone" },
+        "W": { "item": "minecraft:stripped_oak_wood" },
+        "B": { "item": "minecraft:brass_ingot" },
+        "G": { "item": "minecraft:gear" }
+    },
+    "result": {
+        "item": "eypipes:processor"
+    }
+}

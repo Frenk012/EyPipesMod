@@ -1,0 +1,44 @@
+{
+	"schemaVersion": 1,
+	"id": "eypipes",
+	"version": "${version}",
+	"name": "EyPipes",
+	"description": "This is an example description! Tell everyone what your mod is about!",
+	"authors": [
+		"Frenk02"
+	],
+	"contact": {
+		"homepage": "https://fabricmc.net/"
+	},
+	"license": "MIT License",
+	"icon": "assets/eypipes/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"frenk.eypipes.EyPipes"
+		],
+		"client": [
+			"frenk.eypipes.EyPipesClient"
+		],
+		"fabric-datagen": [
+			"frenk.eypipes.EyPipesDataGenerator"
+		]
+	},
+	"mixins": [
+		"eypipes.mixins.json",
+		{
+			"config": "eypipes.client.mixins.json",
+			"environment": "client"
+		}
+	],
+	"depends": {
+		"fabricloader": ">=0.14.22",
+		"minecraft": "~1.19.2",
+		"java": ">=17",
+		"farmersdelight": ">=1.3.0",
+		"trinkets": ">=3.4.0"
+	},
+	"suggests": {
+		"another-mod": "*"
+	}
+}
