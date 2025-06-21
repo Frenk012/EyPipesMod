@@ -29,18 +29,18 @@ public class EyPipesClient implements ClientModInitializer {
         
         // Register particle textures to the texture atlas
         ClientSpriteRegistryCallback.event(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE).register(((atlasTexture, registry) -> {
-            registry.register(new Identifier("eypipes", "particle/big_smoke_ring_0"));
-            registry.register(new Identifier("eypipes", "particle/big_smoke_ring_1"));
-            registry.register(new Identifier("eypipes", "particle/big_smoke_ring_2"));
-            registry.register(new Identifier("eypipes", "particle/big_smoke_ring_3"));
-            registry.register(new Identifier("eypipes", "particle/big_smoke_ring_4"));
-            registry.register(new Identifier("eypipes", "particle/big_smoke_ring_5"));
-            registry.register(new Identifier("eypipes", "particle/big_smoke_ring_6"));
-            registry.register(new Identifier("eypipes", "particle/big_smoke_ring_7"));
-            registry.register(new Identifier("eypipes", "particle/big_smoke_ring_8"));
-            registry.register(new Identifier("eypipes", "particle/big_smoke_ring_9"));
-            registry.register(new Identifier("eypipes", "particle/big_smoke_ring_10"));
-            registry.register(new Identifier("eypipes", "particle/big_smoke_ring_11"));
+            registry.register(new Identifier("eypipes", "big_smoke_ring_0"));
+            registry.register(new Identifier("eypipes", "big_smoke_ring_1"));
+            registry.register(new Identifier("eypipes", "big_smoke_ring_2"));
+            registry.register(new Identifier("eypipes", "big_smoke_ring_3"));
+            registry.register(new Identifier("eypipes", "big_smoke_ring_4"));
+            registry.register(new Identifier("eypipes", "big_smoke_ring_5"));
+            registry.register(new Identifier("eypipes", "big_smoke_ring_6"));
+            registry.register(new Identifier("eypipes", "big_smoke_ring_7"));
+            registry.register(new Identifier("eypipes", "big_smoke_ring_8"));
+            registry.register(new Identifier("eypipes", "big_smoke_ring_9"));
+            registry.register(new Identifier("eypipes", "big_smoke_ring_10"));
+            registry.register(new Identifier("eypipes", "big_smoke_ring_11"));
         }));
         
         // Register particle factory for ring of smoke

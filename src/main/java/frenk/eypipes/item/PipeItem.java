@@ -113,17 +113,43 @@ public class PipeItem extends TrinketItem {
     }
 
     public void spawnSmoke(int remainingUseTicks, LivingEntity user, World world){
-        float f = (float) (USAGE_TIME - remainingUseTicks) / 500;
-        Vec3d vec = user.getRotationVec(1.0F);
-        world.addParticle(EyPipesParticleTypes.RING_OF_SMOKE,
-                user.getX() + vec.x * 0.5,
-                user.getY() + user.getEyeHeight(user.getPose()) + vec.y * 0.5,
-                user.getZ() + vec.z * 0.5,
-                vec.x * f, vec.y *f, vec.z *f);
-        //https://pixabay.com/service/license-summary/
-        //https://pixabay.com//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=106654"
-        world.playSound(null, user.getX(), user.getY(), user.getZ(), EyPipesSound.PIPE_EXHALE, SoundCategory.PLAYERS, 1.0F, 1.0F);
+        if (world.isClient) { // Only spawn particles on client side
+            float f = (float) (USAGE_TIME - remainingUseTicks) / 700;
+            Vec3d vec = user.getRotationVec(1.0F);
+            
+            // Method 2: Spawn particles with scheduled delays using separate threads
+            for (int i = 0; i < 3; i++) {
+                final int particleIndex = i;
+                final double offsetMultiplier = 0.4 + (particleIndex * 0.1); // Slight position variation
+                final double vecX = vec.x;
+                final double vecY = vec.y;
+                final double vecZ = vec.z;
+                
+                // Schedule each particle with increasing delay (0ms, 5ms, 10ms)
+                new Thread(() -> {
+                    try {
+                        Thread.sleep(particleIndex * 1000);
+                        
+                        world.addParticle(EyPipesParticleTypes.RING_OF_SMOKE,
+                                user.getX() + vecX * offsetMultiplier,
+                                user.getY() + user.getEyeHeight(user.getPose()) + vecY * offsetMultiplier,
+                                user.getZ() + vecZ * offsetMultiplier,
+                                vecX * f, vecY * f, vecZ * f);
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                    }
+                }).start();
+            }
+        }
+        
+        // Sound should be played on server side
+        if (!world.isClient) {
+            //https://pixabay.com/service/license-summary/
+            //https://pixabay.com//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=106654"
+            world.playSound(null, user.getX(), user.getY(), user.getZ(), EyPipesSound.PIPE_EXHALE, SoundCategory.PLAYERS, 1.0F, 1.0F);
+        }
     }
+
     @Override
     public UseAction getUseAction(ItemStack stack) {
         return this.smoking ? UseAction.TOOT_HORN : UseAction.NONE;
@@ -132,5 +158,4 @@ public class PipeItem extends TrinketItem {
     public boolean isSmoking() {
         return this.smoking;
     }
-    
 }
