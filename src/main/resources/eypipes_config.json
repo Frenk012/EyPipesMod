@@ -85,5 +85,50 @@
     "_debug_logging_description": "Whether to enable detailed debug logging",
     "show_growth_particles": false,
     "_growth_particles_description": "Whether to show particles when crops grow"
+  },
+  
+  "animation_settings": {
+    "_comment": "Settings for pipe smoking animation",
+    "curve_multiplier": 0.1,
+    "_curve_multiplier_description": "Controls animation timing curve (0.1-1.0, lower = slower)",
+    "first_person": {
+      "_comment": "Animation settings for first-person view",
+      "y_translation": 0.1,
+      "z_translation": 0.25,
+      "x_translation": 0.0,
+      "x_rotation": 15.0,
+      "y_rotation": 10.0,
+      "z_rotation": -5.0
+    },
+    "third_person": {
+      "_comment": "Animation settings for third-person view",
+      "y_translation": 0.05,
+      "z_translation": 0.15,
+      "x_translation": 0.0,
+      "x_rotation": 8.0,
+      "y_rotation": 5.0,
+      "z_rotation": -3.0
+    },
+    "position_offsets": {
+      "_comment": "Position compensation offsets for different render modes",
+      "head_x": 1.0,
+      "head_y": 0.0,
+      "head_z": 0.0,
+      "fixed_x": -0.5,
+      "fixed_y": 0.0,
+      "fixed_z": 0.0,
+      "third_person_left_x": 0.25,
+      "third_person_left_y": 0.0,
+      "third_person_left_z": 0.0,
+      "first_person_right_x": 0.7,
+      "first_person_right_y": 0.2,
+      "first_person_right_z": 0.0
+    },
+    "delay_ticks": 5,
+    "_delay_ticks_description": "Delay before animation starts (in ticks)",
+    "duration_seconds": 0.8,
+    "_duration_seconds_description": "Time for full animation to complete",
+    "enable_rotation": true,
+    "_enable_rotation_description": "Whether to enable rotation animations"
   }
 }

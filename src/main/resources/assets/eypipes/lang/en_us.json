@@ -5,10 +5,7 @@
     "item.eypipes.erbapipa_seeds": "Erbapipa Seeds",
     "item.eypipes.pipe": "Pipe",
     "item.eypipes.drying_rack_erb": "Erbapipa Drying Rack",
-    "item.eypipes.processor": "Processor",
     "block.eypipes.erbapipa_crop": "Erbapipa Crop",
     "block.eypipes.drying_rack_erb": "Erbapipa Drying Rack",
-    "block.eypipes.processor": "Processor",
-    "container.eypipes.processor": "Processor",
     "itemGroup.eypipes.ey_pipes_group": "EyPipes"
 }

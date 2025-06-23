@@ -6,6 +6,13 @@
 		"0": "eypipes:item/pipe",
 		"particle": "eypipes:item/pipe"
 	},
+	"gui_light": "front",
+	"overrides": [
+		{
+			"predicate": {},
+			"model": "builtin/entity"
+		}
+	],
 	"elements": [
 		{
 			"from": [7, 3, 0],

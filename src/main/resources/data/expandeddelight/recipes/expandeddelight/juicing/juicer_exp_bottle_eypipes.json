@@ -1,0 +1,17 @@
+{
+  "type": "expandeddelight:juicing",
+  "ingredients": [
+    {
+      "item": "eypipes:erbapipa_cutted"
+    },
+    {
+      "item": "minecraft:glass_bottle"
+    }
+  ],
+  "container": {
+    "item": "eypipes:erbapipa_cutted"  
+  },
+  "output": {
+    "item": "minecraft:experience_bottle"
+  }
+}

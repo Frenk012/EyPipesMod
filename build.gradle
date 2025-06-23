@@ -54,6 +54,7 @@ dependencies {
 
 	modImplementation "curse.maven:farmers-delight-fabric-482834:4634237"
 	modImplementation "curse.maven:trinkets-341284:4100104"
+	modImplementation "curse.maven:expanded-delight-620770:4409058"
 }
 
 processResources {

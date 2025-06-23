@@ -1,7 +1,5 @@
 package frenk.eypipes;
 
-import frenk.eypipes.block.ProcessorBlock;
-import frenk.eypipes.block.entity.ProcessorBlockEntity;
 import net.minecraft.util.registry.Registry;
 
 import net.minecraft.block.Block;
@@ -18,22 +16,14 @@ public class PipesEntities {
         EyPipes.LOGGER.info("Initializing Pipes Entities!");
     }
     public static BlockEntityType<DryingRackErbBlockEntity> DRYING_RACK_ENTITY;
-    public static BlockEntityType<ProcessorBlockEntity> PROCESSOR_ENTITY;
 
     public static final Identifier DRYING_RACK_ID = new Identifier(EyPipes.MOD_ID, "drying_rack_erb");
     public static final Block DRYING_RACK = new DryingRackErbBlock(FabricBlockSettings.of(Material.WOOD).strength(1.0f).nonOpaque().noCollision());
-    
-    public static final Identifier PROCESSOR_ID = new Identifier(EyPipes.MOD_ID, "processor");
-    public static final Block PROCESSOR = new ProcessorBlock(FabricBlockSettings.of(Material.METAL).strength(3.5f).requiresTool());
     
     public static void registerBlocks() {
         Registry.register(Registry.BLOCK, DRYING_RACK_ID, DRYING_RACK);
         Registry.register(Registry.ITEM, DRYING_RACK_ID,
             new BlockItem(DRYING_RACK, new FabricItemSettings().group(EyPipes.EY_PIPES_GROUP)));
-        
-        Registry.register(Registry.BLOCK, PROCESSOR_ID, PROCESSOR);
-        Registry.register(Registry.ITEM, PROCESSOR_ID,
-            new BlockItem(PROCESSOR, new FabricItemSettings().group(EyPipes.EY_PIPES_GROUP)));
     }
 
     public static void registerBlockEntities() {
@@ -41,12 +31,6 @@ public class PipesEntities {
             Registry.BLOCK_ENTITY_TYPE,
             DRYING_RACK_ID,
             FabricBlockEntityTypeBuilder.create(DryingRackErbBlockEntity::new, DRYING_RACK).build(null)
-        );
-        
-        PROCESSOR_ENTITY = Registry.register(
-            Registry.BLOCK_ENTITY_TYPE,
-            PROCESSOR_ID,
-            FabricBlockEntityTypeBuilder.create(ProcessorBlockEntity::new, PROCESSOR).build(null)
         );
     }
 }
