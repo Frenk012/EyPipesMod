@@ -93,12 +93,16 @@
     "_curve_multiplier_description": "Controls animation timing curve (0.1-1.0, lower = slower)",
     "first_person": {
       "_comment": "Animation settings for first-person view",
-      "y_translation": 0.1,
+      "curve_multiplier": 0.2,
+      "y_translation": 0.3,
       "z_translation": 0.25,
       "x_translation": 0.0,
-      "x_rotation": 15.0,
-      "y_rotation": 10.0,
-      "z_rotation": -5.0
+      "x_rotation": 25.0,
+      "y_rotation": 20.0,
+      "z_rotation": 20.0,
+      "delay_ticks": 1,
+      "duration_seconds": 1.0,
+      "enable_rotation": true
     },
     "third_person": {
       "_comment": "Animation settings for third-person view",

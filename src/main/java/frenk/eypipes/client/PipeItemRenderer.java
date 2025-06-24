@@ -1,5 +1,7 @@
 package frenk.eypipes.client;
 
+import frenk.eypipes.EyPipesClient;
+import frenk.eypipes.config.EyPipesConfig;
 import frenk.eypipes.item.PipeItem;
 import net.fabricmc.fabric.api.client.rendering.v1.BuiltinItemRendererRegistry;
 import net.minecraft.client.MinecraftClient;
@@ -90,35 +92,49 @@ public class PipeItemRenderer implements BuiltinItemRendererRegistry.DynamicItem
         // These values counteract the translation values in pipe.json's display section
         switch (mode) {
             case HEAD -> {
-                matrices.translate(1.0f, 0.0f, 0.0f);
+                matrices.translate(EyPipesConfig.OFFSET_HEAD_X, EyPipesConfig.OFFSET_HEAD_Y, EyPipesConfig.OFFSET_HEAD_Z);
             }
             case FIXED -> {
-                matrices.translate(-0.5f, 0.0f, 0.0f);
+                matrices.translate(EyPipesConfig.OFFSET_FIXED_X, EyPipesConfig.OFFSET_FIXED_Y, EyPipesConfig.OFFSET_FIXED_Z);
+            }
+            case THIRD_PERSON_RIGHT_HAND -> {
+                matrices.translate(EyPipesConfig.OFFSET_THIRD_PERSON_LEFT_X, EyPipesConfig.OFFSET_THIRD_PERSON_LEFT_Y, EyPipesConfig.OFFSET_THIRD_PERSON_LEFT_Z);
             }
             case THIRD_PERSON_LEFT_HAND -> {
-                matrices.translate(0.25f, 0.0f, 0.0f);
+                matrices.translate(EyPipesConfig.OFFSET_THIRD_PERSON_LEFT_X, EyPipesConfig.OFFSET_THIRD_PERSON_LEFT_Y, EyPipesConfig.OFFSET_THIRD_PERSON_LEFT_Z);
+            }
+            case FIRST_PERSON_LEFT_HAND -> {
+                matrices.translate(EyPipesConfig.OFFSET_FIRST_PERSON_RIGHT_X, EyPipesConfig.OFFSET_FIRST_PERSON_RIGHT_Y, EyPipesConfig.OFFSET_FIRST_PERSON_RIGHT_Z);
             }
             case FIRST_PERSON_RIGHT_HAND -> {
-                matrices.translate(0.7f, 0.2f, 0.0f);
+                matrices.translate(EyPipesConfig.OFFSET_FIRST_PERSON_RIGHT_X, EyPipesConfig.OFFSET_FIRST_PERSON_RIGHT_Y, EyPipesConfig.OFFSET_FIRST_PERSON_RIGHT_Z);
             }
-            case GUI, THIRD_PERSON_RIGHT_HAND, FIRST_PERSON_LEFT_HAND, NONE, GROUND -> {
+            case GUI -> {
+                matrices.translate(EyPipesConfig.OFFSET_FIRST_PERSON_RIGHT_X, EyPipesConfig.OFFSET_FIRST_PERSON_RIGHT_Y, EyPipesConfig.OFFSET_FIRST_PERSON_RIGHT_Z);
+            }
+            case NONE, GROUND -> {
                 // These modes don't need compensation as they don't have problematic offsets in the model
             }
         }
     }
     
     private void applyFirstPersonAnimation(MatrixStack matrices, float progress) {
-        // Smooth animation curve
-        float smoothProgress = MathHelper.sin(progress * (float) Math.PI * 0.5f);
+        // Smooth animation curve using configurable multiplier
+        float smoothProgress = MathHelper.sin(progress * (float) Math.PI * (float) EyPipesConfig.FIRST_PERSON_CURVE_MULTIPLIER);
         
-        // Move the pipe from standard hand position to face
-        // Standard position adjustments
-        matrices.translate(0, 0.1f * smoothProgress, 0.25f * smoothProgress);
+        // Move the pipe from standard hand position to face using configurable values
+        matrices.translate(
+            EyPipesConfig.FIRST_PERSON_X_TRANSLATION * smoothProgress,
+            EyPipesConfig.FIRST_PERSON_Y_TRANSLATION * smoothProgress,
+            EyPipesConfig.FIRST_PERSON_Z_TRANSLATION * smoothProgress
+        );
         
-        // Rotate to bring the tip towards the face
-        matrices.multiply(Vec3f.POSITIVE_X.getDegreesQuaternion(15.0f * smoothProgress));
-        matrices.multiply(Vec3f.POSITIVE_Y.getDegreesQuaternion(10.0f * smoothProgress));
-        matrices.multiply(Vec3f.POSITIVE_Z.getDegreesQuaternion(-5.0f * smoothProgress));
+        // Rotate to bring the tip towards the face (if enabled)
+        if (EyPipesConfig.FIRST_PERSON_ENABLE_ROTATION) {
+            matrices.multiply(Vec3f.POSITIVE_X.getDegreesQuaternion(EyPipesConfig.FIRST_PERSON_X_ROTATION * smoothProgress));
+            matrices.multiply(Vec3f.POSITIVE_Y.getDegreesQuaternion(EyPipesConfig.FIRST_PERSON_Y_ROTATION * smoothProgress));
+            matrices.multiply(Vec3f.POSITIVE_Z.getDegreesQuaternion(EyPipesConfig.FIRST_PERSON_Z_ROTATION * smoothProgress));
+        }
     }
     
 

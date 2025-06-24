@@ -64,13 +64,13 @@ public class EyPipesConfig {
     public static boolean ENABLE_ROTATION_ANIMATION = true;
     
     // First Person Animation Settings
-    public static float FIRST_PERSON_CURVE_MULTIPLIER = 1.0f;
-    public static float FIRST_PERSON_Y_TRANSLATION = 0.1f;
+    public static float FIRST_PERSON_CURVE_MULTIPLIER = 0.2f;
+    public static float FIRST_PERSON_Y_TRANSLATION = 0.3f;
     public static float FIRST_PERSON_Z_TRANSLATION = 0.25f;
     public static float FIRST_PERSON_X_TRANSLATION = 0.0f;
-    public static float FIRST_PERSON_X_ROTATION = 15.0f;
-    public static float FIRST_PERSON_Y_ROTATION = 10.0f;
-    public static float FIRST_PERSON_Z_ROTATION = -5.0f;
+    public static float FIRST_PERSON_X_ROTATION = 25.0f;
+    public static float FIRST_PERSON_Y_ROTATION = 20.0f;
+    public static float FIRST_PERSON_Z_ROTATION = 20.0f;
     public static int FIRST_PERSON_DELAY_TICKS = 1;
     public static float FIRST_PERSON_DURATION_SECONDS = 1.0f;
     public static boolean FIRST_PERSON_ENABLE_ROTATION = true;

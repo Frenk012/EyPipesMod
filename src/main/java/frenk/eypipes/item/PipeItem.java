@@ -62,7 +62,7 @@ public class PipeItem extends TrinketItem {
             user.setCurrentHand(hand);
             this.smoking = true;
             user.incrementStat(Stats.USED.getOrCreateStat(this));
-            itemStack.setDamage(itemStack.getDamage() + 1);
+            itemStack.setDamage(itemStack.getDamage() + 10);
         }
         return TypedActionResult.consume(itemStack);
     }
@@ -114,7 +114,7 @@ public class PipeItem extends TrinketItem {
 
     public void spawnSmoke(int remainingUseTicks, LivingEntity user, World world){
         if (world.isClient) { // Only spawn particles on client side
-            float f = (float) (USAGE_TIME - remainingUseTicks) / 700;
+            float f = (float) (USAGE_TIME - remainingUseTicks) / 600;
             Vec3d vec = user.getRotationVec(1.0F);
             
             // Method 2: Spawn particles with scheduled delays using separate threads
