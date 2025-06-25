@@ -1,6 +1,5 @@
 package frenk.eypipes.client;
 
-import frenk.eypipes.EyPipesClient;
 import frenk.eypipes.config.EyPipesConfig;
 import frenk.eypipes.item.PipeItem;
 import net.fabricmc.fabric.api.client.rendering.v1.BuiltinItemRendererRegistry;

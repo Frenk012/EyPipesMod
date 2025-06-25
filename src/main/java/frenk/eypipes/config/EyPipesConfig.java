@@ -74,6 +74,7 @@ public class EyPipesConfig {
     public static int FIRST_PERSON_DELAY_TICKS = 1;
     public static float FIRST_PERSON_DURATION_SECONDS = 1.0f;
     public static boolean FIRST_PERSON_ENABLE_ROTATION = true;
+    public static double PIPE_LENGTH = 1.4; // Length from hand to tip for particle calculations
     
     // Third Person Animation Settings
     public static float THIRD_PERSON_CURVE_MULTIPLIER = 1.0f;
@@ -203,6 +204,7 @@ public class EyPipesConfig {
                     FIRST_PERSON_DELAY_TICKS = getIntOrDefault(firstPersonSettings, "delay_ticks", 1);
                     FIRST_PERSON_DURATION_SECONDS = (float) getDoubleOrDefault(firstPersonSettings, "duration_seconds", 1.0);
                     FIRST_PERSON_ENABLE_ROTATION = getBooleanOrDefault(firstPersonSettings, "enable_rotation", true);
+                    PIPE_LENGTH = getDoubleOrDefault(firstPersonSettings, "pipe_length", 1.4);
                 }
                 
                 // Load third person animation settings
