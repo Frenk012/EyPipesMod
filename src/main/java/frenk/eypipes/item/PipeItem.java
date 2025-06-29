@@ -44,6 +44,29 @@ public class PipeItem extends TrinketItem {
     @Override
     public TypedActionResult<ItemStack> use(World world, PlayerEntity user, Hand hand) {
         ItemStack itemStack = user.getStackInHand(hand);
+        
+        // Check for shift+right-click with erbapipa_cutted in off-hand for durability repair
+        if (user.isSneaking() && hand == Hand.MAIN_HAND) {
+            ItemStack offHandStack = user.getStackInHand(Hand.OFF_HAND);
+            if (offHandStack.getItem() == EyPipesItems.ERBAPIPA_CUTTED && itemStack.isDamageable()) {
+                // Increase durability by 10 (decrease damage by 10)
+                int currentDamage = itemStack.getDamage();
+                int newDamage = Math.max(0, currentDamage - 10);
+                itemStack.setDamage(newDamage);
+                
+                // Consume one erbapipa_cutted
+                if (!user.isCreative()) {
+                    offHandStack.decrement(1);
+                }
+                
+                // Play repair sound and set cooldown
+                world.playSound(null, user.getX(), user.getY(), user.getZ(), EyPipesSound.PIPE_REFILL, SoundCategory.PLAYERS, 1.0F, 1.2F);
+                user.getItemCooldownManager().set(this, 20);
+                
+                return TypedActionResult.success(itemStack);
+            }
+        }
+        
         if (itemStack.isDamageable() && itemStack.getDamage() >= itemStack.getMaxDamage()) {
             ItemStack driedErbapipaStack = user.getInventory().main.stream()
                     .filter(stack -> stack.getItem() == EyPipesItems.ERBAPIPA_DRIED)
