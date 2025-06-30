@@ -8,7 +8,6 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.particle.ParticleTypes;
-import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.util.Hand;
 import net.minecraft.util.TypedActionResult;
@@ -109,22 +108,36 @@ public class PipeItem extends TrinketItem {
             int frequency = Math.max(4, (int) Math.pow((USAGE_TIME - totalTicks) / 10.0, 2));
             if (remainingUseTicks % frequency == 0) {
                 // Spawn particles on client side to sync with visual animation
-                if (world.isClient) {
-                    // Calculate animated pipe position based on use time and animation progress
-                    Vec3d pipePosition = calculateAnimatedPipePosition(user, remainingUseTicks);
+                // Spawn particles on both client and server for multiplayer consistency
+                // Calculate animated pipe position based on use time and animation progress
+                Vec3d pipePosition = calculateAnimatedPipePosition(user, remainingUseTicks);
+                
+                // Get player's rotation vector for consistent positioning
+                Vec3d rotationVec = user.getRotationVec(1.0F);
+                
+                // Spawn particles with consistent positioning for all viewers
+                // Apply a standard offset that works well for third-person viewing
+                for (int i = 0; i < 15; i++) {
+                    // Calculate base particle position
+                    double particleX = pipePosition.x + (world.random.nextGaussian() * 0.02);
+                    double particleY = pipePosition.y + (world.random.nextGaussian() * 0.02);
+                    double particleZ = pipePosition.z + (world.random.nextGaussian() * 0.02);
                     
-                    // Spawn particles directly on client
-                    for (int i = 0; i < 10; i++) {
-                        world.addParticle(
-                                ParticleTypes.SMOKE,
-                                pipePosition.x + (world.random.nextGaussian() * 0.02),
-                                pipePosition.y + (world.random.nextGaussian() * 0.02),
-                                pipePosition.z + (world.random.nextGaussian() * 0.02),
-                                0, // Velocity X
-                                0.01, // Velocity Y (slight upward drift)
-                                0 // Velocity Z
-                        );
-                    }
+                    // Apply consistent offset for better visibility in third-person view
+                    // This ensures all players see particles in the same position
+                    particleX -= rotationVec.x * 1.0;
+                    particleY -= rotationVec.y * 1.0;
+                    particleZ -= rotationVec.z * 1.0;
+                    
+                    world.addParticle(
+                            ParticleTypes.SMOKE,
+                            particleX,
+                            particleY,
+                            particleZ,
+                            0.0001, // Velocity X
+                            0.01, // Velocity Y (reduced)
+                            0.0001 // Velocity Z
+                    );
                 }
             }
         }
@@ -227,7 +240,8 @@ public class PipeItem extends TrinketItem {
         // Apply animation translation offset (convert model space translation to world space)
         // Model space: X=right, Y=up, Z=forward (towards face)
         // Adjust coordinate mapping to fix "too high and too left" issue
-        Vec3d translationOffset = rightVec.multiply(-EyPipesConfig.FIRST_PERSON_X_TRANSLATION * smoothProgress) // Invert X to fix "too left"
+        // Add 0.5f offset to the right for smoke particle positioning
+        Vec3d translationOffset = rightVec.multiply(-EyPipesConfig.FIRST_PERSON_X_TRANSLATION * smoothProgress + 0.6f) // Invert X to fix "too left" + right offset
                                  .add(upVec.multiply(-EyPipesConfig.FIRST_PERSON_Y_TRANSLATION * smoothProgress)) // Invert Y to fix "too high"
                                  .add(lookVec.multiply(EyPipesConfig.FIRST_PERSON_Z_TRANSLATION * smoothProgress));
         
