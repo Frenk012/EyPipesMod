@@ -2,6 +2,8 @@ package frenk.eypipes.item;
 
 import net.minecraft.stat.Stats;
 
+import net.minecraft.client.MinecraftClient;
+
 import dev.emi.trinkets.api.TrinketItem;
 import net.fabricmc.fabric.api.item.v1.FabricItemSettings;
 import net.minecraft.entity.LivingEntity;
@@ -107,27 +109,34 @@ public class PipeItem extends TrinketItem {
             int totalTicks = USAGE_TIME - remainingUseTicks;
             int frequency = Math.max(4, (int) Math.pow((USAGE_TIME - totalTicks) / 10.0, 2));
             if (remainingUseTicks % frequency == 0) {
-                // Spawn particles on client side to sync with visual animation
-                // Spawn particles on both client and server for multiplayer consistency
+                // Spawn particles with different positioning for first-person vs third-person
                 // Calculate animated pipe position based on use time and animation progress
                 Vec3d pipePosition = calculateAnimatedPipePosition(user, remainingUseTicks);
                 
-                // Get player's rotation vector for consistent positioning
+                // Get player's rotation vector for positioning
                 Vec3d rotationVec = user.getRotationVec(1.0F);
                 
-                // Spawn particles with consistent positioning for all viewers
-                // Apply a standard offset that works well for third-person viewing
+                // Check if this is the current player (first-person) or another player (third-person)
+                boolean isCurrentPlayer = world.isClient && user == MinecraftClient.getInstance().player;
+                
                 for (int i = 0; i < 15; i++) {
                     // Calculate base particle position
                     double particleX = pipePosition.x + (world.random.nextGaussian() * 0.02);
                     double particleY = pipePosition.y + (world.random.nextGaussian() * 0.02);
                     double particleZ = pipePosition.z + (world.random.nextGaussian() * 0.02);
                     
-                    // Apply consistent offset for better visibility in third-person view
-                    // This ensures all players see particles in the same position
-                    particleX -= rotationVec.x * 1.0;
-                    particleY -= rotationVec.y * 1.0;
-                    particleZ -= rotationVec.z * 1.0;
+                    // Apply different offsets based on perspective
+                    if (isCurrentPlayer) {
+                        // For first-person view: move particles forward (towards where player is looking)
+                        particleX += rotationVec.x * 0.01;
+                        particleY += rotationVec.y * 0.01;
+                        particleZ += rotationVec.z * 0.2;
+                    } else {
+                        // For third-person view: move particles back for better visibility
+                        particleX -= rotationVec.x * 1.0;
+                        particleY -= rotationVec.y * 1.0;
+                        particleZ -= rotationVec.z * 1.0;
+                    }
                     
                     world.addParticle(
                             ParticleTypes.SMOKE,
