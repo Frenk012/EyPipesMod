@@ -97,7 +97,7 @@ public class PipeItemRenderer implements BuiltinItemRendererRegistry.DynamicItem
                 matrices.translate(EyPipesConfig.OFFSET_FIXED_X, EyPipesConfig.OFFSET_FIXED_Y, EyPipesConfig.OFFSET_FIXED_Z);
             }
             case THIRD_PERSON_RIGHT_HAND -> {
-                matrices.translate(EyPipesConfig.OFFSET_THIRD_PERSON_LEFT_X, EyPipesConfig.OFFSET_THIRD_PERSON_LEFT_Y, EyPipesConfig.OFFSET_THIRD_PERSON_LEFT_Z);
+                matrices.translate(EyPipesConfig.OFFSET_THIRD_PERSON_RIGHT_X, EyPipesConfig.OFFSET_THIRD_PERSON_RIGHT_Y, EyPipesConfig.OFFSET_THIRD_PERSON_RIGHT_Z);
             }
             case THIRD_PERSON_LEFT_HAND -> {
                 matrices.translate(EyPipesConfig.OFFSET_THIRD_PERSON_LEFT_X, EyPipesConfig.OFFSET_THIRD_PERSON_LEFT_Y, EyPipesConfig.OFFSET_THIRD_PERSON_LEFT_Z);

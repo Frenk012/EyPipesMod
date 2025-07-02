@@ -73,8 +73,6 @@
   
   "integration_settings": {
     "_comment": "Settings for mod integration",
-    "farmers_delight_integration": true,
-    "_farmers_delight_description": "Whether to enable Farmer's Delight integration features",
     "jei_integration": true,
     "_jei_description": "Whether to show recipes in JEI (Just Enough Items)"
   },
@@ -125,6 +123,9 @@
       "third_person_left_x": 0.25,
       "third_person_left_y": 0.0,
       "third_person_left_z": 0.0,
+      "third_person_right_x": 0.7,
+      "third_person_right_y": 0.2,
+      "third_person_right_z": 0.0,
       "first_person_right_x": 0.7,
       "first_person_right_y": 0.2,
       "first_person_right_z": 0.0

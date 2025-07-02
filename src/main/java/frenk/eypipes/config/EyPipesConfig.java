@@ -101,6 +101,9 @@ public class EyPipesConfig {
     public static float OFFSET_FIRST_PERSON_RIGHT_X = 0.7f;
     public static float OFFSET_FIRST_PERSON_RIGHT_Y = 0.2f;
     public static float OFFSET_FIRST_PERSON_RIGHT_Z = 0.0f;
+    public static float OFFSET_THIRD_PERSON_RIGHT_X = 0.7f;
+    public static float OFFSET_THIRD_PERSON_RIGHT_Y = 0.2f;
+    public static float OFFSET_THIRD_PERSON_RIGHT_Z = 0.0f;
     
     public static void loadConfig() {
         try {
@@ -234,6 +237,9 @@ public class EyPipesConfig {
                     OFFSET_THIRD_PERSON_LEFT_X = (float) getDoubleOrDefault(offsetSettings, "third_person_left_x", 0.25);
                     OFFSET_THIRD_PERSON_LEFT_Y = (float) getDoubleOrDefault(offsetSettings, "third_person_left_y", 0.0);
                     OFFSET_THIRD_PERSON_LEFT_Z = (float) getDoubleOrDefault(offsetSettings, "third_person_left_z", 0.0);
+                    OFFSET_THIRD_PERSON_RIGHT_X = (float) getDoubleOrDefault(offsetSettings, "third_person_right_x", 0.7);
+                    OFFSET_THIRD_PERSON_RIGHT_Y = (float) getDoubleOrDefault(offsetSettings, "third_person_right_y", 0.2);
+                    OFFSET_THIRD_PERSON_RIGHT_Z = (float) getDoubleOrDefault(offsetSettings, "third_person_right_z", 0.0);
                     OFFSET_FIRST_PERSON_RIGHT_X = (float) getDoubleOrDefault(offsetSettings, "first_person_right_x", 0.7);
                     OFFSET_FIRST_PERSON_RIGHT_Y = (float) getDoubleOrDefault(offsetSettings, "first_person_right_y", 0.2);
                     OFFSET_FIRST_PERSON_RIGHT_Z = (float) getDoubleOrDefault(offsetSettings, "first_person_right_z", 0.0);
