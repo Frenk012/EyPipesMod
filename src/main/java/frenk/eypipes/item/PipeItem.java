@@ -3,7 +3,6 @@ package frenk.eypipes.item;
 import net.minecraft.stat.Stats;
 
 import net.minecraft.client.MinecraftClient;
-
 import dev.emi.trinkets.api.TrinketItem;
 import net.fabricmc.fabric.api.item.v1.FabricItemSettings;
 import net.minecraft.entity.LivingEntity;
@@ -109,44 +108,22 @@ public class PipeItem extends TrinketItem {
             int totalTicks = USAGE_TIME - remainingUseTicks;
             int frequency = Math.max(4, (int) Math.pow((USAGE_TIME - totalTicks) / 10.0, 2));
             if (remainingUseTicks % frequency == 0) {
-                // Spawn particles with different positioning for first-person vs third-person
-                // Calculate animated pipe position based on use time and animation progress
-                Vec3d pipePosition = calculateAnimatedPipePosition(user, remainingUseTicks);
-                
-                // Get player's rotation vector for positioning
-                Vec3d rotationVec = user.getRotationVec(1.0F);
-                
                 // Check if this is the current player (first-person) or another player (third-person)
                 boolean isCurrentPlayer = world.isClient && user == MinecraftClient.getInstance().player;
+
+                // For third-person view or other players, keep Y position fixed (ignore vertical look direction)
+                final double vecZ = user.getRotationVec(1.0F).z;
                 
-                for (int i = 0; i < 15; i++) {
-                    // Calculate base particle position
-                    double particleX = pipePosition.x + (world.random.nextGaussian() * 0.02);
-                    double particleY = pipePosition.y + (world.random.nextGaussian() * 0.02);
-                    double particleZ = pipePosition.z + (world.random.nextGaussian() * 0.02);
-                    
-                    // Apply different offsets based on perspective
-                    if (isCurrentPlayer) {
-                        // For first-person view: move particles forward (towards where player is looking)
-                        particleX += rotationVec.x * 0.01;
-                        particleY += rotationVec.y * 0.01;
-                        particleZ += rotationVec.z * 0.2;
-                    } else {
-                        // For third-person view: move particles back for better visibility
-                        particleX -= rotationVec.x * 1.0;
-                        particleY -= rotationVec.y * 1.0;
-                        particleZ -= rotationVec.z * 1.0;
-                    }
-                    
-                    world.addParticle(
-                            ParticleTypes.SMOKE,
-                            particleX,
-                            particleY,
-                            particleZ,
-                            0.0001, // Velocity X
-                            0.01, // Velocity Y (reduced)
-                            0.0001 // Velocity Z
-                    );
+                for (int i = 0; i < 10; i++) {
+                    final double vecX = user.getRotationVec(1.0F).x;
+                    final double vecY = user.getRotationVec(1.0F).y + user.getEyeHeight(user.getPose());
+
+                    world.addParticle(ParticleTypes.SMOKE,
+                            user.getX() + vecX + (world.random.nextGaussian() * 0.02),
+                            user.getY() + vecY + (world.random.nextGaussian() * 0.02),
+                            user.getZ() + vecZ + (world.random.nextGaussian() * 0.02),
+                            0.001, 0.01, 0.001
+                            );
                 }
             }
         }
@@ -167,21 +144,22 @@ public class PipeItem extends TrinketItem {
     public void spawnSmoke(int remainingUseTicks, LivingEntity user, World world){
         if (world.isClient) { // Only spawn particles on client side
             float f = (float) (USAGE_TIME - remainingUseTicks) / 600;
-            Vec3d vec = user.getRotationVec(1.0F);
+            
             
             // Method 2: Spawn particles with scheduled delays using separate threads
             for (int i = 0; i < 3; i++) {
                 final int particleIndex = i;
                 final double offsetMultiplier = 0.4 + (particleIndex * 0.1); // Slight position variation
-                final double vecX = vec.x;
-                final double vecY = vec.y;
-                final double vecZ = vec.z;
                 
                 // Schedule each particle with increasing delay (0ms, 5ms, 10ms)
                 new Thread(() -> {
                     try {
                         Thread.sleep(particleIndex * 1000);
-                        
+                        Vec3d vec = user.getRotationVec(1.0F);
+                        final double vecX = vec.x;
+                        final double vecY = vec.y;
+                        final double vecZ = vec.z;
+
                         world.addParticle(EyPipesParticleTypes.RING_OF_SMOKE,
                                 user.getX() + vecX * offsetMultiplier,
                                 user.getY() + user.getEyeHeight(user.getPose()) + vecY * offsetMultiplier,
