@@ -105,6 +105,11 @@ public class EyPipesConfig {
     public static float OFFSET_THIRD_PERSON_RIGHT_Y = 0.2f;
     public static float OFFSET_THIRD_PERSON_RIGHT_Z = 0.0f;
     
+    // Particle Offset Settings
+    public static double PARTICLE_OFFSET_X = -0.5;
+    public static double PARTICLE_OFFSET_Y = -0.1;
+    public static double PARTICLE_OFFSET_Z = 0.0;
+    
     public static void loadConfig() {
         try {
             if (!Files.exists(CONFIG_PATH)) {
@@ -243,6 +248,14 @@ public class EyPipesConfig {
                     OFFSET_FIRST_PERSON_RIGHT_X = (float) getDoubleOrDefault(offsetSettings, "first_person_right_x", 0.7);
                     OFFSET_FIRST_PERSON_RIGHT_Y = (float) getDoubleOrDefault(offsetSettings, "first_person_right_y", 0.2);
                     OFFSET_FIRST_PERSON_RIGHT_Z = (float) getDoubleOrDefault(offsetSettings, "first_person_right_z", 0.0);
+                }
+                
+                // Load particle offset settings
+                if (animationSettings.has("particle_offsets")) {
+                    JsonObject particleSettings = animationSettings.getAsJsonObject("particle_offsets");
+                    PARTICLE_OFFSET_X = getDoubleOrDefault(particleSettings, "offset_x", -0.5);
+                    PARTICLE_OFFSET_Y = getDoubleOrDefault(particleSettings, "offset_y", -0.1);
+                    PARTICLE_OFFSET_Z = getDoubleOrDefault(particleSettings, "offset_z", 0.0);
                 }
                 
                 EyPipes.LOGGER.info("Loaded animation settings - FP Y_ROT: " + FIRST_PERSON_Y_ROTATION + ", TP Y_ROT: " + THIRD_PERSON_Y_ROTATION + ", DELAY: " + ANIMATION_DELAY_TICKS);

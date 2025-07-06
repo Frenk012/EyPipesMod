@@ -111,17 +111,35 @@ public class PipeItem extends TrinketItem {
                 // Check if this is the current player (first-person) or another player (third-person)
                 boolean isCurrentPlayer = world.isClient && user == MinecraftClient.getInstance().player;
 
-                // For third-person view or other players, keep Y position fixed (ignore vertical look direction)
-                final double vecZ = user.getRotationVec(1.0F).z;
+                // Spawn particles at configurable offset relative to player's face orientation
+                Vec3d lookVec = user.getRotationVec(1.0F);
                 
-                for (int i = 0; i < 10; i++) {
-                    final double vecX = user.getRotationVec(1.0F).x;
-                    final double vecY = user.getRotationVec(1.0F).y + user.getEyeHeight(user.getPose());
-
+                // Create local coordinate system relative to player's face
+                Vec3d rightVec = new Vec3d(-lookVec.z, 0, lookVec.x).normalize(); // Right vector (perpendicular to look direction)
+                Vec3d upVec = rightVec.crossProduct(lookVec).normalize(); // Up vector (perpendicular to both)
+                
+                // Base position at player's eye level
+                Vec3d basePos = new Vec3d(user.getX(), user.getY() + user.getEyeHeight(user.getPose()), user.getZ());
+                
+                for(int i = 0; i < 20; i++) 
+                {
+                    // Apply configurable offsets in local coordinate system:
+                    // PARTICLE_OFFSET_X: forward/backward (positive = forward)
+                    // PARTICLE_OFFSET_Y: right/left (positive = right)
+                    // PARTICLE_OFFSET_Z: up/down (positive = up)
+                    Vec3d offsetPos = basePos
+                        .add(lookVec.multiply(EyPipesConfig.PARTICLE_OFFSET_X))  // Forward/backward offset
+                        .add(rightVec.multiply(EyPipesConfig.PARTICLE_OFFSET_Y)) // Right/left offset
+                        .add(upVec.multiply(EyPipesConfig.PARTICLE_OFFSET_Z));   // Up/down offset
+                    
+                    // Add random variation
+                    double particleX = offsetPos.x + (world.random.nextGaussian() * 0.02);
+                    double particleY = offsetPos.y + (world.random.nextGaussian() * 0.02);
+                    double particleZ = offsetPos.z + (world.random.nextGaussian() * 0.02);
                     world.addParticle(ParticleTypes.SMOKE,
-                            user.getX() + vecX + (world.random.nextGaussian() * 0.02),
-                            user.getY() + vecY + (world.random.nextGaussian() * 0.02),
-                            user.getZ() + vecZ + (world.random.nextGaussian() * 0.02),
+                            particleX,
+                            particleY,
+                            particleZ,
                             0.001, 0.01, 0.001
                             );
                 }

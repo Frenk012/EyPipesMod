@@ -130,6 +130,11 @@
       "first_person_right_y": 0.2,
       "first_person_right_z": 0.0
     },
+    "particle_offsets": {
+      "offset_x": -0.5,
+      "offset_y": -0.1,
+      "offset_z": 0.0
+    },
     "delay_ticks": 5,
     "_delay_ticks_description": "Delay before animation starts (in ticks)",
     "duration_seconds": 0.8,

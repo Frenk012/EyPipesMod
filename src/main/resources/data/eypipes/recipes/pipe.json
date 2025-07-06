@@ -1,13 +1,22 @@
 {
   "type": "minecraft:crafting_shaped",
   "pattern": [
-    " II",
-    " I ",
-    "II "
+    "  S",
+    "ES ",
+    "BI "
   ],
   "key": {
+    "S": {
+      "item": "minecraft:stick"
+    },
+    "B": {
+      "item": "minecraft:bowl"
+    },
     "I": {
       "item": "minecraft:iron_ingot"
+    },
+    "E": {
+      "item": "eypipes:erbapipa_cutted"
     }
   },
   "result": {
