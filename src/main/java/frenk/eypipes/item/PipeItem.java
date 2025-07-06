@@ -16,6 +16,7 @@ import net.minecraft.util.UseAction;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
+import net.minecraft.server.world.ServerWorld;
 import frenk.eypipes.config.EyPipesConfig;
 import frenk.eypipes.particles.EyPipesParticleTypes;
 import frenk.eypipes.sound.EyPipesSound;
@@ -60,7 +61,7 @@ public class PipeItem extends TrinketItem {
                 }
                 
                 // Play repair sound and set cooldown
-                world.playSound(null, user.getX(), user.getY(), user.getZ(), EyPipesSound.PIPE_REFILL, SoundCategory.PLAYERS, 1.0F, 1.2F);
+                // world.playSound(null, user.getX(), user.getY(), user.getZ(), EyPipesSound.PIPE_REFILL, SoundCategory.PLAYERS, 1.0F, 1.2F); // Sound file missing
                 user.getItemCooldownManager().set(this, 20);
                 
                 return TypedActionResult.success(itemStack);
@@ -80,10 +81,10 @@ public class PipeItem extends TrinketItem {
             driedErbapipaStack.decrement(1);
             itemStack.setDamage(0);
             ((PlayerEntity)user).getItemCooldownManager().set(this, 20);
-            world.playSound(null, user.getX(), user.getY(), user.getZ(), EyPipesSound.PIPE_REFILL, SoundCategory.PLAYERS, 1.0F, 1.0F);
+            // world.playSound(null, user.getX(), user.getY(), user.getZ(), EyPipesSound.PIPE_REFILL, SoundCategory.PLAYERS, 1.0F, 1.0F); // Sound file missing
         }
         else{
-            world.playSound(null, user.getX(), user.getY(), user.getZ(), EyPipesSound.PIPE_IGNITE, SoundCategory.PLAYERS, 1.0F, 1.0F);
+            // world.playSound(null, user.getX(), user.getY(), user.getZ(), EyPipesSound.PIPE_IGNITE, SoundCategory.PLAYERS, 1.0F, 1.0F); // Sound file missing
             user.setCurrentHand(hand);
             this.smoking = true;
             user.incrementStat(Stats.USED.getOrCreateStat(this));
@@ -108,21 +109,19 @@ public class PipeItem extends TrinketItem {
             int totalTicks = USAGE_TIME - remainingUseTicks;
             int frequency = Math.max(4, (int) Math.pow((USAGE_TIME - totalTicks) / 10.0, 2));
             if (remainingUseTicks % frequency == 0) {
-                // Check if this is the current player (first-person) or another player (third-person)
-                boolean isCurrentPlayer = world.isClient && user == MinecraftClient.getInstance().player;
-
-                // Spawn particles at configurable offset relative to player's face orientation
-                Vec3d lookVec = user.getRotationVec(1.0F);
-                
-                // Create local coordinate system relative to player's face
-                Vec3d rightVec = new Vec3d(-lookVec.z, 0, lookVec.x).normalize(); // Right vector (perpendicular to look direction)
-                Vec3d upVec = rightVec.crossProduct(lookVec).normalize(); // Up vector (perpendicular to both)
-                
-                // Base position at player's eye level
-                Vec3d basePos = new Vec3d(user.getX(), user.getY() + user.getEyeHeight(user.getPose()), user.getZ());
-                
-                for(int i = 0; i < 20; i++) 
-                {
+                // Spawn particles on server side so all players can see them
+                if (!world.isClient) {
+                    // Spawn particles at configurable offset relative to player's face orientation
+                    Vec3d lookVec = user.getRotationVec(1.0F);
+                    
+                    // Create local coordinate system relative to player's face
+                    Vec3d rightVec = new Vec3d(-lookVec.z, 0, lookVec.x).normalize(); // Right vector (perpendicular to look direction)
+                    Vec3d upVec = rightVec.crossProduct(lookVec).normalize(); // Up vector (perpendicular to both)
+                    
+                    // Base position at player's eye level
+                    Vec3d basePos = new Vec3d(user.getX(), user.getY() + user.getEyeHeight(user.getPose()), user.getZ());
+                    
+                    
                     // Apply configurable offsets in local coordinate system:
                     // PARTICLE_OFFSET_X: forward/backward (positive = forward)
                     // PARTICLE_OFFSET_Y: right/left (positive = right)
@@ -136,12 +135,15 @@ public class PipeItem extends TrinketItem {
                     double particleX = offsetPos.x + (world.random.nextGaussian() * 0.02);
                     double particleY = offsetPos.y + (world.random.nextGaussian() * 0.02);
                     double particleZ = offsetPos.z + (world.random.nextGaussian() * 0.02);
-                    world.addParticle(ParticleTypes.SMOKE,
-                            particleX,
-                            particleY,
-                            particleZ,
-                            0.001, 0.01, 0.001
+                    
+                    // Use spawnParticles for server-side particle spawning that all players can see
+                    ((ServerWorld) world).spawnParticles(ParticleTypes.SMOKE,
+                            particleX, particleY, particleZ,
+                            20, // particle count
+                            0.001, 0.01, 0.001, // velocity
+                            0.0 // speed
                             );
+                    
                 }
             }
         }
@@ -149,6 +151,16 @@ public class PipeItem extends TrinketItem {
 
     public ItemStack finishUsing(ItemStack item, World world, LivingEntity user){
         spawnSmoke(0, user, world);
+        
+        // Play exhale sound when finishing smoking (server-side only)
+        if (!world.isClient) {
+            System.out.println("[EyPipes] Playing exhale sound at: " + user.getX() + ", " + user.getY() + ", " + user.getZ());
+            world.playSound(null, user.getX(), user.getY(), user.getZ(), EyPipesSound.PIPE_EXHALE, SoundCategory.MASTER, 1.0F, 1.0F);
+            // Also try playing to the specific player
+            if (user instanceof PlayerEntity) {
+                world.playSound((PlayerEntity) user, user.getBlockPos(), EyPipesSound.PIPE_EXHALE, SoundCategory.MASTER, 1.0F, 1.0F);
+            }
+        }
 
         this.smoking = false;
         ((PlayerEntity)user).getItemCooldownManager().set(this, 20);
@@ -160,10 +172,9 @@ public class PipeItem extends TrinketItem {
     }
 
     public void spawnSmoke(int remainingUseTicks, LivingEntity user, World world){
-        if (world.isClient) { // Only spawn particles on client side
-            float f = (float) (USAGE_TIME - remainingUseTicks) / 600;
-            
-            
+        float f = (float) (USAGE_TIME - remainingUseTicks) / 600;
+        
+        if (world.isClient) { // Client-side particles for the user
             // Method 2: Spawn particles with scheduled delays using separate threads
             for (int i = 0; i < 3; i++) {
                 final int particleIndex = i;
@@ -188,14 +199,46 @@ public class PipeItem extends TrinketItem {
                     }
                 }).start();
             }
+        } else { // Server-side particles for all other players
+            // Spawn ring of smoke particles with same timing as client-side but exclude the client player
+            for (int i = 0; i < 3; i++) {
+                final int particleIndex = i;
+                final double offsetMultiplier = 0.4 + (particleIndex * 0.1); // Same position variation as client
+                
+                // Schedule each particle with same delay pattern (0ms, 1000ms, 2000ms)
+                new Thread(() -> {
+                    try {
+                        Thread.sleep(particleIndex * 1000);
+                        Vec3d vec = user.getRotationVec(1.0F);
+                        final double vecX = vec.x;
+                        final double vecY = vec.y;
+                        final double vecZ = vec.z;
+
+                        double particleX = user.getX() + vecX * offsetMultiplier;
+                        double particleY = user.getY() + user.getEyeHeight(user.getPose()) + vecY * offsetMultiplier;
+                        double particleZ = user.getZ() + vecZ * offsetMultiplier;
+                        
+                        // Spawn particles for all players except the client player
+                        ServerWorld serverWorld = (ServerWorld) world;
+                        for (net.minecraft.server.network.ServerPlayerEntity player : serverWorld.getPlayers()) {
+                            if (player != user) { // Exclude the user who is smoking
+                                serverWorld.spawnParticles(player, EyPipesParticleTypes.RING_OF_SMOKE,
+                                        false, // don't force spawn
+                                        particleX, particleY, particleZ,
+                                        1, // particle count
+                                        vecX * f, vecY * f, vecZ * f, // velocity
+                                        0.1 // speed
+                                        );
+                            }
+                        }
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                    }
+                }).start();
+            }
         }
         
-        // Sound should be played on server side
-        if (!world.isClient) {
-            //https://pixabay.com/service/license-summary/
-            //https://pixabay.com//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=106654"
-            world.playSound(null, user.getX(), user.getY(), user.getZ(), EyPipesSound.PIPE_EXHALE, SoundCategory.PLAYERS, 1.0F, 1.0F);
-        }
+        // Sound is now played in finishUsing method instead of here to avoid duplication
     }
 
     @Override
@@ -205,76 +248,5 @@ public class PipeItem extends TrinketItem {
 
     public boolean isSmoking() {
         return this.smoking;
-    }
-    
-    /**
-     * Calculates the animated pipe tip position based on the current animation state
-     * This mirrors the animation logic from PipeItemRenderer to ensure particles
-     * spawn at the correct position relative to the pipe's movement
-     */
-    private Vec3d calculateAnimatedPipePosition(LivingEntity user, int remainingUseTicks) {
-        // Calculate animation progress (same logic as in PipeItemRenderer)
-        int useTime = USAGE_TIME - remainingUseTicks;
-        float animationProgress = 0.0f;
-        
-        // Only start animation after a brief delay (5 ticks) to match renderer
-        if (useTime > 5) {
-            animationProgress = Math.min((useTime - 5) / 20.0f, 1.0f); // 20 ticks = 1 second for full animation
-        }
-    
-        // Apply smooth animation curve (same as renderer)
-        float smoothProgress = MathHelper.sin(animationProgress * (float) Math.PI * (float) EyPipesConfig.FIRST_PERSON_CURVE_MULTIPLIER);
-        
-
-        
-        // Start from user's eye position
-        Vec3d eyePos = new Vec3d(user.getX(), user.getY() + user.getEyeHeight(user.getPose()), user.getZ());
-        
-        // Get user's rotation vectors for coordinate system transformation
-        Vec3d lookVec = user.getRotationVec(1.0F);
-        Vec3d rightVec = new Vec3d(-lookVec.z, 0, lookVec.x).normalize(); // Right vector (perpendicular to look direction)
-        Vec3d upVec = rightVec.crossProduct(lookVec).normalize(); // Up vector (perpendicular to both)
-        
-        // Calculate the pipe tip position with animation
-        // The renderer applies both translation AND rotation, so we need to account for both
-        
-        // Base pipe position (without animation) - pipe extends forward from the hand
-        double basePipeLength = EyPipesConfig.PIPE_LENGTH; // Length from hand to tip (configurable)
-        Vec3d baseTipPos = eyePos.add(lookVec.multiply(basePipeLength));
-        
-        // Apply animation translation offset (convert model space translation to world space)
-        // Model space: X=right, Y=up, Z=forward (towards face)
-        // Adjust coordinate mapping to fix "too high and too left" issue
-        // Add 0.5f offset to the right for smoke particle positioning
-        Vec3d translationOffset = rightVec.multiply(-EyPipesConfig.FIRST_PERSON_X_TRANSLATION * smoothProgress + 0.6f) // Invert X to fix "too left" + right offset
-                                 .add(upVec.multiply(-EyPipesConfig.FIRST_PERSON_Y_TRANSLATION * smoothProgress)) // Invert Y to fix "too high"
-                                 .add(lookVec.multiply(EyPipesConfig.FIRST_PERSON_Z_TRANSLATION * smoothProgress));
-        
-        // Apply rotation effects if rotation is enabled
-        Vec3d rotationOffset = Vec3d.ZERO;
-        if (EyPipesConfig.FIRST_PERSON_ENABLE_ROTATION) {
-            // Calculate how rotation affects the tip position
-            // The pipe rotates around its base (hand position), so we need to calculate where the tip ends up
-            
-            // Convert rotation angles to radians
-            double xRotRad = Math.toRadians(EyPipesConfig.FIRST_PERSON_X_ROTATION * smoothProgress);
-            double yRotRad = Math.toRadians(EyPipesConfig.FIRST_PERSON_Y_ROTATION * smoothProgress);
-            double zRotRad = Math.toRadians(EyPipesConfig.FIRST_PERSON_Z_ROTATION * smoothProgress);
-            
-            // Calculate the rotational displacement of the pipe tip
-            // This is an approximation of how the tip moves due to rotation around the hand
-            Vec3d rotationDisplacement = new Vec3d(
-                basePipeLength * Math.sin(yRotRad), // Y rotation affects X displacement (inverted)
-                basePipeLength * Math.sin(xRotRad), // X rotation affects Y displacement (inverted)
-                basePipeLength * Math.sin(zRotRad) // Z rotation affects Z displacement
-            );
-            
-            // Transform rotation displacement to world space
-            rotationOffset = rightVec.multiply(rotationDisplacement.x)
-                           .add(upVec.multiply(rotationDisplacement.y))
-                           .add(lookVec.multiply(rotationDisplacement.z));
-        }
-        
-        return baseTipPos.add(translationOffset).add(rotationOffset);
     }
 }
