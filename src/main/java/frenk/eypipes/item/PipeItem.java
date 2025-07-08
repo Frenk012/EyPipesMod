@@ -20,6 +20,7 @@ import net.minecraft.server.world.ServerWorld;
 import frenk.eypipes.config.EyPipesConfig;
 import frenk.eypipes.particles.EyPipesParticleTypes;
 import frenk.eypipes.sound.EyPipesSound;
+import frenk.eypipes.util.ArmAnimationTracker;
 
 public class PipeItem extends TrinketItem {
     private final int USAGE_TIME = 60;
@@ -95,9 +96,13 @@ public class PipeItem extends TrinketItem {
 
     @Override
     public void onStoppedUsing(ItemStack stack, World world, LivingEntity user, int remainingUseTicks) {
-        // add a particle of smoke traveling away from the player "a final breath" -- froosty
-        if(smoking && remainingUseTicks < USAGE_TIME / 2){
-            spawnSmoke(remainingUseTicks, user, world);
+        if (smoking) {
+            if (remainingUseTicks <= 0) { // Finished using for the full duration
+                finishUsing(stack, world, user);
+                spawnSmoke(0, user, world); // Spawn smoke on finish
+            } else if (remainingUseTicks < USAGE_TIME / 2) { // Stopped early
+                spawnSmoke(remainingUseTicks, user, world);
+            }
         }
         this.smoking = false;
         ((PlayerEntity)user).getItemCooldownManager().set(this, 20);
@@ -109,49 +114,45 @@ public class PipeItem extends TrinketItem {
             int totalTicks = USAGE_TIME - remainingUseTicks;
             int frequency = Math.max(4, (int) Math.pow((USAGE_TIME - totalTicks) / 10.0, 2));
             if (remainingUseTicks % frequency == 0) {
-                // Spawn particles on server side so all players can see them
-                if (!world.isClient) {
-                    // Spawn particles at configurable offset relative to player's face orientation
+                Vec3d pipePosition;
+                if (world.isClient) {
                     Vec3d lookVec = user.getRotationVec(1.0F);
+                    Vec3d rightVec = new Vec3d(-lookVec.z, 0, lookVec.x).normalize();
+                    Vec3d upVec = rightVec.crossProduct(lookVec).normalize();
                     
-                    // Create local coordinate system relative to player's face
-                    Vec3d rightVec = new Vec3d(-lookVec.z, 0, lookVec.x).normalize(); // Right vector (perpendicular to look direction)
-                    Vec3d upVec = rightVec.crossProduct(lookVec).normalize(); // Up vector (perpendicular to both)
-                    
-                    // Base position at player's eye level
                     Vec3d basePos = new Vec3d(user.getX(), user.getY() + user.getEyeHeight(user.getPose()), user.getZ());
                     
+                    pipePosition = basePos
+                        .add(lookVec.multiply(EyPipesConfig.PARTICLE_OFFSET_X))
+                        .add(rightVec.multiply(EyPipesConfig.PARTICLE_OFFSET_Y))
+                        .add(upVec.multiply(EyPipesConfig.PARTICLE_OFFSET_Z));
                     
-                    // Apply configurable offsets in local coordinate system:
-                    // PARTICLE_OFFSET_X: forward/backward (positive = forward)
-                    // PARTICLE_OFFSET_Y: right/left (positive = right)
-                    // PARTICLE_OFFSET_Z: up/down (positive = up)
-                    Vec3d offsetPos = basePos
-                        .add(lookVec.multiply(EyPipesConfig.PARTICLE_OFFSET_X))  // Forward/backward offset
-                        .add(rightVec.multiply(EyPipesConfig.PARTICLE_OFFSET_Y)) // Right/left offset
-                        .add(upVec.multiply(EyPipesConfig.PARTICLE_OFFSET_Z));   // Up/down offset
+                } else {
+                    pipePosition = ArmAnimationTracker.calculatePipePosition(user);
+                }
+                double particleX = pipePosition.x + (world.random.nextGaussian() * 0.02);
+                double particleY = pipePosition.y + (world.random.nextGaussian() * 0.02);
+                double particleZ = pipePosition.z + (world.random.nextGaussian() * 0.02);
+
+                // Spawn particles
+                if (world.isClient) {
+                    ServerWorld serverWorld = (ServerWorld) world;
+                    for (net.minecraft.server.network.ServerPlayerEntity player : serverWorld.getPlayers()) {
+                        if (player != user) {
+                            serverWorld.spawnParticles(player, ParticleTypes.SMOKE,
+                                    false, particleX, particleY, particleZ,
+                                    20, 0.001, 0.01, 0.001, 0.0);
+                        }
+                    }
                     
-                    // Add random variation
-                    double particleX = offsetPos.x + (world.random.nextGaussian() * 0.02);
-                    double particleY = offsetPos.y + (world.random.nextGaussian() * 0.02);
-                    double particleZ = offsetPos.z + (world.random.nextGaussian() * 0.02);
-                    
-                    // Use spawnParticles for server-side particle spawning that all players can see
-                    ((ServerWorld) world).spawnParticles(ParticleTypes.SMOKE,
-                            particleX, particleY, particleZ,
-                            20, // particle count
-                            0.001, 0.01, 0.001, // velocity
-                            0.0 // speed
-                            );
-                    
+                } else {
+                    world.addParticle(ParticleTypes.SMOKE, particleX, particleY, particleZ, 0.001, 0.01, 0.001);
                 }
             }
         }
     }
 
     public ItemStack finishUsing(ItemStack item, World world, LivingEntity user){
-        spawnSmoke(0, user, world);
-        
         // Play exhale sound when finishing smoking (server-side only)
         if (!world.isClient) {
             System.out.println("[EyPipes] Playing exhale sound at: " + user.getX() + ", " + user.getY() + ", " + user.getZ());
@@ -175,60 +176,45 @@ public class PipeItem extends TrinketItem {
         float f = (float) (USAGE_TIME - remainingUseTicks) / 600;
         
         if (world.isClient) { // Client-side particles for the user
-            // Method 2: Spawn particles with scheduled delays using separate threads
             for (int i = 0; i < 3; i++) {
                 final int particleIndex = i;
-                final double offsetMultiplier = 0.4 + (particleIndex * 0.1); // Slight position variation
-                
-                // Schedule each particle with increasing delay (0ms, 5ms, 10ms)
+                final double offsetMultiplier = 0.4 + (particleIndex * 0.1);
                 new Thread(() -> {
                     try {
                         Thread.sleep(particleIndex * 1000);
                         Vec3d vec = user.getRotationVec(1.0F);
-                        final double vecX = vec.x;
-                        final double vecY = vec.y;
-                        final double vecZ = vec.z;
-
                         world.addParticle(EyPipesParticleTypes.RING_OF_SMOKE,
-                                user.getX() + vecX * offsetMultiplier,
-                                user.getY() + user.getEyeHeight(user.getPose()) + vecY * offsetMultiplier,
-                                user.getZ() + vecZ * offsetMultiplier,
-                                vecX * f, vecY * f, vecZ * f);
+                                user.getX() + vec.x * offsetMultiplier,
+                                user.getY() + user.getEyeHeight(user.getPose()) + vec.y * offsetMultiplier,
+                                user.getZ() + vec.z * offsetMultiplier,
+                                vec.x * f, vec.y * f, vec.z * f);
                     } catch (InterruptedException e) {
                         Thread.currentThread().interrupt();
                     }
                 }).start();
             }
         } else { // Server-side particles for all other players
-            // Spawn ring of smoke particles with same timing as client-side but exclude the client player
             for (int i = 0; i < 3; i++) {
                 final int particleIndex = i;
-                final double offsetMultiplier = 0.4 + (particleIndex * 0.1); // Same position variation as client
-                
-                // Schedule each particle with same delay pattern (0ms, 1000ms, 2000ms)
+                final double offsetMultiplier = 0.4 + (particleIndex * 0.1);
                 new Thread(() -> {
                     try {
                         Thread.sleep(particleIndex * 1000);
-                        Vec3d vec = user.getRotationVec(1.0F);
-                        final double vecX = vec.x;
-                        final double vecY = vec.y;
-                        final double vecZ = vec.z;
-
-                        double particleX = user.getX() + vecX * offsetMultiplier;
-                        double particleY = user.getY() + user.getEyeHeight(user.getPose()) + vecY * offsetMultiplier;
-                        double particleZ = user.getZ() + vecZ * offsetMultiplier;
-                        
-                        // Spawn particles for all players except the client player
                         ServerWorld serverWorld = (ServerWorld) world;
                         for (net.minecraft.server.network.ServerPlayerEntity player : serverWorld.getPlayers()) {
-                            if (player != user) { // Exclude the user who is smoking
-                                serverWorld.spawnParticles(player, EyPipesParticleTypes.RING_OF_SMOKE,
-                                        false, // don't force spawn
-                                        particleX, particleY, particleZ,
-                                        1, // particle count
-                                        vecX * f, vecY * f, vecZ * f, // velocity
-                                        0.1 // speed
-                                        );
+                            if (player != user) {
+                                Vec3d vec = user.getRotationVec(1.0F);
+                                double userX = user.getX();
+                                double userY = user.getY() + user.getEyeHeight(user.getPose());
+                                double userZ = user.getZ();
+                                
+                                // Exclude the user who is smoking
+                                serverWorld.spawnParticles(player,EyPipesParticleTypes.RING_OF_SMOKE,
+                                        false,
+                                        userX + vec.x * offsetMultiplier,
+                                        userY + vec.y * offsetMultiplier,
+                                        userZ + vec.z * offsetMultiplier,
+                                        0, vec.x * f, vec.y * f, vec.z * f, 1.0f);
                             }
                         }
                     } catch (InterruptedException e) {
@@ -237,8 +223,6 @@ public class PipeItem extends TrinketItem {
                 }).start();
             }
         }
-        
-        // Sound is now played in finishUsing method instead of here to avoid duplication
     }
 
     @Override

@@ -5,6 +5,7 @@
 	"compatibilityLevel": "JAVA_17",
 	"refmap": "eypipes.refmap.json",
 	"client": [
+		"HumanoidEntityModelMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1

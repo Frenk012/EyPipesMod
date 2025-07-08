@@ -30,17 +30,19 @@ public class PipeItemRenderer implements BuiltinItemRendererRegistry.DynamicItem
             matrices.push();
         
             // Check if the item is being used (right-clicked) and apply animation
-        // Only apply animation in first-person contexts, not in GUI/inventory
-        if (mode != ModelTransformation.Mode.GUI && player != null && player.isUsingItem() && player.getActiveItem() == stack && stack.getItem() instanceof PipeItem pipeItem) {
+        if (player != null && player.isUsingItem() && player.getActiveItem() == stack && stack.getItem() instanceof PipeItem pipeItem) {
             if (pipeItem.isSmoking()) {
-                // Calculate animation progress based on use time
                 int useTime = player.getItemUseTime();
-                // Only start animation after a brief delay (5 ticks) to avoid immediate movement when picking up
                 if (useTime > 5) {
-                    float animationProgress = Math.min((useTime - 5) / 20.0f, 1.0f); // 20 ticks = 1 second for full animation
+                    float animationProgress = Math.min((useTime - 5) / 20.0f, 1.0f);
+
+                    boolean isFirstPerson = mode == ModelTransformation.Mode.FIRST_PERSON_RIGHT_HAND || mode == ModelTransformation.Mode.FIRST_PERSON_LEFT_HAND;
                     
-                    // Apply first person animation (since this is typically for held items)
-                    applyFirstPersonAnimation(matrices, animationProgress);
+                    if (isFirstPerson) {
+                        applyFirstPersonAnimation(matrices, animationProgress);
+                    } //else if (isThirdPerson) {
+                      //  applyThirdPersonAnimation(matrices, animationProgress);
+                    //}
                 }
             }
         }
@@ -116,7 +118,7 @@ public class PipeItemRenderer implements BuiltinItemRendererRegistry.DynamicItem
             }
         }
     }
-    
+
     private void applyFirstPersonAnimation(MatrixStack matrices, float progress) {
         // Smooth animation curve using configurable multiplier
         float smoothProgress = MathHelper.sin(progress * (float) Math.PI * (float) EyPipesConfig.FIRST_PERSON_CURVE_MULTIPLIER);

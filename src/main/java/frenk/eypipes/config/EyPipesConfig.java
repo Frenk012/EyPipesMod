@@ -78,12 +78,12 @@ public class EyPipesConfig {
     
     // Third Person Animation Settings
     public static float THIRD_PERSON_CURVE_MULTIPLIER = 1.0f;
-    public static float THIRD_PERSON_Y_TRANSLATION = 0.05f;
-    public static float THIRD_PERSON_Z_TRANSLATION = 0.15f;
+    public static float THIRD_PERSON_Y_TRANSLATION = 0.3f;
+    public static float THIRD_PERSON_Z_TRANSLATION = 0.25f;
     public static float THIRD_PERSON_X_TRANSLATION = 0.0f;
-    public static float THIRD_PERSON_X_ROTATION = 8.0f;
-    public static float THIRD_PERSON_Y_ROTATION = 5.0f;
-    public static float THIRD_PERSON_Z_ROTATION = -3.0f;
+    public static float THIRD_PERSON_X_ROTATION = 25.0f;
+    public static float THIRD_PERSON_Y_ROTATION = 20.0f;
+    public static float THIRD_PERSON_Z_ROTATION = 20.0f;
     public static int THIRD_PERSON_DELAY_TICKS = 1;
     public static float THIRD_PERSON_DURATION_SECONDS = 1.5f;
     public static boolean THIRD_PERSON_ENABLE_ROTATION = true;
@@ -206,9 +206,9 @@ public class EyPipesConfig {
                     FIRST_PERSON_Y_TRANSLATION = (float) getDoubleOrDefault(firstPersonSettings, "y_translation", 0.1);
                     FIRST_PERSON_Z_TRANSLATION = (float) getDoubleOrDefault(firstPersonSettings, "z_translation", 0.25);
                     FIRST_PERSON_X_TRANSLATION = (float) getDoubleOrDefault(firstPersonSettings, "x_translation", 0.0);
-                    FIRST_PERSON_X_ROTATION = (float) getDoubleOrDefault(firstPersonSettings, "x_rotation", 15.0);
-                    FIRST_PERSON_Y_ROTATION = (float) getDoubleOrDefault(firstPersonSettings, "y_rotation", 10.0);
-                    FIRST_PERSON_Z_ROTATION = (float) getDoubleOrDefault(firstPersonSettings, "z_rotation", -5.0);
+                    FIRST_PERSON_X_ROTATION = (float) getDoubleOrDefault(firstPersonSettings, "x_rotation", 25.0);
+                    FIRST_PERSON_Y_ROTATION = (float) getDoubleOrDefault(firstPersonSettings, "y_rotation", 20.0);
+                    FIRST_PERSON_Z_ROTATION = (float) getDoubleOrDefault(firstPersonSettings, "z_rotation", 20.0);
                     FIRST_PERSON_DELAY_TICKS = getIntOrDefault(firstPersonSettings, "delay_ticks", 1);
                     FIRST_PERSON_DURATION_SECONDS = (float) getDoubleOrDefault(firstPersonSettings, "duration_seconds", 1.0);
                     FIRST_PERSON_ENABLE_ROTATION = getBooleanOrDefault(firstPersonSettings, "enable_rotation", true);
@@ -219,12 +219,12 @@ public class EyPipesConfig {
                 if (animationSettings.has("third_person")) {
                     JsonObject thirdPersonSettings = animationSettings.getAsJsonObject("third_person");
                     THIRD_PERSON_CURVE_MULTIPLIER = (float) getDoubleOrDefault(thirdPersonSettings, "curve_multiplier", 1.0);
-                    THIRD_PERSON_Y_TRANSLATION = (float) getDoubleOrDefault(thirdPersonSettings, "y_translation", 0.05);
-                    THIRD_PERSON_Z_TRANSLATION = (float) getDoubleOrDefault(thirdPersonSettings, "z_translation", 0.15);
+                    THIRD_PERSON_Y_TRANSLATION = (float) getDoubleOrDefault(thirdPersonSettings, "y_translation", 0.3);
+                    THIRD_PERSON_Z_TRANSLATION = (float) getDoubleOrDefault(thirdPersonSettings, "z_translation", 0.25);
                     THIRD_PERSON_X_TRANSLATION = (float) getDoubleOrDefault(thirdPersonSettings, "x_translation", 0.0);
-                    THIRD_PERSON_X_ROTATION = (float) getDoubleOrDefault(thirdPersonSettings, "x_rotation", 8.0);
-                    THIRD_PERSON_Y_ROTATION = (float) getDoubleOrDefault(thirdPersonSettings, "y_rotation", 5.0);
-                    THIRD_PERSON_Z_ROTATION = (float) getDoubleOrDefault(thirdPersonSettings, "z_rotation", -3.0);
+                    THIRD_PERSON_X_ROTATION = (float) getDoubleOrDefault(thirdPersonSettings, "x_rotation", 25.0);
+                    THIRD_PERSON_Y_ROTATION = (float) getDoubleOrDefault(thirdPersonSettings, "y_rotation", 20.0);
+                    THIRD_PERSON_Z_ROTATION = (float) getDoubleOrDefault(thirdPersonSettings, "z_rotation", 20.0);
                     THIRD_PERSON_DELAY_TICKS = getIntOrDefault(thirdPersonSettings, "delay_ticks", 1);
                     THIRD_PERSON_DURATION_SECONDS = (float) getDoubleOrDefault(thirdPersonSettings, "duration_seconds", 1.5);
                     THIRD_PERSON_ENABLE_ROTATION = getBooleanOrDefault(thirdPersonSettings, "enable_rotation", true);
