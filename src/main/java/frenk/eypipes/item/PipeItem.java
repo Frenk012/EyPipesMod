@@ -126,7 +126,6 @@ public class PipeItem extends TrinketItem {
                         .add(lookVec.multiply(EyPipesConfig.PARTICLE_OFFSET_X))
                         .add(rightVec.multiply(EyPipesConfig.PARTICLE_OFFSET_Y))
                         .add(upVec.multiply(EyPipesConfig.PARTICLE_OFFSET_Z));
-                    
                 } else {
                     pipePosition = ArmAnimationTracker.calculatePipePosition(user);
                 }
@@ -136,6 +135,10 @@ public class PipeItem extends TrinketItem {
 
                 // Spawn particles
                 if (world.isClient) {
+                    for(int i=0;i<20;i++)
+                        world.addParticle(ParticleTypes.SMOKE, particleX, particleY, particleZ, 0.001, 0.01, 0.001);
+                } else {
+                    // Server-side: spawn particles for all players except the smoking user
                     ServerWorld serverWorld = (ServerWorld) world;
                     for (net.minecraft.server.network.ServerPlayerEntity player : serverWorld.getPlayers()) {
                         if (player != user) {
@@ -144,9 +147,6 @@ public class PipeItem extends TrinketItem {
                                     20, 0.001, 0.01, 0.001, 0.0);
                         }
                     }
-                    
-                } else {
-                    world.addParticle(ParticleTypes.SMOKE, particleX, particleY, particleZ, 0.001, 0.01, 0.001);
                 }
             }
         }
