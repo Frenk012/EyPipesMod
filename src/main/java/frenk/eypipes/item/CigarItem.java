@@ -2,6 +2,7 @@ package frenk.eypipes.item;
 
 import net.minecraft.stat.Stats;
 
+import net.minecraft.client.MinecraftClient;
 import dev.emi.trinkets.api.TrinketItem;
 import net.fabricmc.fabric.api.item.v1.FabricItemSettings;
 import net.minecraft.entity.LivingEntity;
@@ -12,19 +13,20 @@ import net.minecraft.sound.SoundCategory;
 import net.minecraft.util.Hand;
 import net.minecraft.util.TypedActionResult;
 import net.minecraft.util.UseAction;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraft.server.world.ServerWorld;
 import frenk.eypipes.config.EyPipesConfig;
-import frenk.eypipes.particles.EyPipesParticleTypes;
 import frenk.eypipes.sound.EyPipesSound;
+import frenk.eypipes.particles.EyPipesParticleTypes;
 import frenk.eypipes.util.ArmAnimationTracker;
 
-public class PipeItem extends TrinketItem {
+public class CigarItem extends TrinketItem {
     private final int USAGE_TIME = 60;
     private boolean smoking = false;
     
-    public PipeItem(FabricItemSettings settings, int amountOfUse) {
+    public CigarItem(FabricItemSettings settings, int amountOfUse) {
         super(settings.maxDamage(amountOfUse));
     }
 
@@ -63,33 +65,32 @@ public class PipeItem extends TrinketItem {
                 // world.playSound(null, user.getX(), user.getY(), user.getZ(), EyPipesSound.PIPE_REFILL, SoundCategory.PLAYERS, 1.0F, 1.2F); // Sound file missing
                 user.getItemCooldownManager().set(this, 20);
                 
-                return TypedActionResult.success(itemStack);
+                return TypedActionResult.success(itemStack, world.isClient());
             }
         }
         
-        if (itemStack.isDamageable() && itemStack.getDamage() >= itemStack.getMaxDamage()) {
-            ItemStack driedErbapipaStack = user.getInventory().main.stream()
-                    .filter(stack -> stack.getItem() == EyPipesItems.ERBAPIPA_DRIED)
-                    .findFirst()
-                    .orElse(ItemStack.EMPTY);
-
-            if (driedErbapipaStack.isEmpty() && !user.isCreative()) {
-                return TypedActionResult.fail(itemStack);
+        // Check if user has erbapipa_dried in inventory for normal use
+        boolean hasErbapipaDried = user.getInventory().main.stream()
+            .anyMatch(stack -> stack.getItem() == EyPipesItems.ERBAPIPA_DRIED);
+        
+        if (hasErbapipaDried) {
+            // Consume one erbapipa_dried
+            if (!user.isCreative()) {
+                for (ItemStack stack : user.getInventory().main) {
+                    if (stack.getItem() == EyPipesItems.ERBAPIPA_DRIED) {
+                        stack.decrement(1);
+                        break;
+                    }
+                }
             }
-
-            driedErbapipaStack.decrement(1);
-            itemStack.setDamage(0);
-            ((PlayerEntity)user).getItemCooldownManager().set(this, 20);
-            // world.playSound(null, user.getX(), user.getY(), user.getZ(), EyPipesSound.PIPE_REFILL, SoundCategory.PLAYERS, 1.0F, 1.0F); // Sound file missing
-        }
-        else{
-            // world.playSound(null, user.getX(), user.getY(), user.getZ(), EyPipesSound.PIPE_IGNITE, SoundCategory.PLAYERS, 1.0F, 1.0F); // Sound file missing
-            user.setCurrentHand(hand);
+            
             this.smoking = true;
+            user.setCurrentHand(hand);
             user.incrementStat(Stats.USED.getOrCreateStat(this));
-            itemStack.setDamage(itemStack.getDamage() + 10);
+            return TypedActionResult.consume(itemStack);
         }
-        return TypedActionResult.consume(itemStack);
+        
+        return TypedActionResult.fail(itemStack);
     }
 
     @Override
@@ -160,9 +161,9 @@ public class PipeItem extends TrinketItem {
                 world.playSound((PlayerEntity) user, user.getBlockPos(), EyPipesSound.PIPE_EXHALE, SoundCategory.MASTER, 1.0F, 1.0F);
             }
         }
-
-        this.smoking = false;
-        ((PlayerEntity)user).getItemCooldownManager().set(this, 20);
+        
+        // Damage the item
+        item.damage(1, user, (entity) -> entity.sendToolBreakStatus(user.getActiveHand()));
         return item;
     }
 
@@ -225,7 +226,7 @@ public class PipeItem extends TrinketItem {
 
     @Override
     public UseAction getUseAction(ItemStack stack) {
-        return this.smoking ? UseAction.TOOT_HORN : UseAction.NONE;
+        return UseAction.BOW;
     }
 
     public boolean isSmoking() {

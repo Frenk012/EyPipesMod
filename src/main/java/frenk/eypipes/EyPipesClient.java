@@ -4,6 +4,7 @@ import dev.emi.trinkets.api.client.TrinketRendererRegistry;
 import frenk.eypipes.block.EyPipesBlocks;
 import frenk.eypipes.client.PipeTrinketRenderer;
 import frenk.eypipes.client.PipeItemRenderer;
+import frenk.eypipes.client.CigarItemRenderer;
 import frenk.eypipes.command.ClientReloadConfigCommand;
 import frenk.eypipes.config.EyPipesConfig;
 import frenk.eypipes.item.EyPipesItems;
@@ -35,8 +36,14 @@ public class EyPipesClient implements ClientModInitializer {
         // Register trinket renderer for the pipe
         TrinketRendererRegistry.registerRenderer(EyPipesItems.PIPE, new PipeTrinketRenderer());
         
+        // Register trinket renderer for the cigar
+        TrinketRendererRegistry.registerRenderer(EyPipesItems.CIGAR, new PipeTrinketRenderer());
+        
         // Register custom item renderer for pipe animation
         BuiltinItemRendererRegistry.INSTANCE.register(EyPipesItems.PIPE, new PipeItemRenderer());
+        
+        // Register custom item renderer for cigar animation
+        BuiltinItemRendererRegistry.INSTANCE.register(EyPipesItems.CIGAR, new CigarItemRenderer());
         
         // Register particle textures to the texture atlas
         ClientSpriteRegistryCallback.event(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE).register(((atlasTexture, registry) -> {
