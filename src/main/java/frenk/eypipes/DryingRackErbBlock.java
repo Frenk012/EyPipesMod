@@ -20,6 +20,7 @@ import net.minecraft.state.property.DirectionProperty;
 import net.minecraft.state.property.Properties;
 import net.minecraft.util.math.Direction;
 import net.minecraft.item.ItemPlacementContext;
+import net.minecraft.util.ItemScatterer;
 
 import frenk.eypipes.item.EyPipesItems;
 
@@ -90,6 +91,23 @@ public class DryingRackErbBlock extends BlockWithEntity {
     @Override
     public BlockRenderType getRenderType(BlockState state) {
         return BlockRenderType.MODEL; // così viene usato il modello JSON
+    }
+    
+    @Override
+    public void onStateReplaced(BlockState state, World world, BlockPos pos, BlockState newState, boolean moved) {
+        if (!state.isOf(newState.getBlock())) {
+            BlockEntity blockEntity = world.getBlockEntity(pos);
+            if (blockEntity instanceof DryingRackErbBlockEntity dryingRack) {
+                // Drop all items stored in the drying rack
+                for (int i = 0; i < dryingRack.getAllItems().length; i++) {
+                    ItemStack stack = dryingRack.getAllItems()[i];
+                    if (!stack.isEmpty()) {
+                        ItemScatterer.spawn(world, pos.getX(), pos.getY(), pos.getZ(), stack);
+                    }
+                }
+            }
+            super.onStateReplaced(state, world, pos, newState, moved);
+        }
     }
     
     @Nullable
