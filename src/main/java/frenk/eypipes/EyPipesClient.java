@@ -5,6 +5,7 @@ import frenk.eypipes.block.EyPipesBlocks;
 import frenk.eypipes.client.PipeTrinketRenderer;
 import frenk.eypipes.client.PipeItemRenderer;
 import frenk.eypipes.client.CigarItemRenderer;
+import frenk.eypipes.client.AnimatedCigarRenderer;
 import frenk.eypipes.command.ClientReloadConfigCommand;
 import frenk.eypipes.config.EyPipesConfig;
 import frenk.eypipes.item.EyPipesItems;
@@ -44,6 +45,9 @@ public class EyPipesClient implements ClientModInitializer {
         
         // Register custom item renderer for cigar animation
         BuiltinItemRendererRegistry.INSTANCE.register(EyPipesItems.CIGAR, new CigarItemRenderer());
+        
+        // Register custom item renderer for animated cigar using GeckoLib 3.x method
+        software.bernie.geckolib3.renderers.geo.GeoItemRenderer.registerItemRenderer(EyPipesItems.ANIMATED_CIGAR, new AnimatedCigarRenderer());
         
         // Register particle textures to the texture atlas
         ClientSpriteRegistryCallback.event(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE).register(((atlasTexture, registry) -> {

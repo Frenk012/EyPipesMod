@@ -137,6 +137,4 @@ public class CigarItemRenderer implements BuiltinItemRendererRegistry.DynamicIte
             matrices.multiply(Vec3f.POSITIVE_Z.getDegreesQuaternion(EyPipesConfig.FIRST_PERSON_Z_ROTATION * smoothProgress));
         }
     }
-    
-
 }

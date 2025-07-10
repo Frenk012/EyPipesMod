@@ -51,7 +51,7 @@ dependencies {
 	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
 
 	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
-
+	modImplementation "curse.maven:geckolib-388172:4181375"
 	modImplementation "curse.maven:trinkets-341284:4100104"
 }
 
