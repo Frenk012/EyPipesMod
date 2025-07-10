@@ -132,7 +132,11 @@
 
       "first_person_right_x": 0.7,
       "first_person_right_y": 0.2,
-      "first_person_right_z": 0.0
+      "first_person_right_z": 0.0,
+
+      "gui_x": 0.6,
+      "gui_y": 0.6,
+      "gui_z": 0.2
     },
     "particle_offsets": {
       "offset_x": 1.0,

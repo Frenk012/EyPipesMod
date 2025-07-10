@@ -25,9 +25,8 @@ public class EyPipesItems {
             new Item(new FabricItemSettings().group(EyPipes.EY_PIPES_GROUP)));
     public static final Item ERBAPIPA_SEEDS = registerItem("erbapipa_seeds",
             new AliasedBlockItem(EyPipesBlocks.ERBAPIPA_CROP, new FabricItemSettings().group(EyPipes.EY_PIPES_GROUP)));
-    public static final Item PIPE = Registry.register(Registry.ITEM, new Identifier(EyPipes.MOD_ID, "pipe"), new PipeItem(new FabricItemSettings().group(EyPipes.EY_PIPES_GROUP).maxCount(1),500));
-    public static final Item CIGAR = Registry.register(Registry.ITEM, new Identifier(EyPipes.MOD_ID, "cigar"), new CigarItem(new FabricItemSettings().group(EyPipes.EY_PIPES_GROUP).maxCount(1),500));
-    public static final Item ANIMATED_CIGAR = Registry.register(Registry.ITEM, new Identifier(EyPipes.MOD_ID, "animated_cigar"), new AnimatedCigar(new FabricItemSettings().group(EyPipes.EY_PIPES_GROUP).maxCount(1), 500));
+    public static final Item PIPE = Registry.register(Registry.ITEM, new Identifier(EyPipes.MOD_ID, "pipe"), new PipeItem(new FabricItemSettings().group(EyPipes.EY_PIPES_GROUP).maxCount(1),50));
+    public static final Item CIGAR = Registry.register(Registry.ITEM, new Identifier(EyPipes.MOD_ID, "cigar"), new AnimatedCigar(new FabricItemSettings().group(EyPipes.EY_PIPES_GROUP).maxCount(1), 10));
 
     public static Item registerItem(String name, Item item) {
         ITEMS.add(item);

@@ -51,7 +51,7 @@ public class PipeItem extends TrinketItem {
             if (offHandStack.getItem() == EyPipesItems.ERBAPIPA_CUTTED && itemStack.isDamageable()) {
                 // Increase durability by 10 (decrease damage by 10)
                 int currentDamage = itemStack.getDamage();
-                int newDamage = Math.max(0, currentDamage - 10);
+                int newDamage = Math.max(0, currentDamage - 1);
                 itemStack.setDamage(newDamage);
                 
                 // Consume one erbapipa_cutted
@@ -87,7 +87,7 @@ public class PipeItem extends TrinketItem {
             user.setCurrentHand(hand);
             this.smoking = true;
             user.incrementStat(Stats.USED.getOrCreateStat(this));
-            itemStack.setDamage(itemStack.getDamage() + 10);
+            itemStack.setDamage(itemStack.getDamage() + 1);
         }
         return TypedActionResult.consume(itemStack);
     }

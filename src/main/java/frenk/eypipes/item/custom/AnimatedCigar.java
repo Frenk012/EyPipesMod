@@ -43,7 +43,16 @@ public class AnimatedCigar extends TrinketItem implements IAnimatable, ISyncable
     
     private final AnimationFactory factory = GeckoLibUtil.createFactory(this);
     private final int USAGE_TIME = 60;
-    private boolean smoking = false;
+    // NBT-based state management
+    private static final String SMOKING_KEY = "smoking";
+    
+    private boolean isSmoking(ItemStack stack) {
+        return stack.getOrCreateNbt().getBoolean(SMOKING_KEY);
+    }
+    
+    private void setSmoking(ItemStack stack, boolean smoking) {
+        stack.getOrCreateNbt().putBoolean(SMOKING_KEY, smoking);
+    }
     
     public AnimatedCigar(FabricItemSettings settings, int amountOfUse) {
         super(settings.maxDamage(amountOfUse));
@@ -67,68 +76,33 @@ public class AnimatedCigar extends TrinketItem implements IAnimatable, ISyncable
     public TypedActionResult<ItemStack> use(World world, PlayerEntity user, Hand hand) {
         ItemStack itemStack = user.getStackInHand(hand);
         
-        // Check for shift+right-click with erbapipa_cutted in off-hand for durability repair
-        if (user.isSneaking() && hand == Hand.MAIN_HAND) {
-            ItemStack offHandStack = user.getStackInHand(Hand.OFF_HAND);
-            if (offHandStack.getItem() == EyPipesItems.ERBAPIPA_CUTTED && itemStack.isDamageable()) {
-                // Increase durability by 10 (decrease damage by 10)
-                int currentDamage = itemStack.getDamage();
-                int newDamage = Math.max(0, currentDamage - 10);
-                itemStack.setDamage(newDamage);
-                
-                // Consume one erbapipa_cutted
-                if (!user.isCreative()) {
-                    offHandStack.decrement(1);
-                }
-                
-                // Play repair sound and set cooldown
-                user.getItemCooldownManager().set(this, 20);
-                
-                return TypedActionResult.success(itemStack, world.isClient());
-            }
-        }
-        
-        // Check if user has erbapipa_dried in inventory for normal use
-        boolean hasErbapipaDried = user.getInventory().main.stream()
-            .anyMatch(stack -> stack.getItem() == EyPipesItems.ERBAPIPA_DRIED);
-        
-        if (hasErbapipaDried) {
-            // Consume one erbapipa_dried
-            if (!user.isCreative()) {
-                for (ItemStack stack : user.getInventory().main) {
-                    if (stack.getItem() == EyPipesItems.ERBAPIPA_DRIED) {
-                        stack.decrement(1);
-                        break;
-                    }
-                }
-            }
-            
-            this.smoking = true;
-            user.setCurrentHand(hand);
-            user.incrementStat(Stats.USED.getOrCreateStat(this));
-            return TypedActionResult.consume(itemStack);
-        }
-        
-        return TypedActionResult.fail(itemStack);
+        user.setCurrentHand(hand);
+        setSmoking(itemStack, true);
+        user.incrementStat(Stats.USED.getOrCreateStat(this));
+        return TypedActionResult.consume(itemStack);
     }
 
     @Override
     public void onStoppedUsing(ItemStack stack, World world, LivingEntity user, int remainingUseTicks) {
-        if (smoking) {
-            if (remainingUseTicks <= 0) { // Finished using for the full duration
-                finishUsing(stack, world, user);
-                spawnSmoke(0, user, world); // Spawn smoke on finish
-            } else if (remainingUseTicks < USAGE_TIME / 2) { // Stopped early
-                spawnSmoke(remainingUseTicks, user, world);
+        if (isSmoking(stack)) {
+            ItemStack result = finishUsing(stack, world, user);
+            spawnSmoke(0, user, world); // Spawn smoke on finish
+            
+            // If the item was destroyed, replace it in the player's hand
+            if (result.isEmpty() && user instanceof PlayerEntity) {
+                PlayerEntity player = (PlayerEntity) user;
+                Hand hand = player.getActiveHand();
+                player.setStackInHand(hand, ItemStack.EMPTY);
+                return; // Exit early since item is destroyed
             }
         }
-        this.smoking = false;
+        setSmoking(stack, false);
         ((PlayerEntity)user).getItemCooldownManager().set(this, 20);
     }
 
     @Override
     public void usageTick(World world, LivingEntity user, ItemStack stack, int remainingUseTicks) {
-        if (smoking) {
+        if (isSmoking(stack)) {
             int totalTicks = USAGE_TIME - remainingUseTicks;
             int frequency = Math.max(4, (int) Math.pow((USAGE_TIME - totalTicks) / 10.0, 2));
             if (remainingUseTicks % frequency == 0) {
@@ -170,6 +144,7 @@ public class AnimatedCigar extends TrinketItem implements IAnimatable, ISyncable
         }
     }
 
+    @Override
     public ItemStack finishUsing(ItemStack item, World world, LivingEntity user){
         // Play exhale sound when finishing smoking (server-side only)
         if (!world.isClient) {
@@ -181,12 +156,23 @@ public class AnimatedCigar extends TrinketItem implements IAnimatable, ISyncable
             }
         }
         
+        // Check if item should be destroyed before damaging (when durability reaches 0)
+        if (item.getDamage() >= item.getMaxDamage()) {
+            setSmoking(item, false);
+            ((PlayerEntity)user).getItemCooldownManager().set(this, 20);
+            return ItemStack.EMPTY; // Destroy the item
+        }
+        
         // Damage the item
-        item.damage(1, user, (entity) -> entity.sendToolBreakStatus(user.getActiveHand()));
+        item.setDamage(item.getDamage() + 1);
+        
+        setSmoking(item, false);
+        ((PlayerEntity)user).getItemCooldownManager().set(this, 20);
         return item;
     }
 
-    public int getMaxUseTime(ItemStack stack, LivingEntity user) {
+    @Override
+    public int getMaxUseTime(ItemStack stack) {
         return USAGE_TIME;
     }
 
@@ -245,11 +231,12 @@ public class AnimatedCigar extends TrinketItem implements IAnimatable, ISyncable
 
     @Override
     public UseAction getUseAction(ItemStack stack) {
-        return UseAction.BOW;
+        return isSmoking(stack) ? UseAction.TOOT_HORN : UseAction.NONE;
     }
 
     public boolean isSmoking() {
-        return this.smoking;
+        // This method is kept for compatibility but should use the NBT-based version
+        return false; // Instance variable no longer used
     }
     
     @Override

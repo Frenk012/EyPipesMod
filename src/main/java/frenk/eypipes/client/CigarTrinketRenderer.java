@@ -13,7 +13,7 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.Vec3f;
 
-public class PipeTrinketRenderer implements TrinketRenderer {
+public class CigarTrinketRenderer implements TrinketRenderer {
     
     @Override
     public void render(ItemStack stack, SlotReference slotReference, EntityModel<? extends LivingEntity> contextModel, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, LivingEntity entity, float limbAngle, float limbDistance, float tickDelta, float animationProgress, float headYaw, float headPitch) {
@@ -25,23 +25,15 @@ public class PipeTrinketRenderer implements TrinketRenderer {
             // Check the slot type to determine rendering position
             String slotName = slotReference.inventory().getSlotType().getName();
             
-            if ("pipe_chest".equals(slotName)) {
-                // Transform to right hand position for chest slot
-                playerModel.rightArm.rotate(matrices);
-                
-                matrices.translate(0.0f, 0.0f, 0.2f);
-                matrices.multiply(Vec3f.POSITIVE_X.getDegreesQuaternion(25)); // Rotate to hold properly
-                matrices.multiply(Vec3f.POSITIVE_Z.getDegreesQuaternion(180)); // Rotate to hold properly
-                matrices.multiply(Vec3f.POSITIVE_Y.getDegreesQuaternion(340)); // Adjust orientation
-                matrices.scale(0.9f, 0.9f, 0.9f); // Scale down for hand
-            } else {
-                // Default head position for other slots (like pipe_head)
+            if ("pipe_head".equals(slotName)) {
+                // Transform to head position for head slot
                 playerModel.head.rotate(matrices);
                 
-                // Apply custom transformations for head trinket slot positioning
-                matrices.multiply(Vec3f.POSITIVE_Z.getDegreesQuaternion(180)); // Rotation: Z-axis rotation
-                matrices.multiply(Vec3f.POSITIVE_Y.getDegreesQuaternion(350)); // Rotation: Y-axis tilt
-                matrices.scale(0.9f, 0.9f, 0.9f); // Scale: uniform scaling
+                // Apply cigar.json head transformations
+                
+                matrices.translate(0.0f, 0.6f / 16.0f, -4.75f / 16.0f); // Convert from model units to world units
+                matrices.multiply(Vec3f.POSITIVE_Z.getDegreesQuaternion(180));
+                matrices.scale(0.7f, 0.7f, 0.7f);
             }
             
             // Render the item

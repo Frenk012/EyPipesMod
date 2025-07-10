@@ -20,7 +20,7 @@ public class EyPipesConfig {
     public static boolean REQUIRES_SUPPORT = true;
     
     // Drying Rack Settings
-    public static int DRYING_TIME_TICKS = 6000;
+    public static int DRYING_TIME_TICKS = 4000;
     public static int MAX_ITEMS = 3;
     public static boolean REQUIRES_SUNLIGHT = false;
     
@@ -78,12 +78,12 @@ public class EyPipesConfig {
     
     // Third Person Animation Settings
     public static float THIRD_PERSON_CURVE_MULTIPLIER = 1.0f;
-    public static float THIRD_PERSON_Y_TRANSLATION = 0.3f;
-    public static float THIRD_PERSON_Z_TRANSLATION = 0.25f;
+    public static float THIRD_PERSON_Y_TRANSLATION = 0.05f;
+    public static float THIRD_PERSON_Z_TRANSLATION = 0.15f;
     public static float THIRD_PERSON_X_TRANSLATION = 0.0f;
-    public static float THIRD_PERSON_X_ROTATION = 25.0f;
-    public static float THIRD_PERSON_Y_ROTATION = 20.0f;
-    public static float THIRD_PERSON_Z_ROTATION = 20.0f;
+    public static float THIRD_PERSON_X_ROTATION = 8.0f;
+    public static float THIRD_PERSON_Y_ROTATION = 5.0f;
+    public static float THIRD_PERSON_Z_ROTATION = -3.0f;
     public static int THIRD_PERSON_DELAY_TICKS = 1;
     public static float THIRD_PERSON_DURATION_SECONDS = 1.5f;
     public static boolean THIRD_PERSON_ENABLE_ROTATION = true;
@@ -92,23 +92,26 @@ public class EyPipesConfig {
     public static float OFFSET_HEAD_X = 1.0f;
     public static float OFFSET_HEAD_Y = 0.0f;
     public static float OFFSET_HEAD_Z = 0.0f;
-    public static float OFFSET_FIXED_X = -0.5f;
-    public static float OFFSET_FIXED_Y = 0.0f;
-    public static float OFFSET_FIXED_Z = 0.0f;
-    public static float OFFSET_THIRD_PERSON_LEFT_X = 0.25f;
-    public static float OFFSET_THIRD_PERSON_LEFT_Y = 0.0f;
-    public static float OFFSET_THIRD_PERSON_LEFT_Z = 0.0f;
-    public static float OFFSET_FIRST_PERSON_RIGHT_X = 0.7f;
-    public static float OFFSET_FIRST_PERSON_RIGHT_Y = 0.2f;
-    public static float OFFSET_FIRST_PERSON_RIGHT_Z = 0.0f;
+    public static float OFFSET_FIXED_X = 0.0f;
+    public static float OFFSET_FIXED_Y = -0.1f;
+    public static float OFFSET_FIXED_Z = 0.2f;
+    public static float OFFSET_THIRD_PERSON_LEFT_X = 0.6f;
+    public static float OFFSET_THIRD_PERSON_LEFT_Y = 0.6f;
+    public static float OFFSET_THIRD_PERSON_LEFT_Z = 0.2f;
+    public static float OFFSET_FIRST_PERSON_RIGHT_X = 0.6f;
+    public static float OFFSET_FIRST_PERSON_RIGHT_Y = 0.6f;
+    public static float OFFSET_FIRST_PERSON_RIGHT_Z = 0.2f;
     public static float OFFSET_THIRD_PERSON_RIGHT_X = 0.7f;
     public static float OFFSET_THIRD_PERSON_RIGHT_Y = 0.2f;
     public static float OFFSET_THIRD_PERSON_RIGHT_Z = 0.0f;
+    public static float OFFSET_GUI_X = 0.7f;
+    public static float OFFSET_GUI_Y = 0.2f;
+    public static float OFFSET_GUI_Z = 0.0f;
     
     // Particle Offset Settings
     public static double PARTICLE_OFFSET_X = 1.0;
-    public static double PARTICLE_OFFSET_Y = 1.0;
-    public static double PARTICLE_OFFSET_Z = 0.01;
+    public static double PARTICLE_OFFSET_Y = 0.3;
+    public static double PARTICLE_OFFSET_Z = 0.2;
     
     public static void loadConfig() {
         try {
@@ -202,8 +205,8 @@ public class EyPipesConfig {
                 // Load first person animation settings
                 if (animationSettings.has("first_person")) {
                     JsonObject firstPersonSettings = animationSettings.getAsJsonObject("first_person");
-                    FIRST_PERSON_CURVE_MULTIPLIER = (float) getDoubleOrDefault(firstPersonSettings, "curve_multiplier", 1.0);
-                    FIRST_PERSON_Y_TRANSLATION = (float) getDoubleOrDefault(firstPersonSettings, "y_translation", 0.1);
+                    FIRST_PERSON_CURVE_MULTIPLIER = (float) getDoubleOrDefault(firstPersonSettings, "curve_multiplier", 0.2);
+                    FIRST_PERSON_Y_TRANSLATION = (float) getDoubleOrDefault(firstPersonSettings, "y_translation", 0.3);
                     FIRST_PERSON_Z_TRANSLATION = (float) getDoubleOrDefault(firstPersonSettings, "z_translation", 0.25);
                     FIRST_PERSON_X_TRANSLATION = (float) getDoubleOrDefault(firstPersonSettings, "x_translation", 0.0);
                     FIRST_PERSON_X_ROTATION = (float) getDoubleOrDefault(firstPersonSettings, "x_rotation", 25.0);
@@ -218,15 +221,15 @@ public class EyPipesConfig {
                 // Load third person animation settings
                 if (animationSettings.has("third_person")) {
                     JsonObject thirdPersonSettings = animationSettings.getAsJsonObject("third_person");
-                    THIRD_PERSON_CURVE_MULTIPLIER = (float) getDoubleOrDefault(thirdPersonSettings, "curve_multiplier", 1.0);
-                    THIRD_PERSON_Y_TRANSLATION = (float) getDoubleOrDefault(thirdPersonSettings, "y_translation", 0.3);
-                    THIRD_PERSON_Z_TRANSLATION = (float) getDoubleOrDefault(thirdPersonSettings, "z_translation", 0.25);
+                    THIRD_PERSON_CURVE_MULTIPLIER = (float) getDoubleOrDefault(thirdPersonSettings, "curve_multiplier", 0.2);
+                    THIRD_PERSON_Y_TRANSLATION = (float) getDoubleOrDefault(thirdPersonSettings, "y_translation", 0.05);
+                    THIRD_PERSON_Z_TRANSLATION = (float) getDoubleOrDefault(thirdPersonSettings, "z_translation", 0.15);
                     THIRD_PERSON_X_TRANSLATION = (float) getDoubleOrDefault(thirdPersonSettings, "x_translation", 0.0);
-                    THIRD_PERSON_X_ROTATION = (float) getDoubleOrDefault(thirdPersonSettings, "x_rotation", 25.0);
-                    THIRD_PERSON_Y_ROTATION = (float) getDoubleOrDefault(thirdPersonSettings, "y_rotation", 20.0);
-                    THIRD_PERSON_Z_ROTATION = (float) getDoubleOrDefault(thirdPersonSettings, "z_rotation", 20.0);
+                    THIRD_PERSON_X_ROTATION = (float) getDoubleOrDefault(thirdPersonSettings, "x_rotation", 8.0);
+                    THIRD_PERSON_Y_ROTATION = (float) getDoubleOrDefault(thirdPersonSettings, "y_rotation", 5.0);
+                    THIRD_PERSON_Z_ROTATION = (float) getDoubleOrDefault(thirdPersonSettings, "z_rotation", -3.0);
                     THIRD_PERSON_DELAY_TICKS = getIntOrDefault(thirdPersonSettings, "delay_ticks", 1);
-                    THIRD_PERSON_DURATION_SECONDS = (float) getDoubleOrDefault(thirdPersonSettings, "duration_seconds", 1.5);
+                    THIRD_PERSON_DURATION_SECONDS = (float) getDoubleOrDefault(thirdPersonSettings, "duration_seconds", 1.0);
                     THIRD_PERSON_ENABLE_ROTATION = getBooleanOrDefault(thirdPersonSettings, "enable_rotation", true);
                 }
                 
@@ -236,18 +239,21 @@ public class EyPipesConfig {
                     OFFSET_HEAD_X = (float) getDoubleOrDefault(offsetSettings, "head_x", 1.0);
                     OFFSET_HEAD_Y = (float) getDoubleOrDefault(offsetSettings, "head_y", 0.0);
                     OFFSET_HEAD_Z = (float) getDoubleOrDefault(offsetSettings, "head_z", 0.0);
-                    OFFSET_FIXED_X = (float) getDoubleOrDefault(offsetSettings, "fixed_x", -0.5);
-                    OFFSET_FIXED_Y = (float) getDoubleOrDefault(offsetSettings, "fixed_y", 0.0);
-                    OFFSET_FIXED_Z = (float) getDoubleOrDefault(offsetSettings, "fixed_z", 0.0);
-                    OFFSET_THIRD_PERSON_LEFT_X = (float) getDoubleOrDefault(offsetSettings, "third_person_left_x", 0.25);
-                    OFFSET_THIRD_PERSON_LEFT_Y = (float) getDoubleOrDefault(offsetSettings, "third_person_left_y", 0.0);
-                    OFFSET_THIRD_PERSON_LEFT_Z = (float) getDoubleOrDefault(offsetSettings, "third_person_left_z", 0.0);
-                    OFFSET_THIRD_PERSON_RIGHT_X = (float) getDoubleOrDefault(offsetSettings, "third_person_right_x", 0.7);
-                    OFFSET_THIRD_PERSON_RIGHT_Y = (float) getDoubleOrDefault(offsetSettings, "third_person_right_y", 0.2);
-                    OFFSET_THIRD_PERSON_RIGHT_Z = (float) getDoubleOrDefault(offsetSettings, "third_person_right_z", 0.0);
+                    OFFSET_FIXED_X = (float) getDoubleOrDefault(offsetSettings, "fixed_x", 0.0);
+                    OFFSET_FIXED_Y = (float) getDoubleOrDefault(offsetSettings, "fixed_y", -0.1);
+                    OFFSET_FIXED_Z = (float) getDoubleOrDefault(offsetSettings, "fixed_z", 0.2);
+                    OFFSET_THIRD_PERSON_LEFT_X = (float) getDoubleOrDefault(offsetSettings, "third_person_left_x", 0.6);
+                    OFFSET_THIRD_PERSON_LEFT_Y = (float) getDoubleOrDefault(offsetSettings, "third_person_left_y", 0.6);
+                    OFFSET_THIRD_PERSON_LEFT_Z = (float) getDoubleOrDefault(offsetSettings, "third_person_left_z", 0.2);
+                    OFFSET_THIRD_PERSON_RIGHT_X = (float) getDoubleOrDefault(offsetSettings, "third_person_right_x", 0.6);
+                    OFFSET_THIRD_PERSON_RIGHT_Y = (float) getDoubleOrDefault(offsetSettings, "third_person_right_y", 0.6);
+                    OFFSET_THIRD_PERSON_RIGHT_Z = (float) getDoubleOrDefault(offsetSettings, "third_person_right_z", 0.2);
                     OFFSET_FIRST_PERSON_RIGHT_X = (float) getDoubleOrDefault(offsetSettings, "first_person_right_x", 0.7);
                     OFFSET_FIRST_PERSON_RIGHT_Y = (float) getDoubleOrDefault(offsetSettings, "first_person_right_y", 0.2);
                     OFFSET_FIRST_PERSON_RIGHT_Z = (float) getDoubleOrDefault(offsetSettings, "first_person_right_z", 0.0);
+                    OFFSET_GUI_X = (float) getDoubleOrDefault(offsetSettings, "gui_x", 1.0);
+                    OFFSET_GUI_Y = (float) getDoubleOrDefault(offsetSettings, "gui_y", 0.3);
+                    OFFSET_GUI_Z = (float) getDoubleOrDefault(offsetSettings, "gui_z", 0.2);
                 }
                 
                 // Load particle offset settings
