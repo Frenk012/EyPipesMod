@@ -30,58 +30,19 @@
 					]
 				},
 				{
-					"name": "smoke",
+					"name": "smoke particles",
+					"pivot": [0, 0, -0.1]
+				},
+				{
+					"name": "bone",
+					"parent": "smoke particles",
 					"pivot": [0, 0, -0.1],
-					"cubes": [
-						{
-							"origin": [-0.25, 4, -6.35],
-							"size": [1, 1, 0],
-							"uv": {
-								"north": {"uv": [0, 0], "uv_size": [1, 1]},
-								"east": {"uv": [0, 0], "uv_size": [0, 1]},
-								"south": {"uv": [0, 0], "uv_size": [1, 1]},
-								"west": {"uv": [0, 0], "uv_size": [0, 1]},
-								"up": {"uv": [1, 0], "uv_size": [-1, 0]},
-								"down": {"uv": [1, 0], "uv_size": [-1, 0]}
-							}
-						},
-						{
-							"origin": [-1, 2.75, -6.1],
-							"size": [1, 1, 0],
-							"uv": {
-								"north": {"uv": [0, 0], "uv_size": [1, 1]},
-								"east": {"uv": [0, 0], "uv_size": [0, 1]},
-								"south": {"uv": [0, 0], "uv_size": [1, 1]},
-								"west": {"uv": [0, 0], "uv_size": [0, 1]},
-								"up": {"uv": [1, 0], "uv_size": [-1, 0]},
-								"down": {"uv": [1, 0], "uv_size": [-1, 0]}
-							}
-						},
-						{
-							"origin": [0, 1.75, -6.1],
-							"size": [1, 1, 0],
-							"uv": {
-								"north": {"uv": [0, 0], "uv_size": [1, 1]},
-								"east": {"uv": [0, 0], "uv_size": [0, 1]},
-								"south": {"uv": [0, 0], "uv_size": [1, 1]},
-								"west": {"uv": [0, 0], "uv_size": [0, 1]},
-								"up": {"uv": [1, 0], "uv_size": [-1, 0]},
-								"down": {"uv": [1, 0], "uv_size": [-1, 0]}
-							}
-						},
-						{
-							"origin": [0.5, 3.5, -6.45],
-							"size": [1, 1, 0],
-							"uv": {
-								"north": {"uv": [0, 0], "uv_size": [1, 1]},
-								"east": {"uv": [0, 0], "uv_size": [0, 1]},
-								"south": {"uv": [0, 0], "uv_size": [1, 1]},
-								"west": {"uv": [0, 0], "uv_size": [0, 1]},
-								"up": {"uv": [1, 0], "uv_size": [-1, 0]},
-								"down": {"uv": [1, 0], "uv_size": [-1, 0]}
-							}
+					"locators": {
+						"locator": {
+							"offset": [0.25, 2.5, -5.75],
+							"rotation": [0, 0, -180]
 						}
-					]
+					}
 				}
 			]
 		}

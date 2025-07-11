@@ -125,20 +125,10 @@ public class AnimatedCigar extends TrinketItem implements IAnimatable, ISyncable
                 double particleY = pipePosition.y + (world.random.nextGaussian() * 0.02);
                 double particleZ = pipePosition.z + (world.random.nextGaussian() * 0.02);
 
-                // Spawn particles
+                // Spawn particles only on client side (first-person view only)
                 if (world.isClient) {
                     for(int i=0;i<20;i++)
                         world.addParticle(ParticleTypes.SMOKE, particleX, particleY, particleZ, 0.001, 0.01, 0.001);
-                } else {
-                    // Server-side: spawn particles for all players except the smoking user
-                    ServerWorld serverWorld = (ServerWorld) world;
-                    for (net.minecraft.server.network.ServerPlayerEntity player : serverWorld.getPlayers()) {
-                        if (player != user) {
-                            serverWorld.spawnParticles(player, ParticleTypes.SMOKE,
-                                    false, particleX, particleY, particleZ,
-                                    20, 0.001, 0.01, 0.001, 0.0);
-                        }
-                    }
                 }
             }
         }
@@ -179,7 +169,8 @@ public class AnimatedCigar extends TrinketItem implements IAnimatable, ISyncable
     public void spawnSmoke(int remainingUseTicks, LivingEntity user, World world){
         float f = (float) (USAGE_TIME - remainingUseTicks) / 600;
         
-        if (world.isClient) { // Client-side particles for the user
+        // Only spawn particles on client side (first-person view only)
+        if (world.isClient) {
             for (int i = 0; i < 3; i++) {
                 final int particleIndex = i;
                 final double offsetMultiplier = 0.4 + (particleIndex * 0.1);
@@ -192,35 +183,6 @@ public class AnimatedCigar extends TrinketItem implements IAnimatable, ISyncable
                                 user.getY() + user.getEyeHeight(user.getPose()) + vec.y * offsetMultiplier,
                                 user.getZ() + vec.z * offsetMultiplier,
                                 vec.x * f, vec.y * f, vec.z * f);
-                    } catch (InterruptedException e) {
-                        Thread.currentThread().interrupt();
-                    }
-                }).start();
-            }
-        } else { // Server-side particles for all other players
-            for (int i = 0; i < 3; i++) {
-                final int particleIndex = i;
-                final double offsetMultiplier = 0.4 + (particleIndex * 0.1);
-                new Thread(() -> {
-                    try {
-                        Thread.sleep(particleIndex * 1000);
-                        ServerWorld serverWorld = (ServerWorld) world;
-                        for (net.minecraft.server.network.ServerPlayerEntity player : serverWorld.getPlayers()) {
-                            if (player != user) {
-                                Vec3d vec = user.getRotationVec(1.0F);
-                                double userX = user.getX();
-                                double userY = user.getY() + user.getEyeHeight(user.getPose());
-                                double userZ = user.getZ();
-                                
-                                // Exclude the user who is smoking
-                                serverWorld.spawnParticles(player,EyPipesParticleTypes.RING_OF_SMOKE,
-                                        false,
-                                        userX + vec.x * offsetMultiplier,
-                                        userY + vec.y * offsetMultiplier,
-                                        userZ + vec.z * offsetMultiplier,
-                                        0, vec.x * f, vec.y * f, vec.z * f, 1.0f);
-                            }
-                        }
                     } catch (InterruptedException e) {
                         Thread.currentThread().interrupt();
                     }

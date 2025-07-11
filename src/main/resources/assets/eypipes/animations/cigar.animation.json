@@ -3,39 +3,20 @@
 	"animations": {
 		"animation.cigar.smoke": {
 			"loop": true,
-			"animation_length": 2.5,
+			"animation_length": 24.7083,
 			"bones": {
-				"smoke": {
+				"smoke particles": {
 					"rotation": {
 						"vector": [0, 0, 0]
 					},
 					"position": {
-						"0.0": {
-							"vector": [0, 0, 0]
-						},
-						"0.25": {
-							"vector": [0.5, 2, 0]
-						},
-						"0.7083": {
-							"vector": [-0.5, 4, 0]
-						},
-						"1.1667": {
-							"vector": [0.42, 5.67, 0]
-						},
-						"1.75": {
-							"vector": [-1.5, 8, 0]
-						},
-						"2.5": {
-							"vector": [0.5, 12, 0],
-							"easing": "linear"
-						}
+						"vector": [0, 0, 0]
 					},
 					"scale": {
 						"vector": [1, 1, 1]
 					}
 				}
-			},
-			"particle_effects": {}
+			}
 		}
 	},
 	"geckolib_format_version": 2

@@ -27,7 +27,7 @@ public class PipeTrinketRenderer implements TrinketRenderer {
             
             if ("pipe_chest".equals(slotName)) {
                 // Transform to right hand position for chest slot
-                playerModel.rightArm.rotate(matrices);
+                playerModel.rightArm.rotate(matrices); 
                 
                 matrices.translate(0.0f, 0.0f, 0.2f);
                 matrices.multiply(Vec3f.POSITIVE_X.getDegreesQuaternion(25)); // Rotate to hold properly
