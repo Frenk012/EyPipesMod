@@ -42,9 +42,10 @@ public class ArmAnimationTracker {
         }
     }
     
-    /**
-     * Calculates the world position of the pipe tip based on arm animation.
-     */
+
+    private static final float PIPE_SMOKING_PITCH = -1.5F; // Target pitch for the arm when smoking
+    private static final float PIPE_SMOKING_YAW = -0.5F; // Target yaw for the arm when smoking
+
     public static Vec3d calculatePipePosition(LivingEntity entity) {
         ArmPosition armPos = getArmPosition(entity);
         
@@ -70,15 +71,21 @@ public class ArmAnimationTracker {
             );
         }
         
-        // Apply arm rotation to calculate pipe tip offset
-        // The more the arm is rotated toward the face, the closer the pipe tip
-        float armInfluence = Math.abs(armPos.pitch) + Math.abs(armPos.yaw);
-        double pipeLength = 0.3 + (armInfluence * 0.2); // Pipe extends from hand
+        // Apply the same smooth interpolation logic as the mixin
+        // Calculate progress based on how close the arm is to the target position
+        float pitchProgress = Math.abs(armPos.pitch / PIPE_SMOKING_PITCH);
+        float yawProgress = Math.abs(armPos.yaw / PIPE_SMOKING_YAW);
+        float smoothProgress = Math.min(1.0f, Math.max(pitchProgress, yawProgress));
         
-        // Calculate offset based on arm rotation
-        Vec3d armOffset = lookVec.multiply(pipeLength * 0.8)
-            .add(rightVec.multiply(-0.2 + armPos.yaw * 0.3))
-            .add(upVec.multiply(-0.1 + armPos.pitch * 0.2));
+        // Calculate pipe tip offset using the same interpolation approach
+        // The pipe moves closer to the mouth as the animation progresses
+        double basePipeLength = 0.3;
+        double animatedPipeLength = basePipeLength * (1.0 - smoothProgress * 0.4); // Pipe gets closer
+        
+        // Apply smooth interpolated positioning that matches the arm movement
+        Vec3d armOffset = lookVec.multiply(animatedPipeLength)
+            .add(rightVec.multiply(-0.15 + (armPos.yaw / PIPE_SMOKING_YAW) * 0.1))
+            .add(upVec.multiply(-0.05 + (armPos.pitch / PIPE_SMOKING_PITCH) * 0.15));
         
         return basePos.add(armOffset);
     }

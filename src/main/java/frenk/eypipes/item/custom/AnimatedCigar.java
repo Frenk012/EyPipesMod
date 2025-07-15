@@ -108,16 +108,12 @@ public class AnimatedCigar extends TrinketItem implements IAnimatable, ISyncable
             if (remainingUseTicks % frequency == 0) {
                 Vec3d pipePosition;
                 if (world.isClient) {
-                    Vec3d lookVec = user.getRotationVec(1.0F);
-                    Vec3d rightVec = new Vec3d(-lookVec.z, 0, lookVec.x).normalize();
-                    Vec3d upVec = rightVec.crossProduct(lookVec).normalize();
+                    // Check if this is first-person view using camera perspective
+                    net.minecraft.client.MinecraftClient client = net.minecraft.client.MinecraftClient.getInstance();
+                    boolean isFirstPerson = client.options.getPerspective().isFirstPerson();
                     
-                    Vec3d basePos = new Vec3d(user.getX(), user.getY() + user.getEyeHeight(user.getPose()), user.getZ());
-                    
-                    pipePosition = basePos
-                        .add(lookVec.multiply(EyPipesConfig.PARTICLE_OFFSET_X))
-                        .add(rightVec.multiply(EyPipesConfig.PARTICLE_OFFSET_Y))
-                        .add(upVec.multiply(EyPipesConfig.PARTICLE_OFFSET_Z));
+                    // Use the new ClientSideParticleHelper with first-person detection
+                    pipePosition = frenk.eypipes.util.ClientSideParticleHelper.calculateSmokePosition(user, isFirstPerson);
                 } else {
                     pipePosition = ArmAnimationTracker.calculatePipePosition(user);
                 }
