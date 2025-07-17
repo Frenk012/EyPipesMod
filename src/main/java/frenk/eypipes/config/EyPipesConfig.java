@@ -87,6 +87,10 @@ public class EyPipesConfig {
     public static int THIRD_PERSON_DELAY_TICKS = 1;
     public static float THIRD_PERSON_DURATION_SECONDS = 1.5f;
     public static boolean THIRD_PERSON_ENABLE_ROTATION = true;
+    public static float PARTICLE_OFFSET_THIRDVIEW_X = 0.0f;
+    public static float PARTICLE_OFFSET_THIRDVIEW_Y = 0.0f;
+    public static float PARTICLE_OFFSET_THIRDVIEW_Z = 0.0f;
+
     
     // Position Offset Settings
     public static float OFFSET_HEAD_X = 1.0f;
@@ -254,6 +258,9 @@ public class EyPipesConfig {
                     OFFSET_GUI_X = (float) getDoubleOrDefault(offsetSettings, "gui_x", 1.0);
                     OFFSET_GUI_Y = (float) getDoubleOrDefault(offsetSettings, "gui_y", 0.3);
                     OFFSET_GUI_Z = (float) getDoubleOrDefault(offsetSettings, "gui_z", 0.2);
+                    PARTICLE_OFFSET_THIRDVIEW_X = (float) getDoubleOrDefault(offsetSettings, "particle_offset_thirdview_x", 0.0);
+                    PARTICLE_OFFSET_THIRDVIEW_Y = (float) getDoubleOrDefault(offsetSettings, "particle_offset_thirdview_y", 1.0);
+                    PARTICLE_OFFSET_THIRDVIEW_Z = (float) getDoubleOrDefault(offsetSettings, "particle_offset_thirdview_z", 0.0);
                 }
                 
                 // Load particle offset settings

@@ -10,8 +10,8 @@ import net.minecraft.util.Identifier;
 import net.fabricmc.fabric.api.item.v1.FabricItemSettings;
 import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;
-
 public class PipesEntities {
+
     public static void init(){
         EyPipes.LOGGER.info("Initializing Pipes Entities!");
     }

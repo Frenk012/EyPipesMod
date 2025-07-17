@@ -113,32 +113,23 @@ public class PipeItem extends TrinketItem {
             int frequency = Math.max(4, (int) Math.pow((USAGE_TIME - totalTicks) / 10.0, 2));
             if (remainingUseTicks % frequency == 0) {
                 Vec3d pipePosition;
-                if (world.isClient) {
-                    // Check if this is first-person view using camera perspective
-                    net.minecraft.client.MinecraftClient client = net.minecraft.client.MinecraftClient.getInstance();
-                    boolean isFirstPerson = client.options.getPerspective().isFirstPerson();
-                    
-                    // Use the new ClientSideParticleHelper with first-person detection
-                    pipePosition = frenk.eypipes.util.ClientSideParticleHelper.calculateSmokePosition(user, isFirstPerson);
-                } else {
-                    pipePosition = ArmAnimationTracker.calculatePipePosition(user);
-                }
-                double particleX = pipePosition.x + (world.random.nextGaussian() * 0.02);
-                double particleY = pipePosition.y + (world.random.nextGaussian() * 0.02);
-                double particleZ = pipePosition.z + (world.random.nextGaussian() * 0.02);
-
                 // Spawn particles
                 if (world.isClient) {
+                    net.minecraft.client.MinecraftClient client = net.minecraft.client.MinecraftClient.getInstance();
+                    boolean isFirstPerson = client.options.getPerspective().isFirstPerson();
+                    pipePosition = frenk.eypipes.util.ClientSideParticleHelper.calculateSmokePosition(user, isFirstPerson);
                     for(int i=0;i<20;i++)
-                        world.addParticle(ParticleTypes.SMOKE, particleX, particleY, particleZ, 0.001, 0.01, 0.001);
-                } else {
-                    // Server-side: spawn particles for all players except the smoking user
-                    ServerWorld serverWorld = (ServerWorld) world;
+                        world.addParticle(ParticleTypes.SMOKE, pipePosition.x + (world.random.nextGaussian() * 0.02), pipePosition.y + (world.random.nextGaussian() * 0.02), pipePosition.z + (world.random.nextGaussian() * 0.02), 0.001, 0.01, 0.001);
+                }
+                if (world instanceof ServerWorld serverWorld) {
+                    // Server-side particle spawning for all nearby players
                     for (net.minecraft.server.network.ServerPlayerEntity player : serverWorld.getPlayers()) {
-                        if (player != user) {
+                        if (player != user && player.distanceTo(user) <= 32.0) {
+                            // Calculate server-safe smoke position using the same logic as getDefaultSmokePosition
+                            pipePosition = frenk.eypipes.util.ClientSideParticleHelper.calculateSmokePosition(user, false);
                             serverWorld.spawnParticles(player, ParticleTypes.SMOKE,
-                                    false, particleX, particleY, particleZ,
-                                    20, 0.001, 0.01, 0.001, 0.0);
+                                    false, pipePosition.x + (world.random.nextGaussian() * 0.02), pipePosition.y + (world.random.nextGaussian() * 0.02), pipePosition.z + (world.random.nextGaussian() * 0.02),
+                                    10, 0.001, 0.01, 0.001, 0.0);
                         }
                     }
                 }
@@ -188,33 +179,34 @@ public class PipeItem extends TrinketItem {
                 }).start();
             }
         } else { // Server-side particles for all other players
-            for (int i = 0; i < 3; i++) {
-                final int particleIndex = i;
-                final double offsetMultiplier = 0.4 + (particleIndex * 0.1);
-                new Thread(() -> {
-                    try {
-                        Thread.sleep(particleIndex * 1000);
-                        ServerWorld serverWorld = (ServerWorld) world;
-                        for (net.minecraft.server.network.ServerPlayerEntity player : serverWorld.getPlayers()) {
-                            if (player != user) {
-                                Vec3d vec = user.getRotationVec(1.0F);
-                                double userX = user.getX();
-                                double userY = user.getY() + user.getEyeHeight(user.getPose());
-                                double userZ = user.getZ();
-                                
-                                // Exclude the user who is smoking
-                                serverWorld.spawnParticles(player,EyPipesParticleTypes.RING_OF_SMOKE,
-                                        false,
-                                        userX + vec.x * offsetMultiplier,
-                                        userY + vec.y * offsetMultiplier,
-                                        userZ + vec.z * offsetMultiplier,
-                                        0, vec.x * f, vec.y * f, vec.z * f, 1.0f);
+            if (world instanceof ServerWorld serverWorld) {
+                for (int i = 0; i < 3; i++) {
+                    final int particleIndex = i;
+                    final double offsetMultiplier = 0.4 + (particleIndex * 0.1);
+                    new Thread(() -> {
+                        try {
+                            Thread.sleep(particleIndex * 1000);
+                            for (net.minecraft.server.network.ServerPlayerEntity player : serverWorld.getPlayers()) {
+                                if (player != user) {
+                                    Vec3d vec = user.getRotationVec(1.0F);
+                                    double userX = user.getX();
+                                    double userY = user.getY() + user.getEyeHeight(user.getPose());
+                                    double userZ = user.getZ();
+                                    
+                                    // Exclude the user who is smoking
+                                    serverWorld.spawnParticles(player,EyPipesParticleTypes.RING_OF_SMOKE,
+                                            false,
+                                            userX + vec.x * offsetMultiplier,
+                                            userY + vec.y * offsetMultiplier,
+                                            userZ + vec.z * offsetMultiplier,
+                                            0, vec.x * f, vec.y * f, vec.z * f, 1.0f);
+                                }
                             }
+                        } catch (InterruptedException e) {
+                            Thread.currentThread().interrupt();
                         }
-                    } catch (InterruptedException e) {
-                        Thread.currentThread().interrupt();
-                    }
-                }).start();
+                    }).start();
+                }
             }
         }
     }
@@ -226,5 +218,28 @@ public class PipeItem extends TrinketItem {
 
     public boolean isSmoking() {
         return this.smoking;
+    }
+    
+    /**
+     * Server-safe method to calculate smoke position without client dependencies.
+     * Uses the same logic as ClientSideParticleHelper.getDefaultSmokePosition but server-safe.
+     */
+    private Vec3d calculateServerSideSmokePosition(LivingEntity entity) {
+        Vec3d lookVec = entity.getRotationVec(1.0F);
+        Vec3d rightVec = new Vec3d(-lookVec.z, 0, lookVec.x).normalize();
+        Vec3d upVec = rightVec.crossProduct(lookVec).normalize();
+        
+        Vec3d basePos = new Vec3d(
+            entity.getX(),
+            entity.getY() + entity.getEyeHeight(entity.getPose()),
+            entity.getZ()
+        );
+        
+        Vec3d result = basePos
+            .add(lookVec.multiply(frenk.eypipes.config.EyPipesConfig.PARTICLE_OFFSET_X))
+            .add(rightVec.multiply(frenk.eypipes.config.EyPipesConfig.PARTICLE_OFFSET_Y))
+            .add(upVec.multiply(frenk.eypipes.config.EyPipesConfig.PARTICLE_OFFSET_Z));
+        
+        return result;
     }
 }

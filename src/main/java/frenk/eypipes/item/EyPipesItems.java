@@ -27,6 +27,9 @@ public class EyPipesItems {
             new AliasedBlockItem(EyPipesBlocks.ERBAPIPA_CROP, new FabricItemSettings().group(EyPipes.EY_PIPES_GROUP)));
     public static final Item PIPE = Registry.register(Registry.ITEM, new Identifier(EyPipes.MOD_ID, "pipe"), new PipeItem(new FabricItemSettings().group(EyPipes.EY_PIPES_GROUP).maxCount(1),50));
     public static final Item CIGAR = Registry.register(Registry.ITEM, new Identifier(EyPipes.MOD_ID, "cigar"), new AnimatedCigar(new FabricItemSettings().group(EyPipes.EY_PIPES_GROUP).maxCount(1), 10));
+    
+    // Note: GeckoLib3 example items are now handled by the GeckoLib3 mod itself
+    // Removed duplicate registrations to prevent ID conflicts
 
     public static Item registerItem(String name, Item item) {
         ITEMS.add(item);

@@ -28,36 +28,24 @@ public class ClientSideParticleHelper {
     public static Vec3d calculateSmokePosition(LivingEntity entity, boolean isFirstPerson) {
         EyPipes.LOGGER.info("[DEBUG] calculateSmokePosition called with entity: {}, isFirstPerson: {}", entity.getName().getString(), isFirstPerson);
         
-        if (!(entity instanceof PlayerEntity)) {
-            EyPipes.LOGGER.info("[DEBUG] Entity is not PlayerEntity, using default position");
-            return getDefaultSmokePosition(entity, isFirstPerson);
-        }
-        
-        MinecraftClient client = MinecraftClient.getInstance();
-        if (client.getEntityRenderDispatcher() == null) {
-            EyPipes.LOGGER.info("[DEBUG] EntityRenderDispatcher is null, using default position");
-            return getDefaultSmokePosition(entity, isFirstPerson);
-        }
-        
         try {
             EyPipes.LOGGER.info("[DEBUG] About to call ArmAnimationTracker.calculatePipePosition");
-            // Use ArmAnimationTracker for more reliable position calculation
+            
             Vec3d pipePosition = ArmAnimationTracker.calculatePipePosition(entity);
-            EyPipes.LOGGER.info("[DEBUG] ArmAnimationTracker returned: {}", pipePosition);
             EyPipes.LOGGER.info("[DEBUG] pipePosition == null: {}", pipePosition == null);
-            EyPipes.LOGGER.info("Calculated pipePosition: {}, isFirstPerson: {}, entity: {}", pipePosition, isFirstPerson, entity.getName().getString());
+            EyPipes.LOGGER.info("[DEBUG] Calculated pipePosition: {}, isFirstPerson: {}, entity: {}", pipePosition, isFirstPerson, entity.getName().getString());
             
             if (pipePosition != null) {
-                EyPipes.LOGGER.info("IF condition PASSED - pipePosition is not null");
+                EyPipes.LOGGER.info("[DEBUG] IF condition PASSED");
                 // Apply first-person vs third-person offset adjustment
-                if (!isFirstPerson) {
-                    EyPipes.LOGGER.info("Applying third-person offset adjustment");
-                    pipePosition = pipePosition.add(1.0, 0.0, 0.0);
+                if (isFirstPerson == false) {
+                    EyPipes.LOGGER.info("[DEBUG] Applying third-person offset adjustment");
+                    pipePosition = pipePosition.add(EyPipesConfig.PARTICLE_OFFSET_THIRDVIEW_X, EyPipesConfig.PARTICLE_OFFSET_THIRDVIEW_Y, EyPipesConfig.PARTICLE_OFFSET_THIRDVIEW_Z);
                 }
                 EyPipes.LOGGER.info("Final pipePosition: {}", pipePosition);
                 return pipePosition;
             } else {
-                EyPipes.LOGGER.info("IF condition FAILED - pipePosition is null, falling back to default");
+                EyPipes.LOGGER.info("[DEBUG] IF condition FAILED");
             }
         } catch (Exception e) {
             // Fallback to default position if anything goes wrong
