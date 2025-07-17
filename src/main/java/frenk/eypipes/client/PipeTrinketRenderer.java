@@ -2,6 +2,7 @@ package frenk.eypipes.client;
 
 import dev.emi.trinkets.api.SlotReference;
 import dev.emi.trinkets.api.client.TrinketRenderer;
+import frenk.eypipes.config.EyPipesConfig;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.entity.model.EntityModel;
@@ -29,7 +30,7 @@ public class PipeTrinketRenderer implements TrinketRenderer {
                 // Transform to right hand position for chest slot
                 playerModel.rightArm.rotate(matrices);
                 
-                matrices.translate(0.0f, 0.0f, 0.2f);
+                matrices.translate(EyPipesConfig.PARTICLE_OFFSET_THIRDVIEW_X, EyPipesConfig.PARTICLE_OFFSET_THIRDVIEW_Y, EyPipesConfig.PARTICLE_OFFSET_THIRDVIEW_Z);
                 matrices.multiply(Vec3f.POSITIVE_X.getDegreesQuaternion(25)); // Rotate to hold properly
                 matrices.multiply(Vec3f.POSITIVE_Z.getDegreesQuaternion(180)); // Rotate to hold properly
                 matrices.multiply(Vec3f.POSITIVE_Y.getDegreesQuaternion(340)); // Adjust orientation

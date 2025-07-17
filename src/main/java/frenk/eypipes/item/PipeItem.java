@@ -15,16 +15,20 @@ import net.minecraft.util.UseAction;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraft.server.world.ServerWorld;
-import frenk.eypipes.EyPipes;
-import frenk.eypipes.config.EyPipesConfig;
 import frenk.eypipes.particles.EyPipesParticleTypes;
 import frenk.eypipes.sound.EyPipesSound;
-import frenk.eypipes.util.ArmAnimationTracker;
 
 public class PipeItem extends TrinketItem {
     private final int USAGE_TIME = 60;
     private boolean smoking = false;
     
+    @Override
+    public void onCraft(ItemStack stack, World world, PlayerEntity player) {
+        if (!world.isClient) {
+            stack.setDamage(stack.getMaxDamage() - 1);
+        }
+    }
+
     public PipeItem(FabricItemSettings settings, int amountOfUse) {
         super(settings.maxDamage(amountOfUse));
     }
@@ -50,7 +54,12 @@ public class PipeItem extends TrinketItem {
         if (user.isSneaking() && hand == Hand.MAIN_HAND) {
             ItemStack offHandStack = user.getStackInHand(Hand.OFF_HAND);
             if (offHandStack.getItem() == EyPipesItems.ERBAPIPA_CUTTED && itemStack.isDamageable()) {
-                // Increase durability by 10 (decrease damage by 10)
+                // Check if pipe is already at maximum durability
+                if (itemStack.getDamage() <= 1) {
+                    return TypedActionResult.fail(itemStack);
+                }
+                
+                // Increase durability by 1 (decrease damage by 1)
                 int currentDamage = itemStack.getDamage();
                 int newDamage = Math.max(0, currentDamage - 1);
                 itemStack.setDamage(newDamage);
@@ -96,12 +105,7 @@ public class PipeItem extends TrinketItem {
     @Override
     public void onStoppedUsing(ItemStack stack, World world, LivingEntity user, int remainingUseTicks) {
         if (smoking) {
-            if (remainingUseTicks <= 0) { // Finished using for the full duration
-                finishUsing(stack, world, user);
-                spawnSmoke(0, user, world); // Spawn smoke on finish
-            } else if (remainingUseTicks < USAGE_TIME / 2) { // Stopped early
-                spawnSmoke(remainingUseTicks, user, world);
-            }
+            finishUsing(stack, world, user);
         }
         this.smoking = false;
         ((PlayerEntity)user).getItemCooldownManager().set(this, 20);
@@ -148,13 +152,12 @@ public class PipeItem extends TrinketItem {
     }
 
     public ItemStack finishUsing(ItemStack item, World world, LivingEntity user){
-        // Play exhale sound when finishing smoking (server-side only)
+        spawnSmoke(0, user, world);
         if (!world.isClient) {
-            System.out.println("[EyPipes] Playing exhale sound at: " + user.getX() + ", " + user.getY() + ", " + user.getZ());
-            world.playSound(null, user.getX(), user.getY(), user.getZ(), EyPipesSound.PIPE_EXHALE, SoundCategory.MASTER, 1.0F, 1.0F);
+            world.playSound(null, user.getX(), user.getY(), user.getZ(), EyPipesSound.PIPE_EXHALE, SoundCategory.PLAYERS, 0.8F, 1.0F);
             // Also try playing to the specific player
             if (user instanceof PlayerEntity) {
-                world.playSound((PlayerEntity) user, user.getBlockPos(), EyPipesSound.PIPE_EXHALE, SoundCategory.MASTER, 1.0F, 1.0F);
+                world.playSound((PlayerEntity) user, user.getBlockPos(), EyPipesSound.PIPE_EXHALE, SoundCategory.PLAYERS, 0.8F, 1.0F);
             }
         }
 

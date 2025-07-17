@@ -2,9 +2,7 @@ package frenk.eypipes.util;
 
 import frenk.eypipes.EyPipes;
 import frenk.eypipes.config.EyPipesConfig;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.math.Vec3d;
 
 /**
@@ -33,7 +31,7 @@ public class ClientSideParticleHelper {
                 // Apply first-person vs third-person offset adjustment
                 if (isFirstPerson == false) {
                     EyPipes.LOGGER.info("Applying third-person offset adjustment");
-                    pipePosition = pipePosition.add(EyPipesConfig.PARTICLE_OFFSET_THIRDVIEW_X, EyPipesConfig.PARTICLE_OFFSET_THIRDVIEW_Y, EyPipesConfig.PARTICLE_OFFSET_THIRDVIEW_Z);
+                    pipePosition = pipePosition.add(0.4, 0.33, 0);
                 }
                 return pipePosition;
             } else {

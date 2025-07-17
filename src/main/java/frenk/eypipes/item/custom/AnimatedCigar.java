@@ -84,7 +84,6 @@ public class AnimatedCigar extends TrinketItem implements IAnimatable, ISyncable
 
     @Override
     public void onStoppedUsing(ItemStack stack, World world, LivingEntity user, int remainingUseTicks) {
-        spawnSmoke(0, user, world);
         if (isSmoking(stack)) {
             ItemStack result = finishUsing(stack, world, user);
 
@@ -140,13 +139,13 @@ public class AnimatedCigar extends TrinketItem implements IAnimatable, ISyncable
     }
 
     public ItemStack finishUsing(ItemStack item, World world, LivingEntity user){
+        spawnSmoke(0, user, world);
         // Play exhale sound when finishing smoking (server-side only)
         if (!world.isClient) {
-            System.out.println("[EyPipes] Playing exhale sound at: " + user.getX() + ", " + user.getY() + ", " + user.getZ());
-            world.playSound(null, user.getX(), user.getY(), user.getZ(), EyPipesSound.PIPE_EXHALE, SoundCategory.MASTER, 1.0F, 1.0F);
+            world.playSound(null, user.getX(), user.getY(), user.getZ(), EyPipesSound.PIPE_EXHALE, SoundCategory.PLAYERS, 0.8F, 1.0F);
             // Also try playing to the specific player
             if (user instanceof PlayerEntity) {
-                world.playSound((PlayerEntity) user, user.getBlockPos(), EyPipesSound.PIPE_EXHALE, SoundCategory.MASTER, 1.0F, 1.0F);
+                world.playSound((PlayerEntity) user, user.getBlockPos(), EyPipesSound.PIPE_EXHALE, SoundCategory.PLAYERS, 0.8F, 1.0F);
             }
         }
         
