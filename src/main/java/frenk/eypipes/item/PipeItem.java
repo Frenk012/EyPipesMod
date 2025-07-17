@@ -15,6 +15,7 @@ import net.minecraft.util.UseAction;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraft.server.world.ServerWorld;
+import frenk.eypipes.EyPipes;
 import frenk.eypipes.config.EyPipesConfig;
 import frenk.eypipes.particles.EyPipesParticleTypes;
 import frenk.eypipes.sound.EyPipesSound;
@@ -112,23 +113,32 @@ public class PipeItem extends TrinketItem {
             int totalTicks = USAGE_TIME - remainingUseTicks;
             int frequency = Math.max(4, (int) Math.pow((USAGE_TIME - totalTicks) / 10.0, 2));
             if (remainingUseTicks % frequency == 0) {
-                Vec3d pipePosition;
                 // Spawn particles
                 if (world.isClient) {
                     net.minecraft.client.MinecraftClient client = net.minecraft.client.MinecraftClient.getInstance();
                     boolean isFirstPerson = client.options.getPerspective().isFirstPerson();
-                    pipePosition = frenk.eypipes.util.ClientSideParticleHelper.calculateSmokePosition(user, isFirstPerson);
-                    for(int i=0;i<20;i++)
-                        world.addParticle(ParticleTypes.SMOKE, pipePosition.x + (world.random.nextGaussian() * 0.02), pipePosition.y + (world.random.nextGaussian() * 0.02), pipePosition.z + (world.random.nextGaussian() * 0.02), 0.001, 0.01, 0.001);
+                    if (isFirstPerson == true) {
+                        Vec3d pipePosition[]  = calculateParticlePosition(user);
+                        Vec3d correctPosition = pipePosition[0];
+                        for(int i=0;i<10;i++)
+                            world.addParticle(ParticleTypes.SMOKE, correctPosition.x + (world.random.nextGaussian() * 0.02), correctPosition.y + (world.random.nextGaussian() * 0.02), correctPosition.z + (world.random.nextGaussian() * 0.02), 0.001, 0.01, 0.001); 
+                    }
+                    else{
+                        Vec3d pipePosition[]  = calculateParticlePosition(user);
+                        Vec3d correctPosition = pipePosition[1];
+                        for(int i=0;i<10;i++)
+                            world.addParticle(ParticleTypes.SMOKE, correctPosition.x + (world.random.nextGaussian() * 0.02), correctPosition.y + (world.random.nextGaussian() * 0.02), correctPosition.z + (world.random.nextGaussian() * 0.02), 0.001, 0.01, 0.001);  
+                    }
                 }
                 if (world instanceof ServerWorld serverWorld) {
                     // Server-side particle spawning for all nearby players
                     for (net.minecraft.server.network.ServerPlayerEntity player : serverWorld.getPlayers()) {
                         if (player != user && player.distanceTo(user) <= 32.0) {
-                            // Calculate server-safe smoke position using the same logic as getDefaultSmokePosition
-                            pipePosition = frenk.eypipes.util.ClientSideParticleHelper.calculateSmokePosition(user, false);
+                            // Calculate server-safe smoke position
+                            Vec3d pipePosition[] = calculateParticlePosition(user);
+                            Vec3d correctPosition = pipePosition[1];
                             serverWorld.spawnParticles(player, ParticleTypes.SMOKE,
-                                    false, pipePosition.x + (world.random.nextGaussian() * 0.02), pipePosition.y + (world.random.nextGaussian() * 0.02), pipePosition.z + (world.random.nextGaussian() * 0.02),
+                                    false, correctPosition.x + (world.random.nextGaussian() * 0.02), correctPosition.y + (world.random.nextGaussian() * 0.02), correctPosition.z + (world.random.nextGaussian() * 0.02),
                                     10, 0.001, 0.01, 0.001, 0.0);
                         }
                     }
@@ -222,24 +232,41 @@ public class PipeItem extends TrinketItem {
     
     /**
      * Server-safe method to calculate smoke position without client dependencies.
-     * Uses the same logic as ClientSideParticleHelper.getDefaultSmokePosition but server-safe.
+     * Dynamically calculates the absolute world position of the rendered pipe each tick.
+     * For third-person: Height is fixed and does not follow the player's vertical look direction.
+     * For first-person: Uses full look direction to match head rotation naturally.
      */
-    private Vec3d calculateServerSideSmokePosition(LivingEntity entity) {
+    private Vec3d[] calculateParticlePosition(LivingEntity entity) {
+        // Get current rotation vectors (updates each tick with player movement/rotation)
         Vec3d lookVec = entity.getRotationVec(1.0F);
-        Vec3d rightVec = new Vec3d(-lookVec.z, 0, lookVec.x).normalize();
-        Vec3d upVec = rightVec.crossProduct(lookVec).normalize();
         
+        // Get current absolute world position (updates each tick with player movement)
         Vec3d basePos = new Vec3d(
             entity.getX(),
             entity.getY() + entity.getEyeHeight(entity.getPose()),
             entity.getZ()
         );
         
-        Vec3d result = basePos
-            .add(lookVec.multiply(frenk.eypipes.config.EyPipesConfig.PARTICLE_OFFSET_X))
-            .add(rightVec.multiply(frenk.eypipes.config.EyPipesConfig.PARTICLE_OFFSET_Y))
-            .add(upVec.multiply(frenk.eypipes.config.EyPipesConfig.PARTICLE_OFFSET_Z));
+        // For third-person view: use horizontal-only vectors for fixed height
+        Vec3d horizontalLookVec = new Vec3d(lookVec.x, 0, lookVec.z).normalize();
+        Vec3d rightVecThird = new Vec3d(horizontalLookVec.z, 0, horizontalLookVec.x).normalize();
+        Vec3d upVecThird = new Vec3d(0, 1, 0); // Fixed upward direction
         
-        return result;
+        Vec3d resultThird = basePos
+            .add(horizontalLookVec.multiply(0.5))
+            .add(rightVecThird.multiply(0.2))
+            .add(upVecThird.multiply(-0.2));
+        
+        // For first-person view: use full look direction for natural head tracking
+        Vec3d rightVecFirst = lookVec.crossProduct(new Vec3d(0, 1, 0)).normalize();
+        Vec3d upVecFirst = rightVecFirst.crossProduct(lookVec).normalize();
+        
+        Vec3d resultFirst = basePos
+            .add(lookVec.multiply(0.6))
+            .add(rightVecFirst.multiply(0.53))
+            .add(upVecFirst.multiply(0.0));
+            
+        Vec3d[] results = new Vec3d[]{resultFirst, resultThird};
+        return results;
     }
 }

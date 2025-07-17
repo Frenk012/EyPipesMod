@@ -111,7 +111,7 @@ public class PipeItemRenderer implements BuiltinItemRendererRegistry.DynamicItem
                 matrices.translate(EyPipesConfig.OFFSET_FIRST_PERSON_RIGHT_X, EyPipesConfig.OFFSET_FIRST_PERSON_RIGHT_Y, EyPipesConfig.OFFSET_FIRST_PERSON_RIGHT_Z);
             }
             case GUI -> {
-                matrices.translate(EyPipesConfig.OFFSET_GUI_X, EyPipesConfig.OFFSET_GUI_Y, EyPipesConfig.OFFSET_GUI_Z);
+                matrices.translate(0.9, 0.3, 0.2);
             }
             case NONE, GROUND -> {
                 // These modes don't need compensation as they don't have problematic offsets in the model

@@ -112,11 +112,6 @@ public class EyPipesConfig {
     public static float OFFSET_GUI_Y = 0.3f;
     public static float OFFSET_GUI_Z = 0.2f;
     
-    // Particle Offset Settings
-    public static double PARTICLE_OFFSET_X = 1.0;
-    public static double PARTICLE_OFFSET_Y = 0.3;
-    public static double PARTICLE_OFFSET_Z = 0.2;
-    
     public static void loadConfig() {
         try {
             if (!Files.exists(CONFIG_PATH)) {
@@ -258,19 +253,12 @@ public class EyPipesConfig {
                     OFFSET_GUI_X = (float) getDoubleOrDefault(offsetSettings, "gui_x", 0.9);
                     OFFSET_GUI_Y = (float) getDoubleOrDefault(offsetSettings, "gui_y", 0.3);
                     OFFSET_GUI_Z = (float) getDoubleOrDefault(offsetSettings, "gui_z", 0.2);
-                    PARTICLE_OFFSET_THIRDVIEW_X = (float) getDoubleOrDefault(offsetSettings, "particle_offset_thirdview_x", 0.0);
-                    PARTICLE_OFFSET_THIRDVIEW_Y = (float) getDoubleOrDefault(offsetSettings, "particle_offset_thirdview_y", 1.0);
-                    PARTICLE_OFFSET_THIRDVIEW_Z = (float) getDoubleOrDefault(offsetSettings, "particle_offset_thirdview_z", 0.0);
+                    PARTICLE_OFFSET_THIRDVIEW_X = (float) getDoubleOrDefault(offsetSettings, "particle_offset_thirdview_x", 0.4);
+                    PARTICLE_OFFSET_THIRDVIEW_Y = (float) getDoubleOrDefault(offsetSettings, "particle_offset_thirdview_y", 0.0);
+                    PARTICLE_OFFSET_THIRDVIEW_Z = (float) getDoubleOrDefault(offsetSettings, "particle_offset_thirdview_z", -0.7);
+                    EyPipes.LOGGER.info("Loaded third person particle offsets - X: " + PARTICLE_OFFSET_THIRDVIEW_X + ", Y: " + PARTICLE_OFFSET_THIRDVIEW_Y + ", Z: " + PARTICLE_OFFSET_THIRDVIEW_Z);
                 }
                 
-                // Load particle offset settings
-                if (animationSettings.has("particle_offsets")) {
-                    JsonObject particleSettings = animationSettings.getAsJsonObject("particle_offsets");
-                    PARTICLE_OFFSET_X = getDoubleOrDefault(particleSettings, "offset_x", 1.0);
-                    PARTICLE_OFFSET_Y = getDoubleOrDefault(particleSettings, "offset_y", 1.0);
-                    PARTICLE_OFFSET_Z = getDoubleOrDefault(particleSettings, "offset_z", 0.01);
-                    EyPipes.LOGGER.info("Loaded particle offsets - X: " + PARTICLE_OFFSET_X + ", Y: " + PARTICLE_OFFSET_Y + ", Z: " + PARTICLE_OFFSET_Z);
-                }
                 
                 EyPipes.LOGGER.info("Loaded animation settings - FP Y_ROT: " + FIRST_PERSON_Y_ROTATION + ", TP Y_ROT: " + THIRD_PERSON_Y_ROTATION + ", DELAY: " + ANIMATION_DELAY_TICKS);
             }

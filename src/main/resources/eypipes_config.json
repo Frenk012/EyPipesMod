@@ -134,14 +134,13 @@
       "first_person_right_y": 0.2,
       "first_person_right_z": 0.0,
 
-      "gui_x": 0.6,
-      "gui_y": 0.6,
-      "gui_z": 0.2
-    },
-    "particle_offsets": {
-      "offset_x": 1.0,
-      "offset_y": 1.0 ,
-      "offset_z": 0.01
+      "gui_x": 0.9,
+      "gui_y": 0.3,
+      "gui_z": 0.2,
+
+      "particle_offset_thirdview_x": 0.0,
+      "particle_offset_thirdview_y": 0.0,
+      "particle_offset_thirdview_z": 0.0
     },
 
     "delay_ticks": 5,

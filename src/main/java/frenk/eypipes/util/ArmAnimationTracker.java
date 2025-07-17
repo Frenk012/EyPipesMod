@@ -49,9 +49,9 @@ public class ArmAnimationTracker {
     public static Vec3d calculatePipePosition(LivingEntity entity) {
         ArmPosition armPos = getArmPosition(entity);
         
-        // Calculate pipe tip position based on arm rotation or default values
+        // Calculate direction vectors based on entity's current looking direction
         Vec3d lookVec = entity.getRotationVec(1.0F);
-        Vec3d rightVec = new Vec3d(-lookVec.z, 0, lookVec.x).normalize();
+        Vec3d rightVec = new Vec3d(lookVec.z, 0, lookVec.x).normalize();
         Vec3d upVec = rightVec.crossProduct(lookVec).normalize();
         
         // Base position at entity's eye level
@@ -62,8 +62,7 @@ public class ArmAnimationTracker {
         );
         
         if (armPos == null) {
-            // Fallback to default position with slight offset if no arm data
-            // This ensures server-side positioning is still reasonable
+            // Fallback to default position that follows player's looking direction
             return basePos.add(
                 lookVec.multiply(0.2)
                 .add(rightVec.multiply(-0.1))
@@ -71,18 +70,16 @@ public class ArmAnimationTracker {
             );
         }
         
-        // Apply the same smooth interpolation logic as the mixin
         // Calculate progress based on how close the arm is to the target position
         float pitchProgress = Math.abs(armPos.pitch / PIPE_SMOKING_PITCH);
         float yawProgress = Math.abs(armPos.yaw / PIPE_SMOKING_YAW);
         float smoothProgress = Math.min(1.0f, Math.max(pitchProgress, yawProgress));
         
-        // Calculate pipe tip offset using the same interpolation approach
         // The pipe moves closer to the mouth as the animation progresses
         double basePipeLength = 0.3;
-        double animatedPipeLength = basePipeLength * (1.0 - smoothProgress * 0.4); // Pipe gets closer
+        double animatedPipeLength = basePipeLength * (1.0 - smoothProgress * 0.4);
         
-        // Apply smooth interpolated positioning that matches the arm movement
+        // Use the direction vectors to ensure the pipe position rotates with player view
         Vec3d armOffset = lookVec.multiply(animatedPipeLength)
             .add(rightVec.multiply(-0.15 + (armPos.yaw / PIPE_SMOKING_YAW) * 0.1))
             .add(upVec.multiply(-0.05 + (armPos.pitch / PIPE_SMOKING_PITCH) * 0.15));
@@ -90,9 +87,6 @@ public class ArmAnimationTracker {
         return basePos.add(armOffset);
     }
     
-    /**
-     * Data class to store arm position information.
-     */
     public static class ArmPosition {
         public final float pitch;
         public final float yaw;
