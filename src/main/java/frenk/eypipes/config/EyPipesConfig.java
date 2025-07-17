@@ -108,9 +108,9 @@ public class EyPipesConfig {
     public static float OFFSET_THIRD_PERSON_RIGHT_X = 0.7f;
     public static float OFFSET_THIRD_PERSON_RIGHT_Y = 0.2f;
     public static float OFFSET_THIRD_PERSON_RIGHT_Z = 0.0f;
-    public static float OFFSET_GUI_X = 0.7f;
-    public static float OFFSET_GUI_Y = 0.2f;
-    public static float OFFSET_GUI_Z = 0.0f;
+    public static float OFFSET_GUI_X = 0.9f;
+    public static float OFFSET_GUI_Y = 0.3f;
+    public static float OFFSET_GUI_Z = 0.2f;
     
     // Particle Offset Settings
     public static double PARTICLE_OFFSET_X = 1.0;
@@ -255,7 +255,7 @@ public class EyPipesConfig {
                     OFFSET_FIRST_PERSON_RIGHT_X = (float) getDoubleOrDefault(offsetSettings, "first_person_right_x", 0.7);
                     OFFSET_FIRST_PERSON_RIGHT_Y = (float) getDoubleOrDefault(offsetSettings, "first_person_right_y", 0.2);
                     OFFSET_FIRST_PERSON_RIGHT_Z = (float) getDoubleOrDefault(offsetSettings, "first_person_right_z", 0.0);
-                    OFFSET_GUI_X = (float) getDoubleOrDefault(offsetSettings, "gui_x", 1.0);
+                    OFFSET_GUI_X = (float) getDoubleOrDefault(offsetSettings, "gui_x", 0.9);
                     OFFSET_GUI_Y = (float) getDoubleOrDefault(offsetSettings, "gui_y", 0.3);
                     OFFSET_GUI_Z = (float) getDoubleOrDefault(offsetSettings, "gui_z", 0.2);
                     PARTICLE_OFFSET_THIRDVIEW_X = (float) getDoubleOrDefault(offsetSettings, "particle_offset_thirdview_x", 0.0);
