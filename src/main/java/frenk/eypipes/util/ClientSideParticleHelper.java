@@ -25,24 +25,18 @@ public class ClientSideParticleHelper {
      */
     public static Vec3d calculateSmokePosition(LivingEntity entity, boolean isFirstPerson) {
         Vec3d pipePosition = ArmAnimationTracker.calculatePipePosition(entity);
-        EyPipes.LOGGER.info("Calculated pipePosition: {}, isFirstPerson: {}, entity: {}", pipePosition, isFirstPerson, entity.getName().getString());
         try {
             if (pipePosition != null) {
                 // Apply first-person vs third-person offset adjustment
                 if (isFirstPerson == false) {
-                    EyPipes.LOGGER.info("Applying third-person offset adjustment");
                     pipePosition = pipePosition.add(0.4, 0.33, 0);
                 }
                 return pipePosition;
-            } else {
-                EyPipes.LOGGER.info("IF condition FAILED");
             }
         } catch (Exception e) {
             // Fallback to default position if anything goes wrong
             EyPipes.LOGGER.error("Error calculating arm-based smoke position: " + e.getMessage(), e);
         }
-        
-        EyPipes.LOGGER.info("Returning default smoke position");
         return pipePosition;
     }
 }

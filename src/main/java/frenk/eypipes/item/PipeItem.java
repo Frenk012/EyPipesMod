@@ -46,6 +46,8 @@ public class PipeItem extends TrinketItem {
         return super.getItemBarStep(stack);
     }
 
+
+
     @Override
     public TypedActionResult<ItemStack> use(World world, PlayerEntity user, Hand hand) {
         ItemStack itemStack = user.getStackInHand(hand);
@@ -231,6 +233,10 @@ public class PipeItem extends TrinketItem {
 
     public boolean isSmoking() {
         return this.smoking;
+    }
+    
+public boolean getIsRepairable(ItemStack toRepair, ItemStack repair) {
+        return false; // Disable all repair functionality for pipes
     }
     
     /**
