@@ -15,12 +15,42 @@ import net.minecraft.util.UseAction;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraft.server.world.ServerWorld;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import frenk.eypipes.particles.EyPipesParticleTypes;
 import frenk.eypipes.sound.EyPipesSound;
+import software.bernie.geckolib3.core.IAnimatable;
+import software.bernie.geckolib3.core.PlayState;
+import software.bernie.geckolib3.core.builder.AnimationBuilder;
+import software.bernie.geckolib3.core.controller.AnimationController;
+import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
+import software.bernie.geckolib3.core.manager.AnimationData;
+import software.bernie.geckolib3.core.manager.AnimationFactory;
+import software.bernie.geckolib3.network.GeckoLibNetwork;
+import software.bernie.geckolib3.network.ISyncable;
+import software.bernie.geckolib3.util.GeckoLibUtil;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.WeakHashMap;
+import net.minecraft.client.render.model.json.ModelTransformation;
+import java.util.concurrent.ThreadLocalRandom;
 
-public class PipeItem extends TrinketItem {
+public class PipeItem extends TrinketItem implements IAnimatable, ISyncable {
+    private static final Logger LOGGER = LoggerFactory.getLogger("EyPipesMod");
+    private static final int SMOKE_ANIM_STATE = 0;
+    private static final AnimationBuilder SMOKE_ANIM = new AnimationBuilder().addAnimation("animation.pipe.smoke", false);
+    
+    private final AnimationFactory factory = GeckoLibUtil.createFactory(this);
     private final int USAGE_TIME = 60;
-    private boolean smoking = false;
+    private static final String SMOKING_KEY = "smoking";
+    
+    private boolean isSmoking(ItemStack stack) {
+        return stack.getOrCreateNbt().getBoolean(SMOKING_KEY);
+    }
+    
+    private void setSmoking(ItemStack stack, boolean smoking) {
+        stack.getOrCreateNbt().putBoolean(SMOKING_KEY, smoking);
+    }
     
     @Override
     public void onCraft(ItemStack stack, World world, PlayerEntity player) {
@@ -31,6 +61,7 @@ public class PipeItem extends TrinketItem {
 
     public PipeItem(FabricItemSettings settings, int amountOfUse) {
         super(settings.maxDamage(amountOfUse));
+        GeckoLibNetwork.registerSyncable(this);
     }
 
     @Override
@@ -50,7 +81,9 @@ public class PipeItem extends TrinketItem {
 
     @Override
     public TypedActionResult<ItemStack> use(World world, PlayerEntity user, Hand hand) {
+        
         ItemStack itemStack = user.getStackInHand(hand);
+        
         
         // Check for shift+right-click with erbapipa_cutted in off-hand for durability repair
         if (user.isSneaking() && hand == Hand.MAIN_HAND) {
@@ -95,27 +128,37 @@ public class PipeItem extends TrinketItem {
             // world.playSound(null, user.getX(), user.getY(), user.getZ(), EyPipesSound.PIPE_REFILL, SoundCategory.PLAYERS, 1.0F, 1.0F); // Sound file missing
         }
         else{
-            // world.playSound(null, user.getX(), user.getY(), user.getZ(), EyPipesSound.PIPE_IGNITE, SoundCategory.PLAYERS, 1.0F, 1.0F); // Sound file missing
             user.setCurrentHand(hand);
-            this.smoking = true;
+            setSmoking(itemStack, true);
+            LOGGER.info("Pipe use started for player {}", user.getName().getString());
+            if (!world.isClient) {
+                LOGGER.info("Triggering smoke animation on server for stack {}", itemStack);
+                triggerSmokeAnimation(itemStack, (ServerWorld)world, user);
+            }
             user.incrementStat(Stats.USED.getOrCreateStat(this));
-            itemStack.setDamage(itemStack.getDamage() + 1);
         }
         return TypedActionResult.consume(itemStack);
     }
 
     @Override
     public void onStoppedUsing(ItemStack stack, World world, LivingEntity user, int remainingUseTicks) {
-        if (smoking) {
-            finishUsing(stack, world, user);
+        if (isSmoking(stack)) {
+            ItemStack result = finishUsing(stack, world, user);
         }
-        this.smoking = false;
+        setSmoking(stack, false);
         ((PlayerEntity)user).getItemCooldownManager().set(this, 20);
     }
 
+    
+
+    
+    
+    
+
     @Override
     public void usageTick(World world, LivingEntity user, ItemStack stack, int remainingUseTicks) {
-        if (smoking) {
+        
+        if (isSmoking(stack)) {
             int totalTicks = USAGE_TIME - remainingUseTicks;
             int frequency = Math.max(4, (int) Math.pow((USAGE_TIME - totalTicks) / 10.0, 2));
             if (remainingUseTicks % frequency == 0) {
@@ -157,18 +200,17 @@ public class PipeItem extends TrinketItem {
         spawnSmoke(0, user, world);
         if (!world.isClient) {
             world.playSound(null, user.getX(), user.getY(), user.getZ(), EyPipesSound.PIPE_EXHALE, SoundCategory.PLAYERS, 0.8F, 1.0F);
-            // Also try playing to the specific player
             if (user instanceof PlayerEntity) {
                 world.playSound((PlayerEntity) user, user.getBlockPos(), EyPipesSound.PIPE_EXHALE, SoundCategory.PLAYERS, 0.8F, 1.0F);
             }
         }
-
-        this.smoking = false;
+        item.setDamage(item.getDamage() + 1);
+        setSmoking(item, false);
         ((PlayerEntity)user).getItemCooldownManager().set(this, 20);
         return item;
     }
 
-    public int getMaxUseTime(ItemStack stack, LivingEntity user) {
+    public int getMaxUseTime(ItemStack stack) {
         return USAGE_TIME;
     }
 
@@ -228,14 +270,45 @@ public class PipeItem extends TrinketItem {
 
     @Override
     public UseAction getUseAction(ItemStack stack) {
-        return this.smoking ? UseAction.TOOT_HORN : UseAction.NONE;
+        return UseAction.NONE;
     }
 
     public boolean isSmoking() {
-        return this.smoking;
+        return false;
     }
     
-public boolean getIsRepairable(ItemStack toRepair, ItemStack repair) {
+    @Override
+    public void registerControllers(AnimationData data) {
+        data.addAnimationController(new AnimationController<>(this, "smokeController", 0, this::predicate));
+    }
+    
+    private <E extends IAnimatable> PlayState predicate(AnimationEvent<E> event) {
+        event.getController().setAnimation(SMOKE_ANIM);
+        return PlayState.CONTINUE;
+    }
+    
+    @Override
+    public AnimationFactory getFactory() {
+        return this.factory;
+    }
+    
+    @Override
+    public void onAnimationSync(int id, int state) {
+        if (state == SMOKE_ANIM_STATE) {
+            final AnimationController<?> controller = GeckoLibUtil.getControllerForID(this.factory, id, "smokeController");
+            if (controller != null) {
+                controller.setAnimation(SMOKE_ANIM);
+            }
+        }
+    }
+    
+    public void triggerSmokeAnimation(ItemStack stack, ServerWorld world, PlayerEntity player) {
+        final int id = GeckoLibUtil.guaranteeIDForStack(stack, world);
+        LOGGER.info("Syncing animation with ID {} and state {}", id, SMOKE_ANIM_STATE);
+        GeckoLibNetwork.syncAnimation(player, this, id, SMOKE_ANIM_STATE);
+    }
+
+    public boolean getIsRepairable(ItemStack toRepair, ItemStack repair) {
         return false; // Disable all repair functionality for pipes
     }
     
@@ -271,8 +344,8 @@ public boolean getIsRepairable(ItemStack toRepair, ItemStack repair) {
         Vec3d upVecFirst = rightVecFirst.crossProduct(lookVec).normalize();
         
         Vec3d resultFirst = basePos
-            .add(lookVec.multiply(0.6))
-            .add(rightVecFirst.multiply(0.53))
+            .add(lookVec.multiply(0.4))
+            .add(rightVecFirst.multiply(0.33))
             .add(upVecFirst.multiply(0.0));
             
         Vec3d[] results = new Vec3d[]{resultFirst, resultThird};

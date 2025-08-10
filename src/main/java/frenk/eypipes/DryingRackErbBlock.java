@@ -6,7 +6,7 @@ import net.minecraft.block.BlockWithEntity;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityTicker;
 import net.minecraft.block.entity.BlockEntityType;
-import org.jetbrains.annotations.Nullable;
+
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ActionResult;
@@ -110,7 +110,6 @@ public class DryingRackErbBlock extends BlockWithEntity {
         }
     }
     
-    @Nullable
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(World world, BlockState state, BlockEntityType<T> type) {
         return checkType(type, PipesEntities.DRYING_RACK_ENTITY, DryingRackErbBlockEntity::tick);

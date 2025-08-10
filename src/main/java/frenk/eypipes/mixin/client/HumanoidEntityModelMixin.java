@@ -6,6 +6,7 @@ import net.minecraft.client.render.entity.model.BipedEntityModel;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Hand;
+import net.minecraft.client.MinecraftClient;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -33,11 +34,18 @@ public abstract class HumanoidEntityModelMixin<T extends LivingEntity> {
      * The animation moves the arm to a "close to face" position and holds it there
      * until the item usage finishes.
      */
-    @Inject(method = "*", at = @At("TAIL"))
+    @Inject(method = "setAngles(Lnet/minecraft/entity/LivingEntity;FFFFF)V", at = @At("TAIL"))
     private void animatePipeSmoking(T entity, float limbAngle, float limbDistance, float animationProgress, float headYaw, float headPitch, CallbackInfo ci) {
         ItemStack mainHandStack = entity.getStackInHand(Hand.MAIN_HAND);
 
         if (entity.isUsingItem() && mainHandStack.getItem() instanceof PipeItem) {
+            org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory.getLogger("EyPipesMod");
+            LOGGER.info("Animating pipe for entity {}, useTime: {}", entity.getName().getString(), entity.getItemUseTime());
+            if (MinecraftClient.getInstance().options.getPerspective().isFirstPerson() && entity == MinecraftClient.getInstance().player) {
+                ArmAnimationTracker.removeArmPosition(entity);
+                return;
+            }
+            
             int useTime = entity.getItemUseTime();
             
             // Calculate animation progress based on use time
@@ -50,6 +58,7 @@ public abstract class HumanoidEntityModelMixin<T extends LivingEntity> {
             
             this.rightArm.pitch = currentPitch;
             this.rightArm.yaw = currentYaw;
+            LOGGER.info("Set arm pitch: {}, yaw: {}", currentPitch, currentYaw);
             
             // Track the arm position for particle synchronization
             ArmAnimationTracker.setArmPosition(entity, currentPitch, currentYaw);

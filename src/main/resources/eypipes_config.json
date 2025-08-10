@@ -138,9 +138,9 @@
       "gui_y": 0.3,
       "gui_z": 0.2,
 
-      "particle_offset_thirdview_x": 0.0,
-      "particle_offset_thirdview_y": 0.0,
-      "particle_offset_thirdview_z": 0.0
+      "particle_offset_thirdview_x": 0.2,
+      "particle_offset_thirdview_y": 0.4,
+      "particle_offset_thirdview_z": 0.1
     },
 
     "delay_ticks": 5,

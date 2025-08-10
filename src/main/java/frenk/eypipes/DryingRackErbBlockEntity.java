@@ -12,7 +12,7 @@ import net.minecraft.network.listener.ClientPlayPacketListener;
 import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import org.jetbrains.annotations.Nullable;
+
 
 public class DryingRackErbBlockEntity extends BlockEntity {
 
@@ -131,13 +131,12 @@ public class DryingRackErbBlockEntity extends BlockEntity {
     }
     
     // Client synchronization methods
-    @Nullable
     @Override
     public Packet<ClientPlayPacketListener> toUpdatePacket() {
         return BlockEntityUpdateS2CPacket.create(this);
     }
     
-    @Override
+@Override
     public NbtCompound toInitialChunkDataNbt() {
         return createNbt();
     }

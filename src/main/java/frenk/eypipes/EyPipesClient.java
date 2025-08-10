@@ -4,9 +4,8 @@ import dev.emi.trinkets.api.client.TrinketRendererRegistry;
 import frenk.eypipes.block.EyPipesBlocks;
 import frenk.eypipes.client.PipeTrinketRenderer;
 import frenk.eypipes.client.CigarTrinketRenderer;
-import frenk.eypipes.client.PipeItemRenderer;
-
 import frenk.eypipes.client.AnimatedCigarRenderer;
+import frenk.eypipes.client.AnimatedPipeRenderer;
 import frenk.eypipes.command.ClientReloadConfigCommand;
 import frenk.eypipes.config.EyPipesConfig;
 import frenk.eypipes.item.EyPipesItems;
@@ -41,8 +40,8 @@ public class EyPipesClient implements ClientModInitializer {
         // Register trinket renderer for the cigar
         TrinketRendererRegistry.registerRenderer(EyPipesItems.CIGAR, new CigarTrinketRenderer());
         
-        // Register custom item renderer for pipe animation
-        BuiltinItemRendererRegistry.INSTANCE.register(EyPipesItems.PIPE, new PipeItemRenderer());
+        // Register custom item renderer for pipe using GeckoLib 3.x method
+        software.bernie.geckolib3.renderers.geo.GeoItemRenderer.registerItemRenderer(EyPipesItems.PIPE, new AnimatedPipeRenderer());
         
         // Register custom item renderer for animated cigar using GeckoLib 3.x method
         software.bernie.geckolib3.renderers.geo.GeoItemRenderer.registerItemRenderer(EyPipesItems.CIGAR, new AnimatedCigarRenderer());

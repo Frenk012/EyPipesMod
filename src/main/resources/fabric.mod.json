@@ -25,11 +25,7 @@
 		]
 	},
 	"mixins": [
-		"eypipes.mixins.json",
-		{
-			"config": "eypipes.client.mixins.json",
-			"environment": "client"
-		}
+		"eypipes.mixins.json"
 	],
 	"depends": {
 		"fabricloader": ">=0.14.22",

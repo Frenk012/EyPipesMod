@@ -33,7 +33,7 @@ public class PipeTrinketRenderer implements TrinketRenderer {
                 matrices.translate(EyPipesConfig.PARTICLE_OFFSET_THIRDVIEW_X, EyPipesConfig.PARTICLE_OFFSET_THIRDVIEW_Y, EyPipesConfig.PARTICLE_OFFSET_THIRDVIEW_Z);
                 matrices.multiply(Vec3f.POSITIVE_X.getDegreesQuaternion(25)); // Rotate to hold properly
                 matrices.multiply(Vec3f.POSITIVE_Z.getDegreesQuaternion(180)); // Rotate to hold properly
-                matrices.multiply(Vec3f.POSITIVE_Y.getDegreesQuaternion(340)); // Adjust orientation
+                matrices.multiply(Vec3f.POSITIVE_Y.getDegreesQuaternion(330)); // Adjust orientation
                 matrices.scale(0.9f, 0.9f, 0.9f); // Scale down for hand
             } else {
                 // Default head position for other slots (like pipe_head)

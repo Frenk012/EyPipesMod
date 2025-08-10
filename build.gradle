@@ -17,7 +17,7 @@ plugins {
 // Suppress deprecation warnings from fabric-loom plugin until updated version is stable
 gradle.projectsEvaluated {
 	tasks.withType(JavaCompile) {
-		options.compilerArgs += ["-Xlint:-deprecation"]
+		options.compilerArgs += ["-Xlint:-deprecation", "-Xlint:-removal"]
 	}
 }
 
@@ -73,6 +73,10 @@ dependencies {
 	minecraft "com.mojang:minecraft:${project.minecraft_version}"
 	mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
 	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+
+	// Add SLF4J for logging
+	implementation 'org.slf4j:slf4j-api:1.7.36'
+	implementation 'org.slf4j:slf4j-simple:1.7.36'
 
 	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 	modImplementation "curse.maven:geckolib-388172:4407239"
