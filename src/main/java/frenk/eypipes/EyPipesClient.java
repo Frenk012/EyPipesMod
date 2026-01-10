@@ -1,73 +1,117 @@
 package frenk.eypipes;
 
-import dev.emi.trinkets.api.client.TrinketRendererRegistry;
-import frenk.eypipes.block.EyPipesBlocks;
-import frenk.eypipes.client.PipeTrinketRenderer;
-import frenk.eypipes.client.CigarTrinketRenderer;
-import frenk.eypipes.client.AnimatedCigarRenderer;
-import frenk.eypipes.client.AnimatedPipeRenderer;
-import frenk.eypipes.command.ClientReloadConfigCommand;
-import frenk.eypipes.config.EyPipesConfig;
-import frenk.eypipes.item.EyPipesItems;
-import net.fabricmc.api.ClientModInitializer;
-import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
-import net.fabricmc.fabric.api.client.rendering.v1.BlockEntityRendererRegistry;
-import net.fabricmc.fabric.api.client.rendering.v1.BuiltinItemRendererRegistry;
-import net.minecraft.client.render.RenderLayer;  
-import net.fabricmc.fabric.api.client.particle.v1.ParticleFactoryRegistry;
-import frenk.eypipes.particles.EyPipesParticleTypes;
-import frenk.eypipes.particles.custom.RingOfSmokeParticle;
-import net.fabricmc.fabric.api.event.client.ClientSpriteRegistryCallback;
-import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
-import net.minecraft.screen.PlayerScreenHandler;
-import net.minecraft.util.Identifier;
+import frenk.eypipes.client.curios.CigarCuriosRenderer;
+import frenk.eypipes.client.curios.PipeCuriosRenderer;
+import frenk.eypipes.client.renderer.CigarItemRenderer;
+import frenk.eypipes.client.renderer.DryingRackRenderer;
+import frenk.eypipes.client.renderer.PipeItemRenderer;
+import frenk.eypipes.particle.RingOfSmokeParticle;
+import frenk.eypipes.particle.EmberParticle;
+import frenk.eypipes.particle.AshParticle;
+import frenk.eypipes.particle.SmokeWispParticle;
+import frenk.eypipes.particle.SpiralSmokeParticle;
+import frenk.eypipes.particle.SparkParticle;
+import frenk.eypipes.registries.ModBlockEntities;
+import frenk.eypipes.registries.ModBlocks;
+import frenk.eypipes.registries.ModItems;
+import frenk.eypipes.registries.ModParticles;
+import net.minecraft.client.renderer.ItemBlockRenderTypes;
+import net.minecraft.client.renderer.RenderType;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
+import net.neoforged.neoforge.client.event.EntityRenderersEvent;
+import net.neoforged.neoforge.client.event.RegisterParticleProvidersEvent;
+import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
+import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent;
+import software.bernie.geckolib.renderer.GeoItemRenderer;
+import top.theillusivec4.curios.api.client.CuriosRendererRegistry;
 
-public class EyPipesClient implements ClientModInitializer {
+/**
+ * Client-side initialization and event handling for EyPipes mod.
+ * Uses NeoForge event subscribers instead of Fabric's ClientModInitializer.
+ * Ported from Fabric 1.19.2 to NeoForge 1.21.1.
+ */
+@EventBusSubscriber(modid = EyPipes.MOD_ID, bus = EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
+public class EyPipesClient {
 
-    @Override
-    public void onInitializeClient() {
-        // Load configuration on client side for renderers
-        EyPipesConfig.loadConfig();
-        
-        BlockRenderLayerMap.INSTANCE.putBlock(EyPipesBlocks.ERBAPIPA_CROP, RenderLayer.getCutout());
-        
-        // Register the Block Entity Renderer for the drying rack
-        BlockEntityRendererRegistry.register(PipesEntities.DRYING_RACK_ENTITY, DryingRackErbBlockEntityRenderer::new);
-        
-        // Register trinket renderer for the pipe
-        TrinketRendererRegistry.registerRenderer(EyPipesItems.PIPE, new PipeTrinketRenderer());
-        
-        // Register trinket renderer for the cigar
-        TrinketRendererRegistry.registerRenderer(EyPipesItems.CIGAR, new CigarTrinketRenderer());
-        
-        // Register custom item renderer for pipe using GeckoLib 3.x method
-        software.bernie.geckolib3.renderers.geo.GeoItemRenderer.registerItemRenderer(EyPipesItems.PIPE, new AnimatedPipeRenderer());
-        
-        // Register custom item renderer for animated cigar using GeckoLib 3.x method
-        software.bernie.geckolib3.renderers.geo.GeoItemRenderer.registerItemRenderer(EyPipesItems.CIGAR, new AnimatedCigarRenderer());
-        
-        // Register particle textures to the texture atlas
-        ClientSpriteRegistryCallback.event(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE).register(((atlasTexture, registry) -> {
-            registry.register(new Identifier("eypipes", "big_smoke_ring_0"));
-            registry.register(new Identifier("eypipes", "big_smoke_ring_1"));
-            registry.register(new Identifier("eypipes", "big_smoke_ring_2"));
-            registry.register(new Identifier("eypipes", "big_smoke_ring_3"));
-            registry.register(new Identifier("eypipes", "big_smoke_ring_4"));
-            registry.register(new Identifier("eypipes", "big_smoke_ring_5"));
-            registry.register(new Identifier("eypipes", "big_smoke_ring_6"));
-            registry.register(new Identifier("eypipes", "big_smoke_ring_7"));
-            registry.register(new Identifier("eypipes", "big_smoke_ring_8"));
-            registry.register(new Identifier("eypipes", "big_smoke_ring_9"));
-            registry.register(new Identifier("eypipes", "big_smoke_ring_10"));
-            registry.register(new Identifier("eypipes", "big_smoke_ring_11"));
-        }));
-        
-        // Register particle factory for ring of smoke
-        ParticleFactoryRegistry.getInstance().register(EyPipesParticleTypes.RING_OF_SMOKE, RingOfSmokeParticle.Factory::new);
-        
-        // Register client-side commands
-        ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> {
-            ClientReloadConfigCommand.register(dispatcher);
+    /**
+     * Client setup event - runs after registries are complete.
+     */
+    @SubscribeEvent
+    public static void onClientSetup(FMLClientSetupEvent event) {
+        event.enqueueWork(() -> {
+            // Set crop block to use cutout render layer (for transparency)
+            ItemBlockRenderTypes.setRenderLayer(ModBlocks.ERBAPIPA_CROP.get(), RenderType.cutout());
+
+            // Register Curios renderers
+            CuriosRendererRegistry.register(ModItems.PIPE.get(), PipeCuriosRenderer::new);
+            CuriosRendererRegistry.register(ModItems.CIGAR.get(), CigarCuriosRenderer::new);
         });
+
+        EyPipes.LOGGER.info("EyPipes client setup complete");
+    }
+
+    /**
+     * Register block entity renderers.
+     */
+    @SubscribeEvent
+    public static void onRegisterRenderers(EntityRenderersEvent.RegisterRenderers event) {
+        // Register drying rack block entity renderer
+        event.registerBlockEntityRenderer(ModBlockEntities.DRYING_RACK.get(), DryingRackRenderer::new);
+
+        EyPipes.LOGGER.debug("Registered EyPipes block entity renderers");
+    }
+
+    /**
+     * Register client extensions for GeckoLib item renderers.
+     */
+    @SubscribeEvent
+    public static void onRegisterClientExtensions(RegisterClientExtensionsEvent event) {
+        // Register GeckoLib renderers for pipe and cigar
+        event.registerItem(new IClientItemExtensions() {
+            private GeoItemRenderer<?> renderer;
+
+            @Override
+            public net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer getCustomRenderer() {
+                if (renderer == null) {
+                    renderer = new PipeItemRenderer();
+                }
+                return renderer;
+            }
+        }, ModItems.PIPE.get());
+
+        event.registerItem(new IClientItemExtensions() {
+            private GeoItemRenderer<?> renderer;
+
+            @Override
+            public net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer getCustomRenderer() {
+                if (renderer == null) {
+                    renderer = new CigarItemRenderer();
+                }
+                return renderer;
+            }
+        }, ModItems.CIGAR.get());
+
+        EyPipes.LOGGER.debug("Registered EyPipes GeckoLib item renderers");
+    }
+
+    /**
+     * Register particle providers/factories.
+     */
+    @SubscribeEvent
+    public static void onRegisterParticles(RegisterParticleProvidersEvent event) {
+        // Register particle factories - Core particles
+        event.registerSpriteSet(ModParticles.RING_OF_SMOKE.get(), RingOfSmokeParticle.Provider::new);
+        event.registerSpriteSet(ModParticles.EMBER.get(), EmberParticle.Provider::new);
+        event.registerSpriteSet(ModParticles.ASH.get(), AshParticle.Provider::new);
+        event.registerSpriteSet(ModParticles.SMOKE_WISP.get(), SmokeWispParticle.Provider::new);
+
+        // Register particle factories - Enhanced particles
+        event.registerSpriteSet(ModParticles.SPIRAL_SMOKE.get(), SpiralSmokeParticle.Provider::new);
+        event.registerSpriteSet(ModParticles.SPARK.get(), SparkParticle.Provider::new);
+
+        EyPipes.LOGGER.debug("Registered EyPipes particle providers (6 types)");
     }
 }

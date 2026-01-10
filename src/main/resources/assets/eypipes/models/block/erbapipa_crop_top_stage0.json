@@ -1,6 +1,0 @@
-{
-    "parent": "eypipes:block/crop_cross",
-    "textures": {
-        "cross": "eypipes:block/erbapipa_crop_top_stage0"
-    }
-}

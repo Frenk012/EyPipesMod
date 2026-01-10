@@ -1,53 +1,84 @@
 package frenk.eypipes.block;
 
-import frenk.eypipes.item.EyPipesItems;
 import frenk.eypipes.config.EyPipesConfig;
-import net.minecraft.block.*;
-import net.minecraft.item.ItemConvertible;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.state.StateManager;
-import net.minecraft.state.property.BooleanProperty;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.random.Random;
-import net.minecraft.util.shape.VoxelShape;
-import net.minecraft.world.BlockView;
-import net.minecraft.world.World;
-import net.minecraft.world.WorldView;
+import frenk.eypipes.registries.ModItems;
+import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.ItemLike;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.BonemealableBlock;
+import net.minecraft.world.level.block.CropBlock;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.world.level.block.state.properties.IntegerProperty;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.VoxelShape;
 
+/**
+ * Erbapipa crop block - A 2-block tall crop with 8 growth stages.
+ * Ported from Fabric 1.19.2 to NeoForge 1.21.1
+ */
 public class ErbapipaCropBlock extends CropBlock {
 
-    public static final BooleanProperty UPPER = BooleanProperty.of("upper");
+    public static final BooleanProperty UPPER = BooleanProperty.create("upper");
+    public static final IntegerProperty AGE = IntegerProperty.create("age", 0, 7);
 
-    private static final VoxelShape[] SHAPE_TO_AGE = new VoxelShape[] {
-            Block.createCuboidShape(0.0D, -1.0D, 0.0D, 16.0D, 3.0D, 16.0D),
-            Block.createCuboidShape(0.0D, -1.0D, 0.0D, 16.0D, 7.0D, 16.0D),
-            Block.createCuboidShape(0.0D, -1.0D, 0.0D, 16.0D, 11.0D, 16.0D),
-            Block.createCuboidShape(0.0D, -1.0D, 0.0D, 16.0D, 15.0D, 16.0D),
-            Block.createCuboidShape(0.0D, -1.0D, 0.0D, 16.0D, 15.0D, 16.0D),
-            Block.createCuboidShape(0.0D, -1.0D, 0.0D, 16.0D, 15.0D, 16.0D),
-            Block.createCuboidShape(0.0D, -1.0D, 0.0D, 16.0D, 15.0D, 16.0D),
-            Block.createCuboidShape(0.0D, -1.0D, 0.0D, 16.0D, 15.0D, 16.0D)
+    // Voxel shapes for each growth stage (lower part)
+    private static final VoxelShape[] SHAPE_BY_AGE = new VoxelShape[]{
+            Block.box(0.0D, -1.0D, 0.0D, 16.0D, 3.0D, 16.0D),
+            Block.box(0.0D, -1.0D, 0.0D, 16.0D, 7.0D, 16.0D),
+            Block.box(0.0D, -1.0D, 0.0D, 16.0D, 11.0D, 16.0D),
+            Block.box(0.0D, -1.0D, 0.0D, 16.0D, 15.0D, 16.0D),
+            Block.box(0.0D, -1.0D, 0.0D, 16.0D, 15.0D, 16.0D),
+            Block.box(0.0D, -1.0D, 0.0D, 16.0D, 15.0D, 16.0D),
+            Block.box(0.0D, -1.0D, 0.0D, 16.0D, 15.0D, 16.0D),
+            Block.box(0.0D, -1.0D, 0.0D, 16.0D, 15.0D, 16.0D)
     };
 
-    private static final VoxelShape[] UPPER_SHAPE_TO_AGE = new VoxelShape[]{
-            Block.createCuboidShape(0.0D, 0.0D, 0.0D, 16.0D, 4.0D, 16.0D),
-            Block.createCuboidShape(0.0D, 0.0D, 0.0D, 16.0D, 6.0D, 16.0D),
-            Block.createCuboidShape(0.0D, 0.0D, 0.0D, 16.0D, 8.0D, 16.0D),
-            Block.createCuboidShape(0.0D, 0.0D, 0.0D, 16.0D, 12.0D, 16.0D),
-            Block.createCuboidShape(0.0D, 0.0D, 0.0D, 16.0D, 14.0D, 16.0D),
-            Block.createCuboidShape(0.0D, 0.0D, 0.0D, 16.0D, 14.0D, 16.0D),
-            Block.createCuboidShape(0.0D, 0.0D, 0.0D, 16.0D, 14.0D, 16.0D),
-            Block.createCuboidShape(0.0D, 0.0D, 0.0D, 16.0D, 14.0D, 16.0D)
+    // Voxel shapes for each growth stage (upper part)
+    private static final VoxelShape[] UPPER_SHAPE_BY_AGE = new VoxelShape[]{
+            Block.box(0.0D, 0.0D, 0.0D, 16.0D, 4.0D, 16.0D),
+            Block.box(0.0D, 0.0D, 0.0D, 16.0D, 6.0D, 16.0D),
+            Block.box(0.0D, 0.0D, 0.0D, 16.0D, 8.0D, 16.0D),
+            Block.box(0.0D, 0.0D, 0.0D, 16.0D, 12.0D, 16.0D),
+            Block.box(0.0D, 0.0D, 0.0D, 16.0D, 14.0D, 16.0D),
+            Block.box(0.0D, 0.0D, 0.0D, 16.0D, 14.0D, 16.0D),
+            Block.box(0.0D, 0.0D, 0.0D, 16.0D, 14.0D, 16.0D),
+            Block.box(0.0D, 0.0D, 0.0D, 16.0D, 14.0D, 16.0D)
     };
 
-    public  ErbapipaCropBlock(Settings settings) {
-        super(settings);
-        this.setDefaultState(this.getStateManager().getDefaultState().with(AGE, 0).with(UPPER, false));
+    public ErbapipaCropBlock(Properties properties) {
+        super(properties);
+        this.registerDefaultState(this.stateDefinition.any()
+                .setValue(AGE, 0)
+                .setValue(UPPER, false));
     }
 
     @Override
-    protected ItemConvertible getSeedsItem() {
-        return EyPipesItems.ERBAPIPA_SEEDS;
+    protected IntegerProperty getAgeProperty() {
+        return AGE;
+    }
+
+    @Override
+    public int getMaxAge() {
+        return 7;
+    }
+
+    @Override
+    protected ItemLike getBaseSeedId() {
+        return ModItems.ERBAPIPA_SEEDS.get();
+    }
+
+    /**
+     * Check if the crop is at maximum age (mature).
+     */
+    public boolean isMature(BlockState state) {
+        return getAge(state) >= getMaxAge();
     }
 
     public BooleanProperty getUpperProperty() {
@@ -55,124 +86,162 @@ public class ErbapipaCropBlock extends CropBlock {
     }
 
     public int getGrowUpperAge() {
-        return 4;
+        return EyPipesConfig.COMMON.growUpperAge.get();
     }
 
     @Override
-    protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
+    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         builder.add(AGE, UPPER);
     }
 
     @Override
-    public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
-        return state.get(UPPER) ? UPPER_SHAPE_TO_AGE[state.get(this.getAgeProperty())] : SHAPE_TO_AGE[state.get(this.getAgeProperty())];
+    public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
+        int age = state.getValue(AGE);
+        return state.getValue(UPPER) ? UPPER_SHAPE_BY_AGE[age] : SHAPE_BY_AGE[age];
     }
 
     @Override
-    public boolean canPlaceAt(BlockState state, WorldView world, BlockPos pos) {
-        BlockPos downpos = pos.down();
-        if (world.getBlockState(downpos).isOf(this) && state.get(this.getUpperProperty()))
-            return !world.getBlockState(downpos).get(this.getUpperProperty())
-                    && (world.getBaseLightLevel(pos, 0) >= 8 || world.isSkyVisible(pos))
-                    && this.getAge(world.getBlockState(downpos)) >= this.getGrowUpperAge();
-        return super.canPlaceAt(state, world, pos);
+    public boolean canSurvive(BlockState state, LevelReader level, BlockPos pos) {
+        BlockPos belowPos = pos.below();
+        BlockState belowState = level.getBlockState(belowPos);
+
+        // Check if this is the upper part
+        if (state.getValue(UPPER)) {
+            if (belowState.is(this) && !belowState.getValue(UPPER)) {
+                // Upper part can only exist above a lower part at appropriate age
+                int belowAge = belowState.getValue(AGE);
+                return belowAge >= getGrowUpperAge() &&
+                       (level.getRawBrightness(pos, 0) >= 8 || level.canSeeSky(pos));
+            }
+            return false;
+        }
+
+        return super.canSurvive(state, level, pos);
     }
 
     @Override
-    public boolean hasRandomTicks(BlockState state) {
-        return !state.get(this.getUpperProperty()) || !this.isMature(state);
+    public boolean isRandomlyTicking(BlockState state) {
+        // Only tick if not upper or not mature
+        return !state.getValue(UPPER) || !isMature(state);
     }
 
     @Override
-    public void randomTick(BlockState state, ServerWorld world, BlockPos pos, Random random) {
-        int age = this.getAge(state);
-        float f = getAvailableMoisture(this, world, pos);
-        if (world.getBaseLightLevel(pos, 0) >= 9) {
-            if (age < this.getMaxAge()) {
-                if (random.nextFloat() < EyPipesConfig.GROWTH_CHANCE * EyPipesConfig.FERTILIZER_EFFECTIVENESS * f / 25.0F) {
-                    world.setBlockState(pos, this.withAge(age + 1).with(this.getUpperProperty(), state.get(this.getUpperProperty())), 2);
+    public void randomTick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
+        if (!level.isAreaLoaded(pos, 1)) return;
+
+        int age = getAge(state);
+        float growthSpeed = getGrowthSpeed(state, level, pos);
+
+        if (level.getRawBrightness(pos, 0) >= 9) {
+            // Growth logic for the current block
+            if (age < getMaxAge()) {
+                float growthChance = EyPipesConfig.COMMON.growthChance.get().floatValue();
+                float fertilizer = EyPipesConfig.COMMON.fertilizerEffectiveness.get().floatValue();
+
+                if (random.nextFloat() < growthChance * fertilizer * growthSpeed / 25.0F) {
+                    level.setBlock(pos, state.setValue(AGE, age + 1), 2);
                 }
             }
         }
-        if (state.get(this.getUpperProperty()))
-            return;
-        if (age >= EyPipesConfig.GROW_UPPER_AGE) {
-            if (random.nextFloat() < EyPipesConfig.GROWTH_CHANCE * EyPipesConfig.FERTILIZER_EFFECTIVENESS * f / 80.0F) {
-                if (this.getDefaultState().with(this.getUpperProperty(), true).canPlaceAt(world, pos.up()) && world.isAir(pos.up())) {
-                    world.setBlockState(pos.up(), this.getDefaultState().with(this.getUpperProperty(), true));
+
+        // Don't grow upper part from upper block
+        if (state.getValue(UPPER)) return;
+
+        // Try to grow upper part
+        if (age >= getGrowUpperAge()) {
+            float growthChance = EyPipesConfig.COMMON.growthChance.get().floatValue();
+            float fertilizer = EyPipesConfig.COMMON.fertilizerEffectiveness.get().floatValue();
+
+            if (random.nextFloat() < growthChance * fertilizer * growthSpeed / 80.0F) {
+                BlockPos abovePos = pos.above();
+                BlockState defaultUpper = defaultBlockState().setValue(UPPER, true);
+
+                if (defaultUpper.canSurvive(level, abovePos) && level.isEmptyBlock(abovePos)) {
+                    level.setBlock(abovePos, defaultUpper, 3);
                 }
             }
         }
     }
 
     @Override
-    public boolean isFertilizable(BlockView world, BlockPos pos, BlockState state, boolean isClient) {
-        BlockState upperState = world.getBlockState(pos.up());
-        if (upperState.isOf(this)) {
-            return !(this.isMature(upperState));
+    public boolean isValidBonemealTarget(LevelReader level, BlockPos pos, BlockState state) {
+        BlockState aboveState = level.getBlockState(pos.above());
+
+        // If there's an upper part, check if it's mature
+        if (aboveState.is(this)) {
+            return !isMature(aboveState);
         }
-        if (state.get(this.getUpperProperty())) {
-            return !(this.isMature(state));
+
+        // If this is the upper part, check if it's mature
+        if (state.getValue(UPPER)) {
+            return !isMature(state);
         }
+
+        // Lower part without upper - always fertilizable
         return true;
     }
 
     @Override
-    public boolean canGrow(World world, Random random, BlockPos pos, BlockState state) {
+    public boolean isBonemealSuccess(Level level, RandomSource random, BlockPos pos, BlockState state) {
         return true;
     }
 
     @Override
-    public void grow(ServerWorld world, Random random, BlockPos pos, BlockState state) {
-        int ageGrowth = Math.min(this.getAge(state) + this.getGrowthAmount(world), 15);
-        if (ageGrowth <= this.getMaxAge()) {
-            world.setBlockState(pos, state.with(AGE, ageGrowth));
-        }
-        else {
-            world.setBlockState(pos, state.with(AGE, this.getMaxAge()));
-            if (state.get(this.getUpperProperty())) {
-                return;
-            }
-            BlockState top = world.getBlockState(pos.up());
-            if (top.isOf(this)) {
-                Fertilizable growable = (Fertilizable) top.getBlock();
-                if (growable.isFertilizable(world, pos.up(), top, false)) {
-                    growable.grow(world, world.random, pos.up(), top);
-                }
-            }
-            else {
-                int remainingGrowth = ageGrowth - this.getMaxAge() - 1;
-                if (this.getDefaultState().canPlaceAt(world, pos.up()) && world.isAir(pos.up())) {
-                    world.setBlockState(pos.up(), this.getDefaultState()
-                            .with(this.getUpperProperty(), true)
-                            .with(this.getAgeProperty(), remainingGrowth), 3);
-                }
-            }
-        }
-    }
+    public void performBonemeal(ServerLevel level, RandomSource random, BlockPos pos, BlockState state) {
+        int newAge = Math.min(getAge(state) + getBonemealAgeIncrease(level), 15);
 
-    @Override
-    public void onStateReplaced(BlockState state, World world, BlockPos pos, BlockState newState, boolean moved) {
-        if (!state.isOf(newState.getBlock())) {
-            boolean isUpper = state.get(UPPER);
-            
-            if (isUpper) {
-                // If upper part is broken, break the lower part
-                BlockPos lowerPos = pos.down();
-                BlockState lowerState = world.getBlockState(lowerPos);
-                if (lowerState.isOf(this) && !lowerState.get(UPPER)) {
-                    world.breakBlock(lowerPos, true);
+        if (newAge <= getMaxAge()) {
+            level.setBlock(pos, state.setValue(AGE, newAge), 2);
+        } else {
+            level.setBlock(pos, state.setValue(AGE, getMaxAge()), 2);
+
+            if (state.getValue(UPPER)) return;
+
+            BlockPos abovePos = pos.above();
+            BlockState aboveState = level.getBlockState(abovePos);
+
+            if (aboveState.is(this)) {
+                // Fertilize existing upper part
+                BonemealableBlock growable = (BonemealableBlock) aboveState.getBlock();
+                if (growable.isValidBonemealTarget(level, abovePos, aboveState)) {
+                    growable.performBonemeal(level, random, abovePos, aboveState);
                 }
             } else {
-                // If lower part is broken, break the upper part
-                BlockPos upperPos = pos.up();
-                BlockState upperState = world.getBlockState(upperPos);
-                if (upperState.isOf(this) && upperState.get(UPPER)) {
-                    world.breakBlock(upperPos, true);
+                // Create new upper part
+                int remainingGrowth = newAge - getMaxAge() - 1;
+                BlockState newUpper = defaultBlockState()
+                        .setValue(UPPER, true)
+                        .setValue(AGE, Math.max(0, Math.min(remainingGrowth, getMaxAge())));
+
+                if (newUpper.canSurvive(level, abovePos) && level.isEmptyBlock(abovePos)) {
+                    level.setBlock(abovePos, newUpper, 3);
                 }
             }
         }
-        
-        super.onStateReplaced(state, world, pos, newState, moved);
+    }
+
+    @Override
+    protected void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
+        if (!state.is(newState.getBlock())) {
+            boolean isUpper = state.getValue(UPPER);
+
+            if (isUpper) {
+                // Breaking upper part breaks lower part
+                BlockPos belowPos = pos.below();
+                BlockState belowState = level.getBlockState(belowPos);
+                if (belowState.is(this) && !belowState.getValue(UPPER)) {
+                    level.destroyBlock(belowPos, true);
+                }
+            } else {
+                // Breaking lower part breaks upper part
+                BlockPos abovePos = pos.above();
+                BlockState aboveState = level.getBlockState(abovePos);
+                if (aboveState.is(this) && aboveState.getValue(UPPER)) {
+                    level.destroyBlock(abovePos, true);
+                }
+            }
+        }
+
+        super.onRemove(state, level, pos, newState, movedByPiston);
     }
 }

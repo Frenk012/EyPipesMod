@@ -4,7 +4,7 @@
 		"animation.pipe.smoke": {
 			"animation_length": 1,
 			"bones": {
-				"smoke particles": {
+				"smokeparticles": {
 					"rotation": [0, 0, 0],
 					"position": [0, 0, 0],
 					"scale": 1

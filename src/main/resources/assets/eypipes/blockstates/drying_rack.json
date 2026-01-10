@@ -1,0 +1,20 @@
+{
+    "variants": {
+      "facing=north": {
+        "model": "eypipes:block/drying_rack",
+        "y": 0
+      },
+      "facing=east": {
+        "model": "eypipes:block/drying_rack",
+        "y": 90
+      },
+      "facing=south": {
+        "model": "eypipes:block/drying_rack",
+        "y": 180
+      },
+      "facing=west": {
+        "model": "eypipes:block/drying_rack",
+        "y": 270
+      }
+    }
+  }

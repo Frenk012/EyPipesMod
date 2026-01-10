@@ -5,8 +5,19 @@
     "item.eypipes.erbapipa_seeds": "Erbapipa Seeds",
     "item.eypipes.pipe": "Pipe",
     "item.eypipes.cigar": "Cigar",
-    "item.eypipes.drying_rack_erb": "Erbapipa Drying Rack",
+    "item.eypipes.drying_rack": "Drying Rack",
     "block.eypipes.erbapipa_crop": "Erbapipa Crop",
-    "block.eypipes.drying_rack_erb": "Erbapipa Drying Rack",
-    "itemGroup.eypipes.ey_pipes_group": "EyPipes"
+    "block.eypipes.drying_rack_erb": "Drying Rack",
+    "itemGroup.eypipes.eypipes_tab": "EyPipes",
+
+    "config.eypipes.common": "EyPipes Common Config",
+    "config.eypipes.client": "EyPipes Client Config",
+
+    "curios.identifier.pipe_head": "Pipe (Head)",
+    "curios.identifier.pipe_chest": "Pipe (Chest)",
+    "curios.modifiers.pipe_head": "When equipped in head slot:",
+    "curios.modifiers.pipe_chest": "When equipped in chest slot:",
+
+    "jei.eypipes.category.drying": "Drying Rack",
+    "jei.eypipes.drying.time": "Drying Time: %s seconds"
 }

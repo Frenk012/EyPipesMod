@@ -1,354 +1,372 @@
 package frenk.eypipes.item;
 
-import net.minecraft.stat.Stats;
-
-import dev.emi.trinkets.api.TrinketItem;
-import net.fabricmc.fabric.api.item.v1.FabricItemSettings;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.particle.ParticleTypes;
-import net.minecraft.sound.SoundCategory;
-import net.minecraft.util.Hand;
-import net.minecraft.util.TypedActionResult;
-import net.minecraft.util.UseAction;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.World;
-import net.minecraft.server.world.ServerWorld;
+import frenk.eypipes.config.EyPipesConfig;
+import frenk.eypipes.particle.EnhancedParticleHelper;
+import frenk.eypipes.registries.ModItems;
+import frenk.eypipes.registries.ModParticles;
+import frenk.eypipes.registries.ModSounds;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.stats.Stats;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.UseAnim;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import frenk.eypipes.particles.EyPipesParticleTypes;
-import frenk.eypipes.sound.EyPipesSound;
-import software.bernie.geckolib3.core.IAnimatable;
-import software.bernie.geckolib3.core.PlayState;
-import software.bernie.geckolib3.core.builder.AnimationBuilder;
-import software.bernie.geckolib3.core.controller.AnimationController;
-import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
-import software.bernie.geckolib3.core.manager.AnimationData;
-import software.bernie.geckolib3.core.manager.AnimationFactory;
-import software.bernie.geckolib3.network.GeckoLibNetwork;
-import software.bernie.geckolib3.network.ISyncable;
-import software.bernie.geckolib3.util.GeckoLibUtil;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.WeakHashMap;
-import net.minecraft.client.render.model.json.ModelTransformation;
-import java.util.concurrent.ThreadLocalRandom;
 
-public class PipeItem extends TrinketItem implements IAnimatable, ISyncable {
-    private static final Logger LOGGER = LoggerFactory.getLogger("EyPipesMod");
-    private static final int SMOKE_ANIM_STATE = 0;
-    private static final AnimationBuilder SMOKE_ANIM = new AnimationBuilder().addAnimation("animation.pipe.smoke", false);
-    
-    private final AnimationFactory factory = GeckoLibUtil.createFactory(this);
-    private final int USAGE_TIME = 60;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+import software.bernie.geckolib.animatable.GeoItem;
+import software.bernie.geckolib.animatable.SingletonGeoAnimatable;
+import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
+import software.bernie.geckolib.animation.*;
+import software.bernie.geckolib.util.GeckoLibUtil;
+import top.theillusivec4.curios.api.type.capability.ICurioItem;
+
+/**
+ * Pipe item - An animated smoking pipe with GeckoLib 4 and Curios integration.
+ * Features durability, smoke particles, and repair mechanics.
+ * Ported from Fabric 1.19.2 (GeckoLib 3 + Trinkets) to NeoForge 1.21.1 (GeckoLib 4 + Curios)
+ */
+public class PipeItem extends Item implements GeoItem, ICurioItem {
+    private static final Logger LOGGER = LoggerFactory.getLogger("EyPipes");
+
+    // Animation constants - use thenPlay for proper animation reset
+    private static final RawAnimation SMOKE_ANIM = RawAnimation.begin().thenPlay("animation.pipe.smoke");
+
+    // GeckoLib 4 cache
+    private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
+
+    // Usage settings
+    private static final int USAGE_TIME = 60;
     private static final String SMOKING_KEY = "smoking";
-    
+
+    // Scheduled executor for delayed particle spawning
+    private static final ScheduledExecutorService PARTICLE_EXECUTOR = Executors.newScheduledThreadPool(2);
+
+    public PipeItem(Properties properties) {
+        super(properties);
+        // Register as singleton animatable for GeckoLib 4
+        SingletonGeoAnimatable.registerSyncedAnimatable(this);
+    }
+
+    // NBT helpers for smoking state (using custom data in 1.21.1)
     private boolean isSmoking(ItemStack stack) {
-        return stack.getOrCreateNbt().getBoolean(SMOKING_KEY);
+        if (!stack.has(net.minecraft.core.component.DataComponents.CUSTOM_DATA)) {
+            return false;
+        }
+        return stack.get(net.minecraft.core.component.DataComponents.CUSTOM_DATA)
+                .copyTag().getBoolean(SMOKING_KEY);
     }
-    
+
     private void setSmoking(ItemStack stack, boolean smoking) {
-        stack.getOrCreateNbt().putBoolean(SMOKING_KEY, smoking);
+        stack.update(net.minecraft.core.component.DataComponents.CUSTOM_DATA,
+                net.minecraft.world.item.component.CustomData.EMPTY,
+                data -> data.update(tag -> tag.putBoolean(SMOKING_KEY, smoking)));
     }
-    
+
     @Override
-    public void onCraft(ItemStack stack, World world, PlayerEntity player) {
-        if (!world.isClient) {
-            stack.setDamage(stack.getMaxDamage() - 1);
+    public void onCraftedBy(ItemStack stack, Level level, Player player) {
+        if (!level.isClientSide()) {
+            // Start with pipe nearly empty (requires refill)
+            stack.setDamageValue(stack.getMaxDamage() - 1);
         }
     }
 
-    public PipeItem(FabricItemSettings settings, int amountOfUse) {
-        super(settings.maxDamage(amountOfUse));
-        GeckoLibNetwork.registerSyncable(this);
+    @Override
+    public int getBarColor(ItemStack stack) {
+        return 0x01e81b0; // Green color for durability bar
     }
 
     @Override
-    public int getItemBarColor(ItemStack stack) {
-        return 0x01e81b0;
-    }
-
-    @Override
-    public int getItemBarStep(ItemStack stack) {
-        if (stack.isDamageable()) {
-            return Math.round(13.0F - (float) stack.getDamage() * 13.0F / (float) stack.getMaxDamage());
+    public int getBarWidth(ItemStack stack) {
+        if (stack.isDamageableItem()) {
+            return Math.round(13.0F - (float) stack.getDamageValue() * 13.0F / (float) stack.getMaxDamage());
         }
-        return super.getItemBarStep(stack);
+        return super.getBarWidth(stack);
     }
 
-
-
     @Override
-    public TypedActionResult<ItemStack> use(World world, PlayerEntity user, Hand hand) {
-        
-        ItemStack itemStack = user.getStackInHand(hand);
-        
-        
+    public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
+        ItemStack itemStack = player.getItemInHand(hand);
+
         // Check for shift+right-click with erbapipa_cutted in off-hand for durability repair
-        if (user.isSneaking() && hand == Hand.MAIN_HAND) {
-            ItemStack offHandStack = user.getStackInHand(Hand.OFF_HAND);
-            if (offHandStack.getItem() == EyPipesItems.ERBAPIPA_CUTTED && itemStack.isDamageable()) {
+        if (player.isShiftKeyDown() && hand == InteractionHand.MAIN_HAND) {
+            ItemStack offHandStack = player.getItemInHand(InteractionHand.OFF_HAND);
+            if (offHandStack.is(ModItems.ERBAPIPA_CUTTED.get()) && itemStack.isDamageableItem()) {
                 // Check if pipe is already at maximum durability
-                if (itemStack.getDamage() <= 1) {
-                    return TypedActionResult.fail(itemStack);
+                if (itemStack.getDamageValue() <= 1) {
+                    return InteractionResultHolder.fail(itemStack);
                 }
-                
+
                 // Increase durability by 1 (decrease damage by 1)
-                int currentDamage = itemStack.getDamage();
+                int currentDamage = itemStack.getDamageValue();
                 int newDamage = Math.max(0, currentDamage - 1);
-                itemStack.setDamage(newDamage);
-                
+                itemStack.setDamageValue(newDamage);
+
                 // Consume one erbapipa_cutted
-                if (!user.isCreative()) {
-                    offHandStack.decrement(1);
+                if (!player.isCreative()) {
+                    offHandStack.shrink(1);
                 }
-                
+
                 // Play repair sound and set cooldown
-                // world.playSound(null, user.getX(), user.getY(), user.getZ(), EyPipesSound.PIPE_REFILL, SoundCategory.PLAYERS, 1.0F, 1.2F); // Sound file missing
-                user.getItemCooldownManager().set(this, 20);
-                
-                return TypedActionResult.success(itemStack);
-            }
-        }
-        
-        if (itemStack.isDamageable() && itemStack.getDamage() >= itemStack.getMaxDamage()) {
-            ItemStack driedErbapipaStack = user.getInventory().main.stream()
-                    .filter(stack -> stack.getItem() == EyPipesItems.ERBAPIPA_DRIED)
-                    .findFirst()
-                    .orElse(ItemStack.EMPTY);
+                level.playSound(null, player.getX(), player.getY(), player.getZ(),
+                        ModSounds.PIPE_REFILL.get(), SoundSource.PLAYERS, 1.0F, 1.2F);
+                player.getCooldowns().addCooldown(this, 20);
 
-            if (driedErbapipaStack.isEmpty() && !user.isCreative()) {
-                return TypedActionResult.fail(itemStack);
+                return InteractionResultHolder.success(itemStack);
             }
+        }
 
-            driedErbapipaStack.decrement(1);
-            itemStack.setDamage(0);
-            ((PlayerEntity)user).getItemCooldownManager().set(this, 20);
-            // world.playSound(null, user.getX(), user.getY(), user.getZ(), EyPipesSound.PIPE_REFILL, SoundCategory.PLAYERS, 1.0F, 1.0F); // Sound file missing
+        // Check if pipe is empty (no tobacco left) - cannot smoke
+        if (itemStack.isDamageableItem() && itemStack.getDamageValue() >= itemStack.getMaxDamage()) {
+            // Pipe is empty - need to refill using shift+right-click with erbapipa_cutted
+            return InteractionResultHolder.fail(itemStack);
         }
-        else{
-            user.setCurrentHand(hand);
-            setSmoking(itemStack, true);
-            LOGGER.info("Pipe use started for player {}", user.getName().getString());
-            if (!world.isClient) {
-                LOGGER.info("Triggering smoke animation on server for stack {}", itemStack);
-                triggerSmokeAnimation(itemStack, (ServerWorld)world, user);
-            }
-            user.incrementStat(Stats.USED.getOrCreateStat(this));
+
+        // Start smoking
+        player.startUsingItem(hand);
+        setSmoking(itemStack, true);
+        LOGGER.debug("Pipe use started for player {}", player.getName().getString());
+
+        // Trigger animation
+        if (!level.isClientSide() && player instanceof ServerPlayer serverPlayer) {
+            triggerAnim(serverPlayer, GeoItem.getOrAssignId(itemStack, (ServerLevel) level), "smokeController", "smoke");
         }
-        return TypedActionResult.consume(itemStack);
+
+        player.awardStat(Stats.ITEM_USED.get(this));
+
+        return InteractionResultHolder.consume(itemStack);
     }
 
     @Override
-    public void onStoppedUsing(ItemStack stack, World world, LivingEntity user, int remainingUseTicks) {
+    public void releaseUsing(ItemStack stack, Level level, LivingEntity entity, int timeCharged) {
         if (isSmoking(stack)) {
-            ItemStack result = finishUsing(stack, world, user);
+            finishUsing(stack, level, entity);
         }
         setSmoking(stack, false);
-        ((PlayerEntity)user).getItemCooldownManager().set(this, 20);
+
+        // Stop animation when releasing
+        if (!level.isClientSide() && entity instanceof ServerPlayer serverPlayer) {
+            stopTriggeredAnim(serverPlayer, GeoItem.getOrAssignId(stack, (ServerLevel) level), "smokeController", "smoke");
+        }
+
+        if (entity instanceof Player player) {
+            player.getCooldowns().addCooldown(this, 20);
+        }
     }
-
-    
-
-    
-    
-    
 
     @Override
-    public void usageTick(World world, LivingEntity user, ItemStack stack, int remainingUseTicks) {
-        
-        if (isSmoking(stack)) {
-            int totalTicks = USAGE_TIME - remainingUseTicks;
-            int frequency = Math.max(4, (int) Math.pow((USAGE_TIME - totalTicks) / 10.0, 2));
-            if (remainingUseTicks % frequency == 0) {
-                // Spawn particles
-                if (world.isClient) {
-                    net.minecraft.client.MinecraftClient client = net.minecraft.client.MinecraftClient.getInstance();
-                    boolean isFirstPerson = client.options.getPerspective().isFirstPerson();
-                    if (isFirstPerson == true) {
-                        Vec3d pipePosition[]  = calculateParticlePosition(user);
-                        Vec3d correctPosition = pipePosition[0];
-                        for(int i=0;i<10;i++)
-                            world.addParticle(ParticleTypes.SMOKE, correctPosition.x + (world.random.nextGaussian() * 0.02), correctPosition.y + (world.random.nextGaussian() * 0.02), correctPosition.z + (world.random.nextGaussian() * 0.02), 0.001, 0.01, 0.001); 
-                    }
-                    else{
-                        Vec3d pipePosition[]  = calculateParticlePosition(user);
-                        Vec3d correctPosition = pipePosition[1];
-                        for(int i=0;i<10;i++)
-                            world.addParticle(ParticleTypes.SMOKE, correctPosition.x + (world.random.nextGaussian() * 0.02), correctPosition.y + (world.random.nextGaussian() * 0.02), correctPosition.z + (world.random.nextGaussian() * 0.02), 0.001, 0.01, 0.001);  
-                    }
+    public void onUseTick(Level level, LivingEntity entity, ItemStack stack, int remainingUseTicks) {
+        if (!isSmoking(stack)) return;
+
+        int totalTicks = USAGE_TIME - remainingUseTicks;
+        int frequency = Math.max(4, (int) Math.pow((USAGE_TIME - totalTicks) / 10.0, 2));
+
+        if (remainingUseTicks % frequency == 0) {
+            // Spawn smoke particles
+            Vec3[] positions = calculateParticlePosition(entity);
+
+            if (level.isClientSide()) {
+                // Client-side particles
+                Vec3 correctPosition = positions[0]; // First person position
+                for (int i = 0; i < 10; i++) {
+                    level.addParticle(ParticleTypes.SMOKE,
+                            correctPosition.x + (level.random.nextGaussian() * 0.02),
+                            correctPosition.y + (level.random.nextGaussian() * 0.02),
+                            correctPosition.z + (level.random.nextGaussian() * 0.02),
+                            0.001, 0.01, 0.001);
                 }
-                if (world instanceof ServerWorld serverWorld) {
-                    // Server-side particle spawning for all nearby players
-                    for (net.minecraft.server.network.ServerPlayerEntity player : serverWorld.getPlayers()) {
-                        if (player != user && player.distanceTo(user) <= 32.0) {
-                            // Calculate server-safe smoke position
-                            Vec3d pipePosition[] = calculateParticlePosition(user);
-                            Vec3d correctPosition = pipePosition[1];
-                            serverWorld.spawnParticles(player, ParticleTypes.SMOKE,
-                                    false, correctPosition.x + (world.random.nextGaussian() * 0.02), correctPosition.y + (world.random.nextGaussian() * 0.02), correctPosition.z + (world.random.nextGaussian() * 0.02),
-                                    10, 0.001, 0.01, 0.001, 0.0);
-                        }
+
+                // Use enhanced bowl ember effect with sparks
+                float intensity = 1.0f - ((float) remainingUseTicks / USAGE_TIME);
+                EnhancedParticleHelper.spawnBowlEmbers(level, correctPosition, intensity);
+            } else if (level instanceof ServerLevel serverLevel) {
+                // Server-side particles for other players
+                Vec3 thirdPersonPos = positions[1];
+                for (ServerPlayer player : serverLevel.players()) {
+                    if (player != entity && player.distanceTo(entity) <= 32.0) {
+                        serverLevel.sendParticles(player, ParticleTypes.SMOKE,
+                                false,
+                                thirdPersonPos.x + (level.random.nextGaussian() * 0.02),
+                                thirdPersonPos.y + (level.random.nextGaussian() * 0.02),
+                                thirdPersonPos.z + (level.random.nextGaussian() * 0.02),
+                                10, 0.001, 0.01, 0.001, 0.0);
                     }
                 }
             }
         }
     }
 
-    public ItemStack finishUsing(ItemStack item, World world, LivingEntity user){
-        spawnSmoke(0, user, world);
-        if (!world.isClient) {
-            world.playSound(null, user.getX(), user.getY(), user.getZ(), EyPipesSound.PIPE_EXHALE, SoundCategory.PLAYERS, 0.8F, 1.0F);
-            if (user instanceof PlayerEntity) {
-                world.playSound((PlayerEntity) user, user.getBlockPos(), EyPipesSound.PIPE_EXHALE, SoundCategory.PLAYERS, 0.8F, 1.0F);
-            }
+    public ItemStack finishUsing(ItemStack item, Level level, LivingEntity entity) {
+        spawnSmoke(entity, level);
+
+        if (!level.isClientSide()) {
+            level.playSound(null, entity.getX(), entity.getY(), entity.getZ(),
+                    ModSounds.PIPE_EXHALE.get(), SoundSource.PLAYERS, 0.8F, 1.0F);
         }
-        item.setDamage(item.getDamage() + 1);
+
+        item.setDamageValue(item.getDamageValue() + 1);
         setSmoking(item, false);
-        ((PlayerEntity)user).getItemCooldownManager().set(this, 20);
+
+        if (entity instanceof Player player) {
+            player.getCooldowns().addCooldown(this, 20);
+        }
+
+        // Spawn enhanced ash effect
+        if (level.isClientSide()) {
+            Vec3[] positions = calculateParticlePosition(entity);
+            EnhancedParticleHelper.spawnAshEffect(level, positions[0]);
+        }
+
         return item;
     }
 
-    public int getMaxUseTime(ItemStack stack) {
+    @Override
+    public int getUseDuration(ItemStack stack, LivingEntity entity) {
         return USAGE_TIME;
     }
 
-    public void spawnSmoke(int remainingUseTicks, LivingEntity user, World world){
-        float f = (float) (USAGE_TIME - remainingUseTicks) / 600;
-        
-        if (world.isClient) { // Client-side particles for the user
+    public void spawnSmoke(LivingEntity entity, Level level) {
+        float velocityMultiplier = USAGE_TIME / 600.0f;
+
+        // Delay between smoke rings in milliseconds (matching SMOKE_RING_DELAY_TICKS = 12 * 50ms)
+        final long RING_DELAY_MS = 600L;
+
+        if (level.isClientSide()) {
+            // Client-side smoke rings with delayed spawning at current player position
             for (int i = 0; i < 3; i++) {
                 final int particleIndex = i;
-                final double offsetMultiplier = 0.4 + (particleIndex * 0.1);
-                new Thread(() -> {
-                    try {
-                        Thread.sleep(particleIndex * 1000);
-                        Vec3d vec = user.getRotationVec(1.0F);
-                        world.addParticle(EyPipesParticleTypes.RING_OF_SMOKE,
-                                user.getX() + vec.x * offsetMultiplier,
-                                user.getY() + user.getEyeHeight(user.getPose()) + vec.y * offsetMultiplier,
-                                user.getZ() + vec.z * offsetMultiplier,
-                                vec.x * f, vec.y * f, vec.z * f);
-                    } catch (InterruptedException e) {
-                        Thread.currentThread().interrupt();
-                    }
-                }).start();
-            }
-        } else { // Server-side particles for all other players
-            if (world instanceof ServerWorld serverWorld) {
-                for (int i = 0; i < 3; i++) {
-                    final int particleIndex = i;
-                    final double offsetMultiplier = 0.4 + (particleIndex * 0.1);
-                    new Thread(() -> {
-                        try {
-                            Thread.sleep(particleIndex * 1000);
-                            for (net.minecraft.server.network.ServerPlayerEntity player : serverWorld.getPlayers()) {
-                                if (player != user) {
-                                    Vec3d vec = user.getRotationVec(1.0F);
-                                    double userX = user.getX();
-                                    double userY = user.getY() + user.getEyeHeight(user.getPose());
-                                    double userZ = user.getZ();
-                                    
-                                    // Exclude the user who is smoking
-                                    serverWorld.spawnParticles(player,EyPipesParticleTypes.RING_OF_SMOKE,
-                                            false,
-                                            userX + vec.x * offsetMultiplier,
-                                            userY + vec.y * offsetMultiplier,
-                                            userZ + vec.z * offsetMultiplier,
-                                            0, vec.x * f, vec.y * f, vec.z * f, 1.0f);
-                                }
-                            }
-                        } catch (InterruptedException e) {
-                            Thread.currentThread().interrupt();
+                final double offsetMultiplier = 0.3 + (particleIndex * 0.1);
+                final float velScale = velocityMultiplier * (0.7f + particleIndex * 0.2f);
+
+                PARTICLE_EXECUTOR.schedule(() -> {
+                    if (entity.isAlive()) {
+                        // Get CURRENT position and direction when spawning
+                        Vec3 vec = entity.getViewVector(1.0F);
+
+                        level.addParticle(ModParticles.RING_OF_SMOKE.get(),
+                                entity.getX() + vec.x * offsetMultiplier,
+                                entity.getY() + entity.getEyeHeight() + vec.y * offsetMultiplier,
+                                entity.getZ() + vec.z * offsetMultiplier,
+                                vec.x * velScale,
+                                vec.y * velScale,
+                                vec.z * velScale);
+
+                        // Spawn smoke wisps if enabled
+                        if (EyPipesConfig.CLIENT.enableSmokeWisps.get()) {
+                            level.addParticle(ModParticles.SMOKE_WISP.get(),
+                                    entity.getX() + vec.x * offsetMultiplier,
+                                    entity.getY() + entity.getEyeHeight() + vec.y * offsetMultiplier,
+                                    entity.getZ() + vec.z * offsetMultiplier,
+                                    vec.x * velScale * 0.5,
+                                    vec.y * velScale * 0.5 + 0.02,
+                                    vec.z * velScale * 0.5);
                         }
-                    }).start();
-                }
+                    }
+                }, particleIndex * RING_DELAY_MS, TimeUnit.MILLISECONDS);
+            }
+        } else if (level instanceof ServerLevel serverLevel) {
+            // Server-side smoke rings for other players with delayed spawning
+            for (int i = 0; i < 3; i++) {
+                final int particleIndex = i;
+                final double offsetMultiplier = 0.3 + (particleIndex * 0.1);
+                final float velScale = velocityMultiplier * (0.7f + particleIndex * 0.2f);
+
+                PARTICLE_EXECUTOR.schedule(() -> {
+                    if (entity.isAlive()) {
+                        // Get CURRENT position and direction when spawning
+                        Vec3 vec = entity.getViewVector(1.0F);
+
+                        for (ServerPlayer player : serverLevel.players()) {
+                            if (player != entity) {
+                                serverLevel.sendParticles(player, ModParticles.RING_OF_SMOKE.get(),
+                                        false,
+                                        entity.getX() + vec.x * offsetMultiplier,
+                                        entity.getY() + entity.getEyeHeight() + vec.y * offsetMultiplier,
+                                        entity.getZ() + vec.z * offsetMultiplier,
+                                        1,
+                                        vec.x * velScale,
+                                        vec.y * velScale,
+                                        vec.z * velScale,
+                                        1.0);
+                            }
+                        }
+                    }
+                }, particleIndex * RING_DELAY_MS, TimeUnit.MILLISECONDS);
             }
         }
     }
 
     @Override
-    public UseAction getUseAction(ItemStack stack) {
-        return UseAction.NONE;
+    public UseAnim getUseAnimation(ItemStack stack) {
+        return UseAnim.NONE;
     }
 
-    public boolean isSmoking() {
-        return false;
-    }
-    
     @Override
-    public void registerControllers(AnimationData data) {
-        data.addAnimationController(new AnimationController<>(this, "smokeController", 0, this::predicate));
-    }
-    
-    private <E extends IAnimatable> PlayState predicate(AnimationEvent<E> event) {
-        event.getController().setAnimation(SMOKE_ANIM);
-        return PlayState.CONTINUE;
-    }
-    
-    @Override
-    public AnimationFactory getFactory() {
-        return this.factory;
-    }
-    
-    @Override
-    public void onAnimationSync(int id, int state) {
-        if (state == SMOKE_ANIM_STATE) {
-            final AnimationController<?> controller = GeckoLibUtil.getControllerForID(this.factory, id, "smokeController");
-            if (controller != null) {
-                controller.setAnimation(SMOKE_ANIM);
-            }
-        }
-    }
-    
-    public void triggerSmokeAnimation(ItemStack stack, ServerWorld world, PlayerEntity player) {
-        final int id = GeckoLibUtil.guaranteeIDForStack(stack, world);
-        LOGGER.info("Syncing animation with ID {} and state {}", id, SMOKE_ANIM_STATE);
-        GeckoLibNetwork.syncAnimation(player, this, id, SMOKE_ANIM_STATE);
+    public boolean isRepairable(ItemStack stack) {
+        return false; // Disable anvil repair - use erbapipa_cutted instead
     }
 
-    public boolean getIsRepairable(ItemStack toRepair, ItemStack repair) {
-        return false; // Disable all repair functionality for pipes
+    // GeckoLib 4 methods
+    @Override
+    public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
+        controllers.add(new AnimationController<>(this, "smokeController", 0, state -> {
+            // Only play animation when smoking
+            return PlayState.STOP;
+        }).triggerableAnim("smoke", SMOKE_ANIM));
     }
-    
+
+    @Override
+    public AnimatableInstanceCache getAnimatableInstanceCache() {
+        return this.cache;
+    }
+
     /**
-     * Server-safe method to calculate smoke position without client dependencies.
-     * Dynamically calculates the absolute world position of the rendered pipe each tick.
-     * For third-person: Height is fixed and does not follow the player's vertical look direction.
-     * For first-person: Uses full look direction to match head rotation naturally.
+     * Calculate smoke particle spawn position for first-person and third-person views.
+     * Returns array: [0] = first person position, [1] = third person position
      */
-    private Vec3d[] calculateParticlePosition(LivingEntity entity) {
-        // Get current rotation vectors (updates each tick with player movement/rotation)
-        Vec3d lookVec = entity.getRotationVec(1.0F);
-        
-        // Get current absolute world position (updates each tick with player movement)
-        Vec3d basePos = new Vec3d(
-            entity.getX(),
-            entity.getY() + entity.getEyeHeight(entity.getPose()),
-            entity.getZ()
+    private Vec3[] calculateParticlePosition(LivingEntity entity) {
+        Vec3 lookVec = entity.getViewVector(1.0F);
+
+        Vec3 basePos = new Vec3(
+                entity.getX(),
+                entity.getY() + entity.getEyeHeight(),
+                entity.getZ()
         );
-        
-        // For third-person view: use horizontal-only vectors for fixed height
-        Vec3d horizontalLookVec = new Vec3d(lookVec.x, 0, lookVec.z).normalize();
-        Vec3d rightVecThird = new Vec3d(horizontalLookVec.z, 0, horizontalLookVec.x).normalize();
-        Vec3d upVecThird = new Vec3d(0, 1, 0); // Fixed upward direction
-        
-        Vec3d resultThird = basePos
-            .add(horizontalLookVec.multiply(0.5))
-            .add(rightVecThird.multiply(0.2))
-            .add(upVecThird.multiply(-0.2));
-        
-        // For first-person view: use full look direction for natural head tracking
-        Vec3d rightVecFirst = lookVec.crossProduct(new Vec3d(0, 1, 0)).normalize();
-        Vec3d upVecFirst = rightVecFirst.crossProduct(lookVec).normalize();
-        
-        Vec3d resultFirst = basePos
-            .add(lookVec.multiply(0.4))
-            .add(rightVecFirst.multiply(0.33))
-            .add(upVecFirst.multiply(0.0));
-            
-        Vec3d[] results = new Vec3d[]{resultFirst, resultThird};
-        return results;
+
+        // Third-person: horizontal vectors for fixed height
+        Vec3 horizontalLookVec = new Vec3(lookVec.x, 0, lookVec.z).normalize();
+        Vec3 rightVecThird = new Vec3(horizontalLookVec.z, 0, -horizontalLookVec.x).normalize();
+        Vec3 upVecThird = new Vec3(0, 1, 0);
+
+        float offsetX = EyPipesConfig.CLIENT.particleOffsetThirdViewX.get().floatValue();
+        float offsetY = EyPipesConfig.CLIENT.particleOffsetThirdViewY.get().floatValue();
+        float offsetZ = EyPipesConfig.CLIENT.particleOffsetThirdViewZ.get().floatValue();
+
+        Vec3 resultThird = basePos
+                .add(horizontalLookVec.scale(0.5))
+                .add(rightVecThird.scale(offsetX))
+                .add(upVecThird.scale(-offsetY));
+
+        // First-person: full look direction
+        Vec3 rightVecFirst = lookVec.cross(new Vec3(0, 1, 0)).normalize();
+        Vec3 upVecFirst = rightVecFirst.cross(lookVec).normalize();
+
+        Vec3 resultFirst = basePos
+                .add(lookVec.scale(0.4))
+                .add(rightVecFirst.scale(0.33))
+                .add(upVecFirst.scale(0.0));
+
+        return new Vec3[]{resultFirst, resultThird};
     }
 }

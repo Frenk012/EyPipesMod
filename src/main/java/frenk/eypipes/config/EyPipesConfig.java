@@ -1,205 +1,318 @@
 package frenk.eypipes.config;
 
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-import frenk.eypipes.EyPipes;
-import net.fabricmc.loader.api.FabricLoader;
+import net.neoforged.neoforge.common.ModConfigSpec;
+import org.apache.commons.lang3.tuple.Pair;
 
-import java.io.FileReader;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-
+/**
+ * EyPipes Configuration using NeoForge ConfigSpec.
+ * Provides in-game GUI and type-safe configuration.
+ * Ported from Fabric 1.19.2 JSON config to NeoForge 1.21.1 ConfigSpec.
+ */
 public class EyPipesConfig {
-    private static final Path CONFIG_PATH = FabricLoader.getInstance().getConfigDir().resolve("eypipes_config.json");
-    
-    // Crop Settings
-    public static double GROWTH_CHANCE = 0.25;
-    public static int MAX_AGE = 7;
-    public static int GROW_UPPER_AGE = 4;
-    public static boolean REQUIRES_SUPPORT = true;
-    
-    // Drying Rack Settings
-    public static int DRYING_TIME_TICKS = 4000;
-    public static int MAX_ITEMS = 3;
-    public static boolean REQUIRES_SUNLIGHT = false;
-    
-    // Loot Settings
-    public static double ERBAPIPA_DROP_ROLLS = 0.8;
-    public static double SEEDS_BONUS_ROLLS = 0.245;  // Reduced by 65% (0.7 * 0.35)
-    public static double SEEDS_FORTUNE_PROBABILITY = 0.06;  // Reduced by 65% (0.17142858 * 0.35)
-    public static boolean FORTUNE_AFFECTS_DROPS = true;
-    public static double ERBAPIPA_DROP_PERCENTAGE = 100.0;
-    public static double SEEDS_DROP_PERCENTAGE = 35.0;  // Reduced by 65% (100.0 * 0.35)
-    
-    // Recipe Settings
-    public static int CUTTING_OUTPUT_COUNT = 2;
-    public static boolean ENABLE_KNIFE_TAG_SUPPORT = true;
-    
-    // Compost Settings
-    public static float ERBAPIPA_SEEDS_COMPOST_CHANCE = 0.3f;
-    public static float ERBAPIPA_COMPOST_CHANCE = 0.65f;
-    
-    // Gameplay Settings
-    public static boolean ENABLE_TALL_CROP_MECHANICS = true;
-    public static boolean BREAKING_UPPER_BREAKS_LOWER = true;
-    public static double FERTILIZER_EFFECTIVENESS = 1.0;
-    
-    // Performance Settings
-    public static double TICK_RATE_MULTIPLIER = 1.0;
-    public static int MAX_DRYING_RACKS_PER_CHUNK = 64;
-    
-    // Integration Settings
-    public static boolean FARMERS_DELIGHT_INTEGRATION = true;
-    public static boolean JEI_INTEGRATION = true;
-    
-    // Debug Settings
-    public static boolean ENABLE_DEBUG_LOGGING = false;
-    public static boolean SHOW_GROWTH_PARTICLES = false;
-    
-    // Particle Offset Settings (used in trinket renderer)
-    public static float PARTICLE_OFFSET_THIRDVIEW_X = 0.2f;
-    public static float PARTICLE_OFFSET_THIRDVIEW_Y = 0.4f;
-    public static float PARTICLE_OFFSET_THIRDVIEW_Z = 0.1f;
-    
-    public static void loadConfig() {
-        try {
-            if (!Files.exists(CONFIG_PATH)) {
-                createDefaultConfig();
-                return;
-            }
-            
-            JsonObject config = JsonParser.parseReader(new FileReader(CONFIG_PATH.toFile())).getAsJsonObject();
-            EyPipes.LOGGER.info("Successfully loaded config file from: " + CONFIG_PATH.toString());
-            
-            // Load crop settings
-            if (config.has("crop_settings")) {
-                JsonObject cropSettings = config.getAsJsonObject("crop_settings");
-                GROWTH_CHANCE = getDoubleOrDefault(cropSettings, "growth_chance", 0.25);
-                MAX_AGE = getIntOrDefault(cropSettings, "max_age", 7);
-                GROW_UPPER_AGE = getIntOrDefault(cropSettings, "grow_upper_age", 4);
-                REQUIRES_SUPPORT = getBooleanOrDefault(cropSettings, "requires_support", true);
-            }
-            
-            // Load drying rack settings
-            if (config.has("drying_rack_settings")) {
-                JsonObject dryingSettings = config.getAsJsonObject("drying_rack_settings");
-                DRYING_TIME_TICKS = getIntOrDefault(dryingSettings, "drying_time_ticks", 6000);
-                MAX_ITEMS = getIntOrDefault(dryingSettings, "max_items", 3);
-                REQUIRES_SUNLIGHT = getBooleanOrDefault(dryingSettings, "requires_sunlight", false);
-            }
-            
-            // Load loot settings
-            if (config.has("loot_settings")) {
-                JsonObject lootSettings = config.getAsJsonObject("loot_settings");
-                ERBAPIPA_DROP_ROLLS = getDoubleOrDefault(lootSettings, "erbapipa_drop_rolls", 0.8);
-                SEEDS_BONUS_ROLLS = getDoubleOrDefault(lootSettings, "seeds_bonus_rolls", 0.245);  // Reduced by 65%
-                SEEDS_FORTUNE_PROBABILITY = getDoubleOrDefault(lootSettings, "seeds_fortune_probability", 0.06);  // Reduced by 65%
-                FORTUNE_AFFECTS_DROPS = getBooleanOrDefault(lootSettings, "fortune_affects_drops", true);
-                ERBAPIPA_DROP_PERCENTAGE = getDoubleOrDefault(lootSettings, "erbapipa_drop_percentage", 100.0);
-                SEEDS_DROP_PERCENTAGE = getDoubleOrDefault(lootSettings, "seeds_drop_percentage", 35.0);  // Reduced by 65%
-            }
-            
-            // Load recipe settings
-            if (config.has("recipe_settings")) {
-                JsonObject recipeSettings = config.getAsJsonObject("recipe_settings");
-                CUTTING_OUTPUT_COUNT = getIntOrDefault(recipeSettings, "cutting_output_count", 2);
-                ENABLE_KNIFE_TAG_SUPPORT = getBooleanOrDefault(recipeSettings, "enable_knife_tag_support", true);
-            }
-            
-            // Load compost settings
-            if (config.has("compost_settings")) {
-                JsonObject compostSettings = config.getAsJsonObject("compost_settings");
-                ERBAPIPA_SEEDS_COMPOST_CHANCE = (float) getDoubleOrDefault(compostSettings, "erbapipa_seeds_compost_chance", 0.3);
-                ERBAPIPA_COMPOST_CHANCE = (float) getDoubleOrDefault(compostSettings, "erbapipa_compost_chance", 0.65);
-            }
-            
-            // Load gameplay settings
-            if (config.has("gameplay_settings")) {
-                JsonObject gameplaySettings = config.getAsJsonObject("gameplay_settings");
-                ENABLE_TALL_CROP_MECHANICS = getBooleanOrDefault(gameplaySettings, "enable_tall_crop_mechanics", true);
-                BREAKING_UPPER_BREAKS_LOWER = getBooleanOrDefault(gameplaySettings, "breaking_upper_breaks_lower", true);
-                FERTILIZER_EFFECTIVENESS = getDoubleOrDefault(gameplaySettings, "fertilizer_effectiveness", 1.0);
-            }
-            
-            // Load performance settings
-            if (config.has("performance_settings")) {
-                JsonObject performanceSettings = config.getAsJsonObject("performance_settings");
-                TICK_RATE_MULTIPLIER = getDoubleOrDefault(performanceSettings, "tick_rate_multiplier", 1.0);
-                MAX_DRYING_RACKS_PER_CHUNK = getIntOrDefault(performanceSettings, "max_drying_racks_per_chunk", 64);
-            }
-            
-            // Load integration settings
-            if (config.has("integration_settings")) {
-                JsonObject integrationSettings = config.getAsJsonObject("integration_settings");
-                FARMERS_DELIGHT_INTEGRATION = getBooleanOrDefault(integrationSettings, "farmers_delight_integration", true);
-                JEI_INTEGRATION = getBooleanOrDefault(integrationSettings, "jei_integration", true);
-            }
-            
-            // Load debug settings
-            if (config.has("debug_settings")) {
-                JsonObject debugSettings = config.getAsJsonObject("debug_settings");
-                ENABLE_DEBUG_LOGGING = getBooleanOrDefault(debugSettings, "enable_debug_logging", false);
-                SHOW_GROWTH_PARTICLES = getBooleanOrDefault(debugSettings, "show_growth_particles", false);
-            }
-            
-            // Load particle offset settings
-            if (config.has("animation_settings") && config.getAsJsonObject("animation_settings").has("position_offsets")) {
-                JsonObject offsetSettings = config.getAsJsonObject("animation_settings").getAsJsonObject("position_offsets");
-                PARTICLE_OFFSET_THIRDVIEW_X = (float) getDoubleOrDefault(offsetSettings, "particle_offset_thirdview_x", 0.2);
-                PARTICLE_OFFSET_THIRDVIEW_Y = (float) getDoubleOrDefault(offsetSettings, "particle_offset_thirdview_y", 0.4);
-                PARTICLE_OFFSET_THIRDVIEW_Z = (float) getDoubleOrDefault(offsetSettings, "particle_offset_thirdview_z", 0.1);
-            }
-            
-            EyPipes.LOGGER.info("EyPipes config loaded successfully!");
-            
-        } catch (Exception e) {
-            EyPipes.LOGGER.error("Failed to load EyPipes config, using defaults", e);
+
+    // Config specs
+    public static final ModConfigSpec COMMON_SPEC;
+    public static final ModConfigSpec CLIENT_SPEC;
+    public static final Common COMMON;
+    public static final Client CLIENT;
+
+    static {
+        Pair<Common, ModConfigSpec> commonPair = new ModConfigSpec.Builder().configure(Common::new);
+        COMMON = commonPair.getLeft();
+        COMMON_SPEC = commonPair.getRight();
+
+        Pair<Client, ModConfigSpec> clientPair = new ModConfigSpec.Builder().configure(Client::new);
+        CLIENT = clientPair.getLeft();
+        CLIENT_SPEC = clientPair.getRight();
+    }
+
+    /**
+     * Common configuration - Server-side settings
+     */
+    public static class Common {
+        // Crop Settings
+        public final ModConfigSpec.DoubleValue growthChance;
+        public final ModConfigSpec.IntValue maxAge;
+        public final ModConfigSpec.IntValue growUpperAge;
+        public final ModConfigSpec.BooleanValue requiresSupport;
+
+        // Drying Rack Settings
+        public final ModConfigSpec.IntValue dryingTimeTicks;
+        public final ModConfigSpec.IntValue maxItems;
+        public final ModConfigSpec.BooleanValue requiresSunlight;
+
+        // Loot Settings
+        public final ModConfigSpec.DoubleValue erbapipaDropRolls;
+        public final ModConfigSpec.DoubleValue seedsBonusRolls;
+        public final ModConfigSpec.DoubleValue seedsFortuneProbability;
+        public final ModConfigSpec.BooleanValue fortuneAffectsDrops;
+        public final ModConfigSpec.DoubleValue erbapipaDropPercentage;
+        public final ModConfigSpec.DoubleValue seedsDropPercentage;
+
+        // Compost Settings
+        public final ModConfigSpec.DoubleValue erbapipaSeedsCompostChance;
+        public final ModConfigSpec.DoubleValue erbapipaCompostChance;
+
+        // Gameplay Settings
+        public final ModConfigSpec.BooleanValue enableTallCropMechanics;
+        public final ModConfigSpec.BooleanValue breakingUpperBreaksLower;
+        public final ModConfigSpec.DoubleValue fertilizerEffectiveness;
+
+        // Performance Settings
+        public final ModConfigSpec.DoubleValue tickRateMultiplier;
+        public final ModConfigSpec.IntValue maxDryingRacksPerChunk;
+
+        // Integration Settings
+        public final ModConfigSpec.BooleanValue jeiIntegration;
+
+        // Debug Settings
+        public final ModConfigSpec.BooleanValue enableDebugLogging;
+        public final ModConfigSpec.BooleanValue showGrowthParticles;
+
+        Common(ModConfigSpec.Builder builder) {
+            builder.comment("EyPipes Common Configuration")
+                   .push("common");
+
+            // Crop Settings
+            builder.comment("Crop Growth Settings")
+                   .push("crop");
+
+            growthChance = builder
+                    .comment("Chance for the crop to grow each random tick (0.0 - 1.0)")
+                    .defineInRange("growthChance", 0.25, 0.0, 1.0);
+
+            maxAge = builder
+                    .comment("Maximum age/growth stage of the crop")
+                    .defineInRange("maxAge", 7, 1, 15);
+
+            growUpperAge = builder
+                    .comment("Age at which the upper part of the crop can start growing")
+                    .defineInRange("growUpperAge", 4, 0, 7);
+
+            requiresSupport = builder
+                    .comment("Whether the crop requires a support block below")
+                    .define("requiresSupport", true);
+
+            builder.pop();
+
+            // Drying Rack Settings
+            builder.comment("Drying Rack Settings")
+                   .push("dryingRack");
+
+            dryingTimeTicks = builder
+                    .comment("Time in ticks to dry erbapipa into erbapipa_dried (20 ticks = 1 second)")
+                    .defineInRange("dryingTimeTicks", 4000, 100, 72000);
+
+            maxItems = builder
+                    .comment("Maximum number of items the drying rack can hold")
+                    .defineInRange("maxItems", 3, 1, 9);
+
+            requiresSunlight = builder
+                    .comment("Whether the drying rack requires direct sunlight to work")
+                    .define("requiresSunlight", false);
+
+            builder.pop();
+
+            // Loot Settings
+            builder.comment("Loot Drop Settings")
+                   .push("loot");
+
+            erbapipaDropRolls = builder
+                    .comment("Number of rolls for erbapipa drops")
+                    .defineInRange("erbapipaDropRolls", 0.8, 0.0, 10.0);
+
+            seedsBonusRolls = builder
+                    .comment("Bonus rolls for seed drops")
+                    .defineInRange("seedsBonusRolls", 0.245, 0.0, 10.0);
+
+            seedsFortuneProbability = builder
+                    .comment("Fortune enchantment probability multiplier for seeds")
+                    .defineInRange("seedsFortuneProbability", 0.06, 0.0, 1.0);
+
+            fortuneAffectsDrops = builder
+                    .comment("Whether Fortune enchantment affects crop drops")
+                    .define("fortuneAffectsDrops", true);
+
+            erbapipaDropPercentage = builder
+                    .comment("Percentage chance for erbapipa to drop (0-100)")
+                    .defineInRange("erbapipaDropPercentage", 100.0, 0.0, 100.0);
+
+            seedsDropPercentage = builder
+                    .comment("Percentage chance for seeds to drop (0-100)")
+                    .defineInRange("seedsDropPercentage", 35.0, 0.0, 100.0);
+
+            builder.pop();
+
+            // Compost Settings
+            builder.comment("Composting Settings")
+                   .push("compost");
+
+            erbapipaSeedsCompostChance = builder
+                    .comment("Composting chance for erbapipa seeds (0.0 - 1.0)")
+                    .defineInRange("erbapipaSeedsCompostChance", 0.3, 0.0, 1.0);
+
+            erbapipaCompostChance = builder
+                    .comment("Composting chance for erbapipa (0.0 - 1.0)")
+                    .defineInRange("erbapipaCompostChance", 0.65, 0.0, 1.0);
+
+            builder.pop();
+
+            // Gameplay Settings
+            builder.comment("Gameplay Settings")
+                   .push("gameplay");
+
+            enableTallCropMechanics = builder
+                    .comment("Enable the tall (2-block) crop mechanics")
+                    .define("enableTallCropMechanics", true);
+
+            breakingUpperBreaksLower = builder
+                    .comment("Breaking the upper part of the crop breaks the lower part")
+                    .define("breakingUpperBreaksLower", true);
+
+            fertilizerEffectiveness = builder
+                    .comment("Fertilizer (bonemeal) effectiveness multiplier")
+                    .defineInRange("fertilizerEffectiveness", 1.0, 0.0, 10.0);
+
+            builder.pop();
+
+            // Performance Settings
+            builder.comment("Performance Settings")
+                   .push("performance");
+
+            tickRateMultiplier = builder
+                    .comment("Tick rate multiplier for mod mechanics")
+                    .defineInRange("tickRateMultiplier", 1.0, 0.1, 10.0);
+
+            maxDryingRacksPerChunk = builder
+                    .comment("Maximum drying racks allowed per chunk (performance limit)")
+                    .defineInRange("maxDryingRacksPerChunk", 64, 1, 256);
+
+            builder.pop();
+
+            // Integration Settings
+            builder.comment("Mod Integration Settings")
+                   .push("integration");
+
+            jeiIntegration = builder
+                    .comment("Enable JEI integration for recipe viewing")
+                    .define("jeiIntegration", true);
+
+            builder.pop();
+
+            // Debug Settings
+            builder.comment("Debug Settings")
+                   .push("debug");
+
+            enableDebugLogging = builder
+                    .comment("Enable debug logging for troubleshooting")
+                    .define("enableDebugLogging", false);
+
+            showGrowthParticles = builder
+                    .comment("Show particles when crops grow")
+                    .define("showGrowthParticles", false);
+
+            builder.pop();
+            builder.pop();
         }
     }
-    
-    private static void createDefaultConfig() {
-        try {
-            // Copy the default config from resources to config directory
-            Path resourceConfig = FabricLoader.getInstance().getModContainer("eypipes")
-                .get().findPath("eypipes_config.json").orElse(null);
-            
-            if (resourceConfig != null && Files.exists(resourceConfig)) {
-                Files.copy(resourceConfig, CONFIG_PATH);
-                EyPipes.LOGGER.info("Created default EyPipes config file");
-            } else {
-                EyPipes.LOGGER.warn("Could not find default config in resources, using hardcoded defaults");
-            }
-        } catch (IOException e) {
-            EyPipes.LOGGER.error("Failed to create default config file", e);
+
+    /**
+     * Client configuration - Client-side settings
+     */
+    public static class Client {
+        // Particle Offset Settings
+        public final ModConfigSpec.DoubleValue particleOffsetThirdViewX;
+        public final ModConfigSpec.DoubleValue particleOffsetThirdViewY;
+        public final ModConfigSpec.DoubleValue particleOffsetThirdViewZ;
+
+        // Animation Settings
+        public final ModConfigSpec.DoubleValue smokeParticleScale;
+        public final ModConfigSpec.IntValue smokeParticleLifetime;
+        public final ModConfigSpec.BooleanValue enableEmberParticles;
+        public final ModConfigSpec.BooleanValue enableAshParticles;
+        public final ModConfigSpec.BooleanValue enableSmokeWisps;
+
+        // Enhanced Particle Settings
+        public final ModConfigSpec.BooleanValue enableSmokeRings;
+        public final ModConfigSpec.BooleanValue enableSpiralSmoke;
+        public final ModConfigSpec.IntValue spiralSmokeCount;
+        public final ModConfigSpec.BooleanValue enableSparkParticles;
+        public final ModConfigSpec.BooleanValue enableEnhancedExhale;
+
+        Client(ModConfigSpec.Builder builder) {
+            builder.comment("EyPipes Client Configuration")
+                   .push("client");
+
+            // Particle Offset Settings
+            builder.comment("Particle Position Offsets (Third Person View)")
+                   .push("particleOffsets");
+
+            particleOffsetThirdViewX = builder
+                    .comment("X offset for smoke particles in third person view")
+                    .defineInRange("thirdViewX", 0.2, -2.0, 2.0);
+
+            particleOffsetThirdViewY = builder
+                    .comment("Y offset for smoke particles in third person view")
+                    .defineInRange("thirdViewY", 0.4, -2.0, 2.0);
+
+            particleOffsetThirdViewZ = builder
+                    .comment("Z offset for smoke particles in third person view")
+                    .defineInRange("thirdViewZ", 0.1, -2.0, 2.0);
+
+            builder.pop();
+
+            // Animation Settings
+            builder.comment("Animation and Visual Settings")
+                   .push("animation");
+
+            smokeParticleScale = builder
+                    .comment("Scale multiplier for smoke particles")
+                    .defineInRange("smokeParticleScale", 1.0, 0.1, 5.0);
+
+            smokeParticleLifetime = builder
+                    .comment("Lifetime of smoke particles in ticks")
+                    .defineInRange("smokeParticleLifetime", 40, 10, 200);
+
+            enableEmberParticles = builder
+                    .comment("Enable ember particles when smoking (enhanced effect)")
+                    .define("enableEmberParticles", true);
+
+            enableAshParticles = builder
+                    .comment("Enable ash particles when stopping smoking (enhanced effect)")
+                    .define("enableAshParticles", true);
+
+            enableSmokeWisps = builder
+                    .comment("Enable wispy smoke trail particles (enhanced effect)")
+                    .define("enableSmokeWisps", true);
+
+            builder.pop();
+
+            // Enhanced Particle Settings
+            builder.comment("Enhanced Particle Effects - Stunning Visual Effects")
+                   .push("enhancedParticles");
+
+            enableSmokeRings = builder
+                    .comment("Enable classic smoke ring particles on exhale")
+                    .define("enableSmokeRings", true);
+
+            enableSpiralSmoke = builder
+                    .comment("Enable 3D spiraling smoke helix effect (mesmerizing!)")
+                    .define("enableSpiralSmoke", true);
+
+            spiralSmokeCount = builder
+                    .comment("Number of spiral smoke particles per exhale (more = more dramatic)")
+                    .defineInRange("spiralSmokeCount", 5, 1, 15);
+
+            enableSparkParticles = builder
+                    .comment("Enable bright spark particles from pipe bowl (fiery effect)")
+                    .define("enableSparkParticles", true);
+
+            enableEnhancedExhale = builder
+                    .comment("Use the enhanced exhale effect system (combines all effects)")
+                    .define("enableEnhancedExhale", true);
+
+            builder.pop();
+            builder.pop();
         }
-    }
-    
-    public static void reloadConfig() {
-        try {
-            EyPipes.LOGGER.info("Reloading EyPipes configuration...");
-            loadConfig();
-            
-            // Re-register compostables with new values
-            EyPipes.registerCompostables();
-            // Note: Loot table modifications are applied dynamically at runtime
-            // so they will use the new config values immediately
-            
-            EyPipes.LOGGER.info("Configuration reloaded successfully!");
-        } catch (Exception e) {
-            EyPipes.LOGGER.error("Failed to reload configuration: " + e.getMessage());
-        }
-    }
-    
-    private static double getDoubleOrDefault(JsonObject obj, String key, double defaultValue) {
-        return obj.has(key) ? obj.get(key).getAsDouble() : defaultValue;
-    }
-    
-    private static int getIntOrDefault(JsonObject obj, String key, int defaultValue) {
-        return obj.has(key) ? obj.get(key).getAsInt() : defaultValue;
-    }
-    
-    private static boolean getBooleanOrDefault(JsonObject obj, String key, boolean defaultValue) {
-        return obj.has(key) ? obj.get(key).getAsBoolean() : defaultValue;
     }
 }
