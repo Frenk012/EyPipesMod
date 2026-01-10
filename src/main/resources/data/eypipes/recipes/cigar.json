@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "EE ",
+    "EEP",
+    "DDD"
+  ],
+  "key": {
+    "P": {
+      "item": "minecraft:paper"
+    },
+    "D": {
+      "item": "eypipes:erbapipa_dried"
+    },
+    "E": {
+      "item": "eypipes:erbapipa_cutted"
+    }
+  },
+  "result": {
+    "item": "eypipes:cigar",
+    "count": 1
+  }
+}

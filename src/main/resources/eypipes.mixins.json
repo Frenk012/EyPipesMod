@@ -3,10 +3,11 @@
 	"minVersion": "0.8",
 	"package": "frenk.eypipes.mixin",
 	"compatibilityLevel": "JAVA_17",
-	"refmap": "eypipes.refmap.json",
+	"refmap": "eypipes-refmap.json",
 	"mixins": [
 	],
 	"client": [
+		"client.HumanoidEntityModelMixin"
 	],
 	"server": [
 	],

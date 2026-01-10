@@ -1,17 +1,17 @@
 {
-  "type": "farmersdelight:cutting",
-  "ingredients": [
-    {
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "   ",
+    " I ",
+    "   "
+  ],
+  "key": {
+    "I": {
       "item": "eypipes:erbapipa_dried"
     }
-  ],
-  "tool": {
-        "tag": "c:knives"
-    },
-  "result": [
-    {
-      "item": "eypipes:erbapipa_cutted",
-      "count": 2
-    }
-  ]
+  },
+  "result": {
+    "item": "eypipes:erbapipa_cutted",
+    "count": 2
+  }
 }

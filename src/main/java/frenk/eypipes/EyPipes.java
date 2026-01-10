@@ -15,7 +15,6 @@ import frenk.eypipes.item.EyPipesItems;
 import frenk.eypipes.config.EyPipesConfig;
 import frenk.eypipes.block.EyPipesBlocks;
 import frenk.eypipes.command.ReloadConfigCommand;
-import frenk.eypipes.screen.ModScreenHandlers;
 import frenk.eypipes.sound.EyPipesSound;
 import frenk.eypipes.particles.EyPipesParticleTypes;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
@@ -44,7 +43,7 @@ public class EyPipes implements ModInitializer {
 
 	@Override
 	public void onInitialize() {
-		LOGGER.info("Hello Fabric world!");
+		LOGGER.info("Hello from EyPipes!");
 		
 		// Load configuration first
 		EyPipesConfig.loadConfig();
@@ -55,7 +54,6 @@ public class EyPipes implements ModInitializer {
         PipesEntities.init();
         PipesEntities.registerBlocks();
         PipesEntities.registerBlockEntities();
-        ModScreenHandlers.registerAllScreenHandlers();
 		
 		// Register compostables with config values
 		registerCompostables();

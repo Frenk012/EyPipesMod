@@ -1,0 +1,29 @@
+{
+	"format_version": "1.8.0",
+	"animations": {
+		"animation.cigar.smoke": {
+			"loop": true,
+			"animation_length": 24.7083,
+			"bones": {
+				"smoke particles": {
+					"rotation": {
+						"vector": [0, 0, 0]
+					},
+					"position": {
+						"vector": [0, 0, 0]
+					},
+					"scale": {
+						"vector": [1, 1, 1]
+					}
+				}
+			},
+			"particle_effects": {
+				"0.0": {
+					"effect": "smoke",
+					"locator": "locator"
+				}
+			}
+		}
+	},
+	"geckolib_format_version": 2
+}

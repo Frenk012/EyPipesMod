@@ -1,0 +1,29 @@
+{
+	"format_version": "1.8.0",
+	"animations": {
+		"animation.pipe.smoke": {
+			"animation_length": 1,
+			"bones": {
+				"smoke particles": {
+					"rotation": [0, 0, 0],
+					"position": [0, 0, 0],
+					"scale": 1
+				},
+				"root": {
+					"rotation": [0, 0, 0],
+					"position": {
+						"0.0": [0, 0, 0],
+						"1.0": [-2, 2, 0]
+					}
+				}
+			},
+			"particle_effects": {
+				"0.0": {
+					"effect": "smoke",
+					"locator": "locator"
+				}
+			}
+		}
+	},
+	"geckolib_format_version": 2
+}

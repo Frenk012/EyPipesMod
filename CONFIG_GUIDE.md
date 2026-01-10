@@ -76,7 +76,6 @@ After editing the configuration file, you can reload it without restarting Minec
 - `max_drying_racks_per_chunk`: Limit drying racks per chunk
 
 ### Integration Settings
-- `farmers_delight_integration`: Enable Farmer's Delight features
 - `jei_integration`: Show recipes in JEI
 - `trinkets_integration`: Enable Trinkets mod support for head slot equipment
 

@@ -10,6 +10,6 @@ public class EyPipesParticleTypes {
     public static final DefaultParticleType RING_OF_SMOKE = FabricParticleTypes.simple();
 
     public static void registerParticleType(){
-        Registry.register(Registry.PARTICLE_TYPE, new Identifier(EyPipes.MOD_ID, "ring_of_smoke"), RING_OF_SMOKE);
+        Registry.register(Registry.PARTICLE_TYPE, new Identifier(EyPipes.MOD_ID, "ring_of_smoke_particles"), RING_OF_SMOKE);
     }
 }

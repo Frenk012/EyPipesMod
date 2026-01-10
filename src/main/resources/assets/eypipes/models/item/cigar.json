@@ -1,0 +1,110 @@
+{
+  "credit": "Made with Blockbench",
+  "parent": "builtin/entity",
+  "texture_size": [
+    32,
+    32
+  ],
+  "display": {
+    "thirdperson_righthand": {
+      "rotation": [
+        36,
+        -9,
+        0
+      ],
+      "translation": [
+        0.25,
+        -0.5,
+        -0.75
+      ],
+      "scale": [
+        0.55,
+        0.55,
+        0.55
+      ]
+    },
+    "thirdperson_lefthand": {
+      "rotation": [
+        36,
+        -7,
+        0
+      ],
+      "translation": [
+        -0.5,
+        -0.5,
+        -0.75
+      ],
+      "scale": [
+        0.4,
+        0.4,
+        0.4
+      ]
+    },
+    "firstperson_righthand": {
+      "rotation": [
+        8,
+        -40,
+        3
+      ],
+      "translation": [
+        -0.5,
+        -0.25,
+        -0.5
+      ],
+      "scale": [
+        0.8,
+        0.8,
+        0.8
+      ]
+    },
+    "firstperson_lefthand": {
+      "rotation": [
+        0,
+        -40,
+        4
+      ],
+      "translation": [
+        -0.5,
+        0.25,
+        0.5
+      ],
+      "scale": [
+        0.8,
+        0.8,
+        0.8
+      ]
+    },
+    "gui": {
+      "rotation": [
+        31,
+        -144,
+        -5
+      ],
+      "translation": [
+        0,
+        -3.5,
+        0
+      ],
+      "scale": [
+        1.6,
+        1.6,
+        1.6
+      ]
+    },
+    "head": {
+      "translation": [
+        0,
+        -6.75,
+        -8.75
+      ],
+      "scale": [
+        0.8,
+        0.8,
+        0.8
+      ]
+    }
+  },
+  "textures": {
+    "particle": "eypipes:item/cigar"
+  }
+}

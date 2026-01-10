@@ -1,6 +1,24 @@
+// Add repository for SNAPSHOT versions
+buildscript {
+	repositories {
+		maven {
+			name = 'Fabric'
+			url = 'https://maven.fabricmc.net/'
+		}
+		gradlePluginPortal()
+	}
+}
+
 plugins {
 	id 'fabric-loom' version "${loom_version}"
 	id 'maven-publish'
+}
+
+// Suppress deprecation warnings from fabric-loom plugin until updated version is stable
+gradle.projectsEvaluated {
+	tasks.withType(JavaCompile) {
+		options.compilerArgs += ["-Xlint:-deprecation", "-Xlint:-removal"]
+	}
 }
 
 version = project.mod_version
@@ -22,6 +40,12 @@ repositories {
 
 loom {
 	runs {
+		client {
+			vmArg "-Dgeckolib.disable_examples=true"
+		}
+		server {
+			vmArg "-Dgeckolib.disable_examples=true"
+		}
 		// This adds a new gradle task that runs the datagen API: "gradlew runDatagen"
 		datagen {
 			inherit server
@@ -50,9 +74,12 @@ dependencies {
 	mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
 	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
 
-	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+	// Add SLF4J for logging
+	implementation 'org.slf4j:slf4j-api:1.7.36'
+	implementation 'org.slf4j:slf4j-simple:1.7.36'
 
-	modImplementation "curse.maven:farmers-delight-fabric-482834:4634237"
+	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+	modImplementation "curse.maven:geckolib-388172:4407239"
 	modImplementation "curse.maven:trinkets-341284:4100104"
 }
 

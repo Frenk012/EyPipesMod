@@ -20,7 +20,7 @@ public class EyPipesConfig {
     public static boolean REQUIRES_SUPPORT = true;
     
     // Drying Rack Settings
-    public static int DRYING_TIME_TICKS = 6000;
+    public static int DRYING_TIME_TICKS = 4000;
     public static int MAX_ITEMS = 3;
     public static boolean REQUIRES_SUNLIGHT = false;
     
@@ -57,6 +57,11 @@ public class EyPipesConfig {
     public static boolean ENABLE_DEBUG_LOGGING = false;
     public static boolean SHOW_GROWTH_PARTICLES = false;
     
+    // Particle Offset Settings (used in trinket renderer)
+    public static float PARTICLE_OFFSET_THIRDVIEW_X = 0.2f;
+    public static float PARTICLE_OFFSET_THIRDVIEW_Y = 0.4f;
+    public static float PARTICLE_OFFSET_THIRDVIEW_Z = 0.1f;
+    
     public static void loadConfig() {
         try {
             if (!Files.exists(CONFIG_PATH)) {
@@ -65,6 +70,7 @@ public class EyPipesConfig {
             }
             
             JsonObject config = JsonParser.parseReader(new FileReader(CONFIG_PATH.toFile())).getAsJsonObject();
+            EyPipes.LOGGER.info("Successfully loaded config file from: " + CONFIG_PATH.toString());
             
             // Load crop settings
             if (config.has("crop_settings")) {
@@ -135,6 +141,14 @@ public class EyPipesConfig {
                 JsonObject debugSettings = config.getAsJsonObject("debug_settings");
                 ENABLE_DEBUG_LOGGING = getBooleanOrDefault(debugSettings, "enable_debug_logging", false);
                 SHOW_GROWTH_PARTICLES = getBooleanOrDefault(debugSettings, "show_growth_particles", false);
+            }
+            
+            // Load particle offset settings
+            if (config.has("animation_settings") && config.getAsJsonObject("animation_settings").has("position_offsets")) {
+                JsonObject offsetSettings = config.getAsJsonObject("animation_settings").getAsJsonObject("position_offsets");
+                PARTICLE_OFFSET_THIRDVIEW_X = (float) getDoubleOrDefault(offsetSettings, "particle_offset_thirdview_x", 0.2);
+                PARTICLE_OFFSET_THIRDVIEW_Y = (float) getDoubleOrDefault(offsetSettings, "particle_offset_thirdview_y", 0.4);
+                PARTICLE_OFFSET_THIRDVIEW_Z = (float) getDoubleOrDefault(offsetSettings, "particle_offset_thirdview_z", 0.1);
             }
             
             EyPipes.LOGGER.info("EyPipes config loaded successfully!");

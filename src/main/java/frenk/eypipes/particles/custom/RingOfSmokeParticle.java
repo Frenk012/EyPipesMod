@@ -13,6 +13,7 @@ import net.minecraft.particle.DefaultParticleType;
 public class RingOfSmokeParticle extends SpriteBillboardParticle {
     private final SpriteProvider spriteProvider;
     private final double strength;
+    private float scaleMultiplier = 1.0F; // Custom scale multiplier for size control
 
     public RingOfSmokeParticle(ClientWorld clientWorld, double x, double y, double z, double vel_x, double vel_y, double vel_z, SpriteProvider spriteProvider) {
         super(clientWorld, x, y, z, 0,0,0);
@@ -23,11 +24,21 @@ public class RingOfSmokeParticle extends SpriteBillboardParticle {
         this.velocityY = vel_y;
         this.velocityZ = vel_z;
 
-        setSprite(spriteProvider.getSprite(0, this.maxAge));
+        if (spriteProvider != null) {
+            setSprite(spriteProvider.getSprite(0, this.maxAge));
+        }
 
         this.maxAge = (int)((600) * this.strength);
         this.gravityStrength = 0;
         this.collidesWithWorld = true;
+    }
+    
+    /**
+     * Constructor with custom scale multiplier
+     */
+    public RingOfSmokeParticle(ClientWorld clientWorld, double x, double y, double z, double vel_x, double vel_y, double vel_z, SpriteProvider spriteProvider, float scaleMultiplier) {
+        this(clientWorld, x, y, z, vel_x, vel_y, vel_z, spriteProvider);
+        this.scaleMultiplier = scaleMultiplier;
     }
 
     @Override
@@ -46,8 +57,16 @@ public class RingOfSmokeParticle extends SpriteBillboardParticle {
     }
 
     public float getSize(float tickDelta) {
-        this.scale = (float) this.age/this.maxAge + 0.3F;
-        return Math.min(this.scale, 0.8F);
+        this.scale = ((float) this.age/this.maxAge + 0.3F) * scaleMultiplier;
+        return Math.min(this.scale, 0.8F * scaleMultiplier);
+    }
+    
+    /**
+     * Sets the scale multiplier for this particle, allowing custom sizing.
+     * @param multiplier The scale multiplier (1.0F = normal size, 0.5F = half size, etc.)
+     */
+    public void setScaleMultiplier(float multiplier) {
+        this.scaleMultiplier = multiplier;
     }
 
     @Environment(EnvType.CLIENT)
