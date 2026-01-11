@@ -31,6 +31,16 @@ public class ModCreativeTabs {
                                 output.accept(ModItems.PIPE.get());
                                 output.accept(ModItems.CIGAR.get());
                                 output.accept(ModItems.DRYING_RACK_ITEM.get());
+                                // Pipe variants
+                                output.accept(ModItems.WOODEN_PIPE.get());
+                                output.accept(ModItems.CLAY_PIPE.get());
+                                output.accept(ModItems.CORN_COB_PIPE.get());
+                                output.accept(ModItems.MEERSCHAUM_PIPE.get());
+                                output.accept(ModItems.BRIAR_PIPE.get());
+                                output.accept(ModItems.CHERRY_PIPE.get());
+                                output.accept(ModItems.CALABASH_PIPE.get());
+                                output.accept(ModItems.CHURCHWARD_PIPE.get());
+                                output.accept(ModItems.BENT_PIPE.get());
                             })
                             .build());
 

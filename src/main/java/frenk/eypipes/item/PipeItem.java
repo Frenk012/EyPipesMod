@@ -1,6 +1,6 @@
 package frenk.eypipes.item;
 
-import frenk.eypipes.client.renderer.PipeItemRenderer;
+import frenk.eypipes.client.renderer.BasePipeRenderer;
 import frenk.eypipes.config.EyPipesConfig;
 import frenk.eypipes.particle.EnhancedParticleHelper;
 import frenk.eypipes.registries.ModItems;
@@ -182,9 +182,9 @@ public class PipeItem extends Item implements GeoItem, ICurioItem {
                 boolean isLocalPlayer = entity == Minecraft.getInstance().player;
                 boolean isFirstPerson = Minecraft.getInstance().options.getCameraType().isFirstPerson();
 
-                if (isLocalPlayer && isFirstPerson && PipeItemRenderer.isCurrentlySmokingFirstPerson()) {
+                if (isLocalPlayer && isFirstPerson && BasePipeRenderer.isCurrentlySmokingFirstPerson()) {
                     // FIRST-PERSON: Use locator-based position for discrete particles
-                    Vec3 locatorPos = PipeItemRenderer.getLastLocatorWorldPos();
+                    Vec3 locatorPos = BasePipeRenderer.getLastLocatorWorldPos();
                     if (locatorPos != Vec3.ZERO) {
                         // Spawn smaller, discrete first-person particles at bowl locator
                         EnhancedParticleHelper.spawnFirstPersonBowlSmoke(level, locatorPos, intensity);

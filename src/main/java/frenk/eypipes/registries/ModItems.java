@@ -42,6 +42,34 @@ public class ModItems {
     public static final DeferredItem<Item> CIGAR = ITEMS.register("cigar",
             () -> new CigarItem(new Item.Properties().stacksTo(1).durability(10)));
 
+    // Pipe variants - same mechanics, different models/textures
+    public static final DeferredItem<Item> WOODEN_PIPE = ITEMS.register("wooden_pipe",
+            () -> new PipeItem(new Item.Properties().stacksTo(1).durability(50)));
+
+    public static final DeferredItem<Item> CLAY_PIPE = ITEMS.register("clay_pipe",
+            () -> new PipeItem(new Item.Properties().stacksTo(1).durability(50)));
+
+    public static final DeferredItem<Item> CORN_COB_PIPE = ITEMS.register("corn_cob_pipe",
+            () -> new PipeItem(new Item.Properties().stacksTo(1).durability(50)));
+
+    public static final DeferredItem<Item> MEERSCHAUM_PIPE = ITEMS.register("meerschaum_pipe",
+            () -> new PipeItem(new Item.Properties().stacksTo(1).durability(50)));
+
+    public static final DeferredItem<Item> BRIAR_PIPE = ITEMS.register("briar_pipe",
+            () -> new PipeItem(new Item.Properties().stacksTo(1).durability(50)));
+
+    public static final DeferredItem<Item> CHERRY_PIPE = ITEMS.register("cherry_pipe",
+            () -> new PipeItem(new Item.Properties().stacksTo(1).durability(50)));
+
+    public static final DeferredItem<Item> CALABASH_PIPE = ITEMS.register("calabash_pipe",
+            () -> new PipeItem(new Item.Properties().stacksTo(1).durability(50)));
+
+    public static final DeferredItem<Item> CHURCHWARD_PIPE = ITEMS.register("churchward_pipe",
+            () -> new PipeItem(new Item.Properties().stacksTo(1).durability(50)));
+
+    public static final DeferredItem<Item> BENT_PIPE = ITEMS.register("bent_pipe",
+            () -> new PipeItem(new Item.Properties().stacksTo(1).durability(50)));
+
     // Block items
     public static final DeferredItem<Item> DRYING_RACK_ITEM = ITEMS.register("drying_rack_erb",
             () -> new BlockItem(ModBlocks.DRYING_RACK.get(), new Item.Properties()));

@@ -1,0 +1,32 @@
+{
+    "item.eypipes.erbapipa": "Erbapipa",
+    "item.eypipes.erbapipa_dried": "Erbapipa Essiccata",
+    "item.eypipes.erbapipa_cutted": "Erbapipa Tagliata",
+    "item.eypipes.erbapipa_seeds": "Semi di Erbapipa",
+    "item.eypipes.pipe": "Pipa",
+    "item.eypipes.cigar": "Sigaro",
+    "item.eypipes.drying_rack": "Essiccatoio",
+    "item.eypipes.wooden_pipe": "Pipa in Legno",
+    "item.eypipes.clay_pipe": "Pipa in Terracotta",
+    "item.eypipes.corn_cob_pipe": "Pipa di Pannocchia",
+    "item.eypipes.meerschaum_pipe": "Pipa in Schiuma di Mare",
+    "item.eypipes.briar_pipe": "Pipa in Radica",
+    "item.eypipes.cherry_pipe": "Pipa in Ciliegio",
+    "item.eypipes.calabash_pipe": "Pipa a Zucca",
+    "item.eypipes.churchward_pipe": "Pipa Churchward",
+    "item.eypipes.bent_pipe": "Pipa Curva",
+    "block.eypipes.erbapipa_crop": "Pianta di Erbapipa",
+    "block.eypipes.drying_rack_erb": "Essiccatoio",
+    "itemGroup.eypipes.eypipes_tab": "EyPipes",
+
+    "config.eypipes.common": "Configurazione Comune EyPipes",
+    "config.eypipes.client": "Configurazione Client EyPipes",
+
+    "curios.identifier.pipe_head": "Pipa (Testa)",
+    "curios.identifier.pipe_chest": "Pipa (Petto)",
+    "curios.modifiers.pipe_head": "Quando equipaggiato sulla testa:",
+    "curios.modifiers.pipe_chest": "Quando equipaggiato sul petto:",
+
+    "jei.eypipes.category.drying": "Essiccatoio",
+    "jei.eypipes.drying.time": "Tempo di Essiccazione: %s secondi"
+}

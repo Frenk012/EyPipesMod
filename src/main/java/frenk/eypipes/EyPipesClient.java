@@ -5,6 +5,15 @@ import frenk.eypipes.client.curios.PipeCuriosRenderer;
 import frenk.eypipes.client.renderer.CigarItemRenderer;
 import frenk.eypipes.client.renderer.DryingRackRenderer;
 import frenk.eypipes.client.renderer.PipeItemRenderer;
+import frenk.eypipes.client.renderer.WoodenPipeRenderer;
+import frenk.eypipes.client.renderer.ClayPipeRenderer;
+import frenk.eypipes.client.renderer.CornCobPipeRenderer;
+import frenk.eypipes.client.renderer.MeerschaumPipeRenderer;
+import frenk.eypipes.client.renderer.BriarPipeRenderer;
+import frenk.eypipes.client.renderer.CherryPipeRenderer;
+import frenk.eypipes.client.renderer.CalabashPipeRenderer;
+import frenk.eypipes.client.renderer.ChurchwardPipeRenderer;
+import frenk.eypipes.client.renderer.BentPipeRenderer;
 import frenk.eypipes.particle.RingOfSmokeParticle;
 import frenk.eypipes.particle.EmberParticle;
 import frenk.eypipes.particle.AshParticle;
@@ -28,6 +37,8 @@ import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsE
 import software.bernie.geckolib.renderer.GeoItemRenderer;
 import top.theillusivec4.curios.api.client.CuriosRendererRegistry;
 
+import java.util.function.Supplier;
+
 /**
  * Client-side initialization and event handling for EyPipes mod.
  * Uses NeoForge event subscribers instead of Fabric's ClientModInitializer.
@@ -48,6 +59,17 @@ public class EyPipesClient {
             // Register Curios renderers
             CuriosRendererRegistry.register(ModItems.PIPE.get(), PipeCuriosRenderer::new);
             CuriosRendererRegistry.register(ModItems.CIGAR.get(), CigarCuriosRenderer::new);
+
+            // Register Curios renderers for pipe variants
+            CuriosRendererRegistry.register(ModItems.WOODEN_PIPE.get(), PipeCuriosRenderer::new);
+            CuriosRendererRegistry.register(ModItems.CLAY_PIPE.get(), PipeCuriosRenderer::new);
+            CuriosRendererRegistry.register(ModItems.CORN_COB_PIPE.get(), PipeCuriosRenderer::new);
+            CuriosRendererRegistry.register(ModItems.MEERSCHAUM_PIPE.get(), PipeCuriosRenderer::new);
+            CuriosRendererRegistry.register(ModItems.BRIAR_PIPE.get(), PipeCuriosRenderer::new);
+            CuriosRendererRegistry.register(ModItems.CHERRY_PIPE.get(), PipeCuriosRenderer::new);
+            CuriosRendererRegistry.register(ModItems.CALABASH_PIPE.get(), PipeCuriosRenderer::new);
+            CuriosRendererRegistry.register(ModItems.CHURCHWARD_PIPE.get(), PipeCuriosRenderer::new);
+            CuriosRendererRegistry.register(ModItems.BENT_PIPE.get(), PipeCuriosRenderer::new);
         });
 
         EyPipes.LOGGER.info("EyPipes client setup complete");
@@ -94,7 +116,18 @@ public class EyPipesClient {
             }
         }, ModItems.CIGAR.get());
 
-        EyPipes.LOGGER.debug("Registered EyPipes GeckoLib item renderers");
+        // Register 9 pipe variant renderers
+        event.registerItem(createPipeExtension(WoodenPipeRenderer::new), ModItems.WOODEN_PIPE.get());
+        event.registerItem(createPipeExtension(ClayPipeRenderer::new), ModItems.CLAY_PIPE.get());
+        event.registerItem(createPipeExtension(CornCobPipeRenderer::new), ModItems.CORN_COB_PIPE.get());
+        event.registerItem(createPipeExtension(MeerschaumPipeRenderer::new), ModItems.MEERSCHAUM_PIPE.get());
+        event.registerItem(createPipeExtension(BriarPipeRenderer::new), ModItems.BRIAR_PIPE.get());
+        event.registerItem(createPipeExtension(CherryPipeRenderer::new), ModItems.CHERRY_PIPE.get());
+        event.registerItem(createPipeExtension(CalabashPipeRenderer::new), ModItems.CALABASH_PIPE.get());
+        event.registerItem(createPipeExtension(ChurchwardPipeRenderer::new), ModItems.CHURCHWARD_PIPE.get());
+        event.registerItem(createPipeExtension(BentPipeRenderer::new), ModItems.BENT_PIPE.get());
+
+        EyPipes.LOGGER.debug("Registered EyPipes GeckoLib item renderers (12 total)");
     }
 
     /**
@@ -113,5 +146,22 @@ public class EyPipesClient {
         event.registerSpriteSet(ModParticles.SPARK.get(), SparkParticle.Provider::new);
 
         EyPipes.LOGGER.debug("Registered EyPipes particle providers (6 types)");
+    }
+
+    /**
+     * Helper method to create IClientItemExtensions for pipe variants.
+     */
+    private static IClientItemExtensions createPipeExtension(Supplier<GeoItemRenderer<?>> rendererSupplier) {
+        return new IClientItemExtensions() {
+            private GeoItemRenderer<?> renderer;
+
+            @Override
+            public net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer getCustomRenderer() {
+                if (renderer == null) {
+                    renderer = rendererSupplier.get();
+                }
+                return renderer;
+            }
+        };
     }
 }
