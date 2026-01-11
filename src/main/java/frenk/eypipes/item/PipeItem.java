@@ -1,8 +1,10 @@
 package frenk.eypipes.item;
 
+import frenk.eypipes.client.renderer.PipeItemRenderer;
 import frenk.eypipes.config.EyPipesConfig;
 import frenk.eypipes.particle.EnhancedParticleHelper;
 import frenk.eypipes.registries.ModItems;
+import net.minecraft.client.Minecraft;
 import frenk.eypipes.registries.ModParticles;
 import frenk.eypipes.registries.ModSounds;
 import net.minecraft.core.particles.ParticleTypes;
@@ -173,25 +175,39 @@ public class PipeItem extends Item implements GeoItem, ICurioItem {
         int frequency = Math.max(4, (int) Math.pow((USAGE_TIME - totalTicks) / 10.0, 2));
 
         if (remainingUseTicks % frequency == 0) {
-            // Spawn smoke particles
-            Vec3[] positions = calculateParticlePosition(entity);
+            float intensity = 1.0f - ((float) remainingUseTicks / USAGE_TIME);
 
             if (level.isClientSide()) {
-                // Client-side particles
-                Vec3 correctPosition = positions[0]; // First person position
-                for (int i = 0; i < 10; i++) {
-                    level.addParticle(ParticleTypes.SMOKE,
-                            correctPosition.x + (level.random.nextGaussian() * 0.02),
-                            correctPosition.y + (level.random.nextGaussian() * 0.02),
-                            correctPosition.z + (level.random.nextGaussian() * 0.02),
-                            0.001, 0.01, 0.001);
-                }
+                // Client-side particles - check if first-person with locator position
+                boolean isLocalPlayer = entity == Minecraft.getInstance().player;
+                boolean isFirstPerson = Minecraft.getInstance().options.getCameraType().isFirstPerson();
 
-                // Use enhanced bowl ember effect with sparks
-                float intensity = 1.0f - ((float) remainingUseTicks / USAGE_TIME);
-                EnhancedParticleHelper.spawnBowlEmbers(level, correctPosition, intensity);
+                if (isLocalPlayer && isFirstPerson && PipeItemRenderer.isCurrentlySmokingFirstPerson()) {
+                    // FIRST-PERSON: Use locator-based position for discrete particles
+                    Vec3 locatorPos = PipeItemRenderer.getLastLocatorWorldPos();
+                    if (locatorPos != Vec3.ZERO) {
+                        // Spawn smaller, discrete first-person particles at bowl locator
+                        EnhancedParticleHelper.spawnFirstPersonBowlSmoke(level, locatorPos, intensity);
+                        EnhancedParticleHelper.spawnFirstPersonBowlEmbers(level, locatorPos, intensity);
+                    }
+                } else {
+                    // THIRD-PERSON or not local player: Use original eye-based position
+                    Vec3[] positions = calculateParticlePosition(entity);
+                    Vec3 thirdPersonPos = positions[1];
+
+                    for (int i = 0; i < 10; i++) {
+                        level.addParticle(ParticleTypes.SMOKE,
+                                thirdPersonPos.x + (level.random.nextGaussian() * 0.02),
+                                thirdPersonPos.y + (level.random.nextGaussian() * 0.02),
+                                thirdPersonPos.z + (level.random.nextGaussian() * 0.02),
+                                0.001, 0.01, 0.001);
+                    }
+
+                    EnhancedParticleHelper.spawnBowlEmbers(level, thirdPersonPos, intensity);
+                }
             } else if (level instanceof ServerLevel serverLevel) {
-                // Server-side particles for other players
+                // Server-side particles for other players (always third-person)
+                Vec3[] positions = calculateParticlePosition(entity);
                 Vec3 thirdPersonPos = positions[1];
                 for (ServerPlayer player : serverLevel.players()) {
                     if (player != entity && player.distanceTo(entity) <= 32.0) {
@@ -222,11 +238,7 @@ public class PipeItem extends Item implements GeoItem, ICurioItem {
             player.getCooldowns().addCooldown(this, 20);
         }
 
-        // Spawn enhanced ash effect
-        if (level.isClientSide()) {
-            Vec3[] positions = calculateParticlePosition(entity);
-            EnhancedParticleHelper.spawnAshEffect(level, positions[0]);
-        }
+        // Ash effect removed - user didn't want gray particles flying up
 
         return item;
     }
@@ -261,17 +273,7 @@ public class PipeItem extends Item implements GeoItem, ICurioItem {
                                 vec.x * velScale,
                                 vec.y * velScale,
                                 vec.z * velScale);
-
-                        // Spawn smoke wisps if enabled
-                        if (EyPipesConfig.CLIENT.enableSmokeWisps.get()) {
-                            level.addParticle(ModParticles.SMOKE_WISP.get(),
-                                    entity.getX() + vec.x * offsetMultiplier,
-                                    entity.getY() + entity.getEyeHeight() + vec.y * offsetMultiplier,
-                                    entity.getZ() + vec.z * offsetMultiplier,
-                                    vec.x * velScale * 0.5,
-                                    vec.y * velScale * 0.5 + 0.02,
-                                    vec.z * velScale * 0.5);
-                        }
+                        // Smoke wisps removed - keep only the smoke rings
                     }
                 }, particleIndex * RING_DELAY_MS, TimeUnit.MILLISECONDS);
             }
@@ -344,9 +346,9 @@ public class PipeItem extends Item implements GeoItem, ICurioItem {
                 entity.getZ()
         );
 
-        // Third-person: horizontal vectors for fixed height
+        // Third-person: vectors that follow view direction including pitch
         Vec3 horizontalLookVec = new Vec3(lookVec.x, 0, lookVec.z).normalize();
-        Vec3 rightVecThird = new Vec3(horizontalLookVec.z, 0, -horizontalLookVec.x).normalize();
+        Vec3 rightVecThird = new Vec3(-horizontalLookVec.z, 0, horizontalLookVec.x).normalize();
         Vec3 upVecThird = new Vec3(0, 1, 0);
 
         float offsetX = EyPipesConfig.CLIENT.particleOffsetThirdViewX.get().floatValue();
@@ -354,9 +356,9 @@ public class PipeItem extends Item implements GeoItem, ICurioItem {
         float offsetZ = EyPipesConfig.CLIENT.particleOffsetThirdViewZ.get().floatValue();
 
         Vec3 resultThird = basePos
-                .add(horizontalLookVec.scale(0.5))
-                .add(rightVecThird.scale(offsetX))
-                .add(upVecThird.scale(-offsetY));
+                .add(lookVec.scale(0.5))  // Use full lookVec to follow vertical direction
+                .add(rightVecThird.scale(offsetX + 0.2f))
+                .add(upVecThird.scale(-offsetY + 0.3f));  // Add 0.3f higher
 
         // First-person: full look direction
         Vec3 rightVecFirst = lookVec.cross(new Vec3(0, 1, 0)).normalize();

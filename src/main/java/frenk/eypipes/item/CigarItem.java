@@ -220,18 +220,6 @@ public class CigarItem extends Item implements GeoItem, ICurioItem {
             player.getCooldowns().addCooldown(this, 20);
         }
 
-        // Spawn ash particles if enabled
-        if (level.isClientSide() && EyPipesConfig.CLIENT.enableAshParticles.get()) {
-            Vec3[] positions = calculateParticlePosition(entity);
-            for (int i = 0; i < 3; i++) {
-                level.addParticle(ModParticles.ASH.get(),
-                        positions[0].x, positions[0].y, positions[0].z,
-                        (level.random.nextDouble() - 0.5) * 0.1,
-                        -0.05,
-                        (level.random.nextDouble() - 0.5) * 0.1);
-            }
-        }
-
         return item;
     }
 
@@ -259,17 +247,6 @@ public class CigarItem extends Item implements GeoItem, ICurioItem {
                                 vec.x * velocityMultiplier,
                                 vec.y * velocityMultiplier,
                                 vec.z * velocityMultiplier);
-
-                        // Spawn smoke wisps if enabled
-                        if (EyPipesConfig.CLIENT.enableSmokeWisps.get()) {
-                            level.addParticle(ModParticles.SMOKE_WISP.get(),
-                                    entity.getX() + vec.x * offsetMultiplier,
-                                    entity.getY() + entity.getEyeHeight() + vec.y * offsetMultiplier,
-                                    entity.getZ() + vec.z * offsetMultiplier,
-                                    vec.x * velocityMultiplier * 0.5,
-                                    vec.y * velocityMultiplier * 0.5 + 0.02,
-                                    vec.z * velocityMultiplier * 0.5);
-                        }
                     }
                 }, particleIndex * 800L, TimeUnit.MILLISECONDS);
             }

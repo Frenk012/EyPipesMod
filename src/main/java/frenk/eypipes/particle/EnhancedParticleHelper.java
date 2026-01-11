@@ -172,6 +172,79 @@ public class EnhancedParticleHelper {
         }
     }
 
+    // ========================================
+    // FIRST-PERSON SPECIFIC PARTICLE METHODS
+    // Smaller, more discrete particles for first-person view
+    // ========================================
+
+    /**
+     * Spawn smaller, discrete first-person smoke particles at the model's locator position.
+     * Used during active smoking for subtle visual feedback without obstructing view.
+     * Particles are 50% smaller and less frequent than third-person.
+     */
+    public static void spawnFirstPersonBowlSmoke(Level level, Vec3 locatorWorldPos, float intensity) {
+        if (!level.isClientSide()) return;
+
+        RandomSource random = level.random;
+
+        // Subtle smoke wisps from bowl - 40% chance based on intensity
+        if (random.nextFloat() < 0.4f * intensity) {
+            // Tiny smoke puff - reduced spread (0.02 vs 0.05)
+            level.addParticle(ParticleTypes.SMOKE,
+                    locatorWorldPos.x + (random.nextDouble() - 0.5) * 0.02,
+                    locatorWorldPos.y + 0.02,
+                    locatorWorldPos.z + (random.nextDouble() - 0.5) * 0.02,
+                    (random.nextDouble() - 0.5) * 0.005,  // Reduced velocity
+                    0.01 + random.nextDouble() * 0.01,
+                    (random.nextDouble() - 0.5) * 0.005);
+        }
+
+        // Very occasional smoke wisp for visual interest
+        if (EyPipesConfig.CLIENT.enableSmokeWisps.get() && random.nextFloat() < 0.1f * intensity) {
+            level.addParticle(ModParticles.SMOKE_WISP.get(),
+                    locatorWorldPos.x + (random.nextDouble() - 0.5) * 0.015,
+                    locatorWorldPos.y + 0.01,
+                    locatorWorldPos.z + (random.nextDouble() - 0.5) * 0.015,
+                    (random.nextDouble() - 0.5) * 0.008,
+                    0.015,
+                    (random.nextDouble() - 0.5) * 0.008);
+        }
+    }
+
+    /**
+     * Spawn scaled-down bowl embers specifically for first-person view.
+     * Uses locator position from renderer for accurate placement.
+     * Embers are smaller and less frequent to avoid obstructing view.
+     */
+    public static void spawnFirstPersonBowlEmbers(Level level, Vec3 bowlPosition, float intensity) {
+        if (!level.isClientSide()) return;
+
+        RandomSource random = level.random;
+
+        // Reduced ember particles - 30% base chance (vs 50%+ in third person)
+        if (EyPipesConfig.CLIENT.enableEmberParticles.get() && random.nextFloat() < 0.3f) {
+            // Smaller spread: 0.015 instead of 0.03
+            level.addParticle(ModParticles.EMBER.get(),
+                    bowlPosition.x + (random.nextDouble() - 0.5) * 0.015,
+                    bowlPosition.y,
+                    bowlPosition.z + (random.nextDouble() - 0.5) * 0.015,
+                    (random.nextDouble() - 0.5) * 0.008,  // Reduced velocity
+                    0.015 + random.nextDouble() * 0.015,
+                    (random.nextDouble() - 0.5) * 0.008);
+        }
+
+        // Very occasional tiny spark - 5% chance based on intensity
+        if (EyPipesConfig.CLIENT.enableSparkParticles.get() && random.nextFloat() < 0.05f * intensity) {
+            level.addParticle(ModParticles.SPARK.get(),
+                    bowlPosition.x + (random.nextDouble() - 0.5) * 0.01,
+                    bowlPosition.y,
+                    bowlPosition.z + (random.nextDouble() - 0.5) * 0.01,
+                    (random.nextDouble() - 0.5) * 0.02,
+                    0.03 + random.nextDouble() * 0.04,
+                    (random.nextDouble() - 0.5) * 0.02);
+        }
+    }
+
     /**
      * Spawn the ash effect when finishing smoking.
      * Creates falling ash particles for a realistic post-smoke effect.
