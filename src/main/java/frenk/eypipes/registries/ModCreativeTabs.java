@@ -50,6 +50,8 @@ public class ModCreativeTabs {
                                 output.accept(ModItems.DRYING_RACK_ITEM.get());
                                 output.accept(ModItems.TOBACCO_JAR_ITEM.get());
                                 output.accept(ModItems.PIPE_RACK_ITEM.get());
+                                output.accept(ModItems.CUTTING_BOARD_ITEM.get());
+                                output.accept(ModItems.KNIFE.get());
                                 // Pipe variants
                                 output.accept(ModItems.WOODEN_PIPE.get());
                                 output.accept(ModItems.CLAY_PIPE.get());

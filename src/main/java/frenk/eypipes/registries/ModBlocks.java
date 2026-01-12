@@ -1,6 +1,7 @@
 package frenk.eypipes.registries;
 
 import frenk.eypipes.EyPipes;
+import frenk.eypipes.block.CuttingBoardBlock;
 import frenk.eypipes.block.DryingRackBlock;
 import frenk.eypipes.block.ErbapipaCropBlock;
 import frenk.eypipes.block.HerbCropBlock;
@@ -85,6 +86,14 @@ public class ModBlocks {
     // Pipe Rack Block - Wall-mounted display for pipes
     public static final DeferredBlock<PipeRackBlock> PIPE_RACK = BLOCKS.register("pipe_rack",
             () -> new PipeRackBlock(BlockBehaviour.Properties.of()
+                    .mapColor(MapColor.WOOD)
+                    .strength(1.0f)
+                    .sound(SoundType.WOOD)
+                    .noOcclusion()));
+
+    // Cutting Board Block - Used to cut dried herbs with a knife
+    public static final DeferredBlock<CuttingBoardBlock> CUTTING_BOARD = BLOCKS.register("cutting_board",
+            () -> new CuttingBoardBlock(BlockBehaviour.Properties.of()
                     .mapColor(MapColor.WOOD)
                     .strength(1.0f)
                     .sound(SoundType.WOOD)

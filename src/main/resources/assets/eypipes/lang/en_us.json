@@ -34,6 +34,9 @@
     "block.eypipes.drying_rack_erb": "Drying Rack",
     "block.eypipes.tobacco_jar": "Tobacco Jar",
     "block.eypipes.pipe_rack": "Pipe Rack",
+    "block.eypipes.cutting_board": "Cutting Board",
+    "item.eypipes.knife": "Herb Knife",
+    "item.eypipes.cutting_board": "Cutting Board",
     "itemGroup.eypipes.eypipes_tab": "EyPipes",
 
     "config.eypipes.common": "EyPipes Common Config",
@@ -46,6 +49,7 @@
 
     "rei.eypipes.category.drying": "Drying Rack",
     "rei.eypipes.category.fermenting": "Tobacco Jar Fermenting",
+    "rei.eypipes.category.cutting_board": "Cutting Board",
     "rei.eypipes.drying.time": "Drying Time: %s seconds",
 
     "item.eypipes.valeriana.hint": "Has a calming aroma...",

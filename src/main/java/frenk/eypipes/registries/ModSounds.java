@@ -31,6 +31,10 @@ public class ModSounds {
     public static final DeferredHolder<SoundEvent, SoundEvent> TOBACCO_CRACKLE =
             registerSound("tobacco_crackle");
 
+    // Knife cutting sound - played when cutting herbs on the cutting board
+    public static final DeferredHolder<SoundEvent, SoundEvent> KNIFE_CUT =
+            registerSound("knife_cut");
+
     private static DeferredHolder<SoundEvent, SoundEvent> registerSound(String name) {
         ResourceLocation id = ResourceLocation.fromNamespaceAndPath(EyPipes.MOD_ID, name);
         return SOUND_EVENTS.register(name, () -> SoundEvent.createVariableRangeEvent(id));

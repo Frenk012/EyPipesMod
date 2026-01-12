@@ -1,6 +1,7 @@
 package frenk.eypipes.registries;
 
 import frenk.eypipes.EyPipes;
+import frenk.eypipes.block.entity.CuttingBoardBlockEntity;
 import frenk.eypipes.block.entity.DryingRackBlockEntity;
 import frenk.eypipes.block.entity.PipeRackBlockEntity;
 import frenk.eypipes.block.entity.TobaccoJarBlockEntity;
@@ -33,6 +34,12 @@ public class ModBlockEntities {
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<PipeRackBlockEntity>> PIPE_RACK =
             BLOCK_ENTITIES.register("pipe_rack",
                     () -> BlockEntityType.Builder.of(PipeRackBlockEntity::new, ModBlocks.PIPE_RACK.get())
+                            .build(null));
+
+    // Cutting Board Block Entity
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<CuttingBoardBlockEntity>> CUTTING_BOARD =
+            BLOCK_ENTITIES.register("cutting_board",
+                    () -> BlockEntityType.Builder.of(CuttingBoardBlockEntity::new, ModBlocks.CUTTING_BOARD.get())
                             .build(null));
 
     public static void register(IEventBus eventBus) {

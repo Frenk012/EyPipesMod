@@ -25,6 +25,8 @@ public class EyPipesREIPlugin implements REIClientPlugin {
             CategoryIdentifier.of(EyPipes.MOD_ID, "drying");
     public static final CategoryIdentifier<FermentingDisplay> FERMENTING_CATEGORY =
             CategoryIdentifier.of(EyPipes.MOD_ID, "fermenting");
+    public static final CategoryIdentifier<CuttingBoardDisplay> CUTTING_BOARD_CATEGORY =
+            CategoryIdentifier.of(EyPipes.MOD_ID, "cutting_board");
 
     @Override
     public void registerCategories(CategoryRegistry registry) {
@@ -35,6 +37,10 @@ public class EyPipesREIPlugin implements REIClientPlugin {
         // Register tobacco jar fermenting category
         registry.add(new FermentingCategory());
         registry.addWorkstations(FERMENTING_CATEGORY, EntryStacks.of(ModItems.TOBACCO_JAR_ITEM.get()));
+
+        // Register cutting board category
+        registry.add(new CuttingBoardCategory());
+        registry.addWorkstations(CUTTING_BOARD_CATEGORY, EntryStacks.of(ModItems.CUTTING_BOARD_ITEM.get()));
     }
 
     @Override
@@ -151,6 +157,30 @@ public class EyPipesREIPlugin implements REIClientPlugin {
                 new ItemStack(ModItems.SALVIA_CUTTED.get()),
                 new ItemStack(ModItems.SALVIA_CUTTED.get()),
                 "Fermented (3 days)"
+        ));
+
+        // Register cutting board recipes (dried herbs + knife -> cutted herbs)
+        ItemStack knife = new ItemStack(ModItems.KNIFE.get());
+
+        registry.add(new CuttingBoardDisplay(
+                new ItemStack(ModItems.ERBAPIPA_DRIED.get()),
+                knife,
+                new ItemStack(ModItems.ERBAPIPA_CUTTED.get(), 4)
+        ));
+        registry.add(new CuttingBoardDisplay(
+                new ItemStack(ModItems.VALERIANA_DRIED.get()),
+                knife,
+                new ItemStack(ModItems.VALERIANA_CUTTED.get(), 4)
+        ));
+        registry.add(new CuttingBoardDisplay(
+                new ItemStack(ModItems.GINSENG_DRIED.get()),
+                knife,
+                new ItemStack(ModItems.GINSENG_CUTTED.get(), 4)
+        ));
+        registry.add(new CuttingBoardDisplay(
+                new ItemStack(ModItems.SALVIA_DRIED.get()),
+                knife,
+                new ItemStack(ModItems.SALVIA_CUTTED.get(), 4)
         ));
     }
 }

@@ -34,6 +34,9 @@
     "block.eypipes.drying_rack_erb": "Essiccatoio",
     "block.eypipes.tobacco_jar": "Barattolo da Tabacco",
     "block.eypipes.pipe_rack": "Porta Pipe",
+    "block.eypipes.cutting_board": "Tagliere",
+    "item.eypipes.knife": "Coltello per Erbe",
+    "item.eypipes.cutting_board": "Tagliere",
     "itemGroup.eypipes.eypipes_tab": "EyPipes",
 
     "config.eypipes.common": "Configurazione Comune EyPipes",
@@ -46,6 +49,7 @@
 
     "rei.eypipes.category.drying": "Essiccatoio",
     "rei.eypipes.category.fermenting": "Fermentazione Barattolo",
+    "rei.eypipes.category.cutting_board": "Tagliere",
     "rei.eypipes.drying.time": "Tempo di Essiccazione: %s secondi",
 
     "item.eypipes.valeriana.hint": "Ha un aroma calmante...",

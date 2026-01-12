@@ -3,6 +3,7 @@ package frenk.eypipes;
 import frenk.eypipes.client.curios.CigarCuriosRenderer;
 import frenk.eypipes.client.curios.PipeCuriosRenderer;
 import frenk.eypipes.client.renderer.CigarItemRenderer;
+import frenk.eypipes.client.renderer.CuttingBoardRenderer;
 import frenk.eypipes.client.renderer.DryingRackRenderer;
 import frenk.eypipes.client.renderer.PipeItemRenderer;
 import frenk.eypipes.client.renderer.PipeRackRenderer;
@@ -87,7 +88,10 @@ public class EyPipesClient {
         // Register pipe rack block entity renderer
         event.registerBlockEntityRenderer(ModBlockEntities.PIPE_RACK.get(), PipeRackRenderer::new);
 
-        EyPipes.LOGGER.debug("Registered EyPipes block entity renderers (2 total)");
+        // Register cutting board block entity renderer
+        event.registerBlockEntityRenderer(ModBlockEntities.CUTTING_BOARD.get(), CuttingBoardRenderer::new);
+
+        EyPipes.LOGGER.debug("Registered EyPipes block entity renderers (3 total)");
     }
 
     /**

@@ -189,5 +189,21 @@ public class ModRecipeProvider extends RecipeProvider {
                 .define('W', Items.SPRUCE_PLANKS)
                 .unlockedBy("has_iron", has(Items.IRON_NUGGET))
                 .save(recipeOutput);
+
+        // Knife - herb cutting tool
+        ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, ModItems.KNIFE.get())
+                .pattern("I")
+                .pattern("S")
+                .define('I', Items.IRON_INGOT)
+                .define('S', Items.STICK)
+                .unlockedBy("has_iron", has(Items.IRON_INGOT))
+                .save(recipeOutput);
+
+        // Cutting Board - for cutting herbs
+        ShapedRecipeBuilder.shaped(RecipeCategory.DECORATIONS, ModItems.CUTTING_BOARD_ITEM.get())
+                .pattern("WWW")
+                .define('W', Items.OAK_PLANKS)
+                .unlockedBy("has_erbapipa_dried", has(ModItems.ERBAPIPA_DRIED.get()))
+                .save(recipeOutput);
     }
 }

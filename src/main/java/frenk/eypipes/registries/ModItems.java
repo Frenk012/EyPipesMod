@@ -4,6 +4,7 @@ import frenk.eypipes.EyPipes;
 import frenk.eypipes.config.EyPipesConfig;
 import frenk.eypipes.item.CigarItem;
 import frenk.eypipes.item.HerbItem;
+import frenk.eypipes.item.KnifeItem;
 import frenk.eypipes.item.PipeItem;
 import net.minecraft.ChatFormatting;
 import net.minecraft.world.item.BlockItem;
@@ -120,6 +121,14 @@ public class ModItems {
 
     public static final DeferredItem<Item> PIPE_RACK_ITEM = ITEMS.register("pipe_rack",
             () -> new BlockItem(ModBlocks.PIPE_RACK.get(), new Item.Properties()));
+
+    // Cutting Board block item
+    public static final DeferredItem<Item> CUTTING_BOARD_ITEM = ITEMS.register("cutting_board",
+            () -> new BlockItem(ModBlocks.CUTTING_BOARD.get(), new Item.Properties()));
+
+    // Knife item - used to cut dried herbs on the cutting board
+    public static final DeferredItem<Item> KNIFE = ITEMS.register("knife",
+            () -> new KnifeItem(new Item.Properties().stacksTo(1).durability(64)));
 
     public static void register(IEventBus eventBus) {
         ITEMS.register(eventBus);
