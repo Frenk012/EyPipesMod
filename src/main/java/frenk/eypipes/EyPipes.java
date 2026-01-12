@@ -1,6 +1,7 @@
 package frenk.eypipes;
 
 import frenk.eypipes.config.EyPipesConfig;
+import frenk.eypipes.recipe.ModRecipes;
 import frenk.eypipes.registries.*;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -34,6 +35,7 @@ public class EyPipes {
         ModSounds.register(modEventBus);
         ModCreativeTabs.register(modEventBus);
         ModDataComponents.register(modEventBus);
+        ModRecipes.register(modEventBus);
 
         // Register mod configuration
         modContainer.registerConfig(ModConfig.Type.COMMON, EyPipesConfig.COMMON_SPEC);

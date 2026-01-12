@@ -44,8 +44,9 @@
     "curios.modifiers.pipe_head": "Quando equipaggiato sulla testa:",
     "curios.modifiers.pipe_chest": "Quando equipaggiato sul petto:",
 
-    "jei.eypipes.category.drying": "Essiccatoio",
-    "jei.eypipes.drying.time": "Tempo di Essiccazione: %s secondi",
+    "rei.eypipes.category.drying": "Essiccatoio",
+    "rei.eypipes.category.fermenting": "Fermentazione Barattolo",
+    "rei.eypipes.drying.time": "Tempo di Essiccazione: %s secondi",
 
     "item.eypipes.valeriana.hint": "Ha un aroma calmante...",
     "item.eypipes.ginseng.hint": "Emana un profumo rinvigorente...",

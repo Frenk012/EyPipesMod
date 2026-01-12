@@ -11,6 +11,7 @@ import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.Block;
@@ -23,6 +24,8 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -34,6 +37,13 @@ public class DryingRackBlock extends BaseEntityBlock {
 
     public static final MapCodec<DryingRackBlock> CODEC = simpleCodec(DryingRackBlock::new);
     public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
+
+    // Hitbox shapes matching the model - thin rack structure
+    // Based on EAST being correct at X: 0-6, Z: 0-16
+    private static final VoxelShape SHAPE_NORTH = Block.box(0, 13, 10, 16, 15, 16);  // X: 0-16, Z: 10-16
+    private static final VoxelShape SHAPE_SOUTH = Block.box(0, 13, 0, 16, 15, 6);    // X: 0-16, Z: 0-6
+    private static final VoxelShape SHAPE_EAST = Block.box(0, 13, 0, 6, 15, 16);     // X: 0-6, Z: 0-16 (CORRECT)
+    private static final VoxelShape SHAPE_WEST = Block.box(10, 13, 0, 16, 15, 16);   // X: 10-16, Z: 0-16
 
     public DryingRackBlock(Properties properties) {
         super(properties);
@@ -65,6 +75,16 @@ public class DryingRackBlock extends BaseEntityBlock {
     @Override
     protected RenderShape getRenderShape(BlockState state) {
         return RenderShape.MODEL;
+    }
+
+    @Override
+    protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
+        return switch (state.getValue(FACING)) {
+            case SOUTH -> SHAPE_SOUTH;
+            case EAST -> SHAPE_EAST;
+            case WEST -> SHAPE_WEST;
+            default -> SHAPE_NORTH;
+        };
     }
 
     @Override

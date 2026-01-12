@@ -29,16 +29,19 @@ public class ModItemModelProvider extends ItemModelProvider {
         basicItem(ModItems.VALERIANA.get());
         basicItem(ModItems.VALERIANA_DRIED.get());
         basicItem(ModItems.VALERIANA_CUTTED.get());
+        basicItem(ModItems.VALERIANA_SEEDS.get());
 
         // Ginseng (energizing herb)
         basicItem(ModItems.GINSENG.get());
         basicItem(ModItems.GINSENG_DRIED.get());
         basicItem(ModItems.GINSENG_CUTTED.get());
+        basicItem(ModItems.GINSENG_SEEDS.get());
 
         // Salvia (vision herb)
         basicItem(ModItems.SALVIA.get());
         basicItem(ModItems.SALVIA_DRIED.get());
         basicItem(ModItems.SALVIA_CUTTED.get());
+        basicItem(ModItems.SALVIA_SEEDS.get());
 
         // Drying rack block item
         withExistingParent(ModItems.DRYING_RACK_ITEM.getId().getPath(),

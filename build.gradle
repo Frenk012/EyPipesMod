@@ -23,8 +23,12 @@ repositories {
         url = "https://maven.theillusivec4.top/"
     }
     maven {
-        name = 'JEI'
-        url = "https://maven.blamejared.com/"
+        name = 'REI'
+        url = "https://maven.shedaniel.me/"
+    }
+    maven {
+        name = 'Architectury'
+        url = "https://maven.architectury.dev/"
     }
 }
 
@@ -81,9 +85,10 @@ dependencies {
     compileOnly "top.theillusivec4.curios:curios-neoforge:${curios_version}:api"
     localRuntime "top.theillusivec4.curios:curios-neoforge:${curios_version}"
 
-    // JEI for recipe viewing (optional)
-    compileOnly "mezz.jei:jei-${minecraft_version}-neoforge-api:${jei_version}"
-    localRuntime "mezz.jei:jei-${minecraft_version}-neoforge:${jei_version}"
+    // REI for recipe viewing (optional)
+    compileOnly "me.shedaniel:RoughlyEnoughItems-api-neoforge:${rei_version}"
+    compileOnly "me.shedaniel:RoughlyEnoughItems-neoforge:${rei_version}"
+    // REI runtime loaded from run/mods folder
 }
 
 var generateModMetadata = tasks.register("generateModMetadata", ProcessResources) {
@@ -100,7 +105,8 @@ var generateModMetadata = tasks.register("generateModMetadata", ProcessResources
             mod_authors            : mod_authors,
             mod_description        : mod_description,
             geckolib_version_range : geckolib_version_range,
-            curios_version_range   : curios_version_range
+            curios_version_range   : curios_version_range,
+            rei_version_range      : rei_version_range
     ]
     inputs.properties replaceProperties
     expand replaceProperties

@@ -164,18 +164,24 @@ public class TobaccoJarBlockEntity extends BlockEntity {
         return count > 0 ? total / count : -1;
     }
 
+    // Optimization: Only check fermentation every N ticks (server) and particles every M ticks (client)
+    private static final int SERVER_TICK_INTERVAL = 200; // Check every 10 seconds
+    private static final int CLIENT_PARTICLE_INTERVAL = 60; // Particles every 3 seconds
+
     /**
      * Static ticker method called every game tick.
-     * Server-side: Processes fermentation of herbs.
-     * Client-side: Spawns ambient particles based on fill level and fermentation state.
+     * OPTIMIZED: Server checks only every 200 ticks, client particles every 60 ticks.
      */
     public static void tick(Level level, BlockPos pos, BlockState state, TobaccoJarBlockEntity entity) {
+        long gameTime = level.getGameTime();
+
         // Client-side: spawn ambient particles colored by fermentation state
         if (level.isClientSide()) {
             int fillLevel = entity.getItemCount();
-            if (fillLevel > 0 && level.getGameTime() % 20 == 0) {
+            // OPTIMIZED: Particles every 60 ticks (3 seconds) instead of 20
+            if (fillLevel > 0 && gameTime % CLIENT_PARTICLE_INTERVAL == 0) {
                 int avgFermentation = entity.getAverageFermentationLevel();
-                int particleCount = fillLevel;
+                int particleCount = Math.min(fillLevel, 3); // Cap particles at 3
 
                 for (int i = 0; i < particleCount; i++) {
                     double x = pos.getX() + 0.3 + level.random.nextDouble() * 0.4;
@@ -205,8 +211,13 @@ public class TobaccoJarBlockEntity extends BlockEntity {
             return;
         }
 
+        // OPTIMIZED: Server-side fermentation check only every 200 ticks (10 seconds)
+        // Fermentation takes 24000-72000 ticks, so checking every 200 is plenty accurate
+        if (gameTime % SERVER_TICK_INTERVAL != 0) {
+            return;
+        }
+
         boolean changed = false;
-        long currentTime = level.getGameTime();
 
         for (int i = 0; i < SLOT_COUNT; i++) {
             if (entity.items[i].isEmpty()) continue;
@@ -220,7 +231,7 @@ public class TobaccoJarBlockEntity extends BlockEntity {
             // Only ferment if not already at max quality
             if (currentLevel < ModDataComponents.QUALITY_FERMENTED) {
                 long startTime = entity.fermentationStartTimes[i];
-                long elapsedTime = currentTime - startTime;
+                long elapsedTime = gameTime - startTime;
 
                 int newLevel = currentLevel;
                 if (elapsedTime >= FERMENTED_TIME && currentLevel < ModDataComponents.QUALITY_FERMENTED) {
@@ -280,5 +291,10 @@ public class TobaccoJarBlockEntity extends BlockEntity {
         CompoundTag tag = new CompoundTag();
         saveAdditional(tag, registries);
         return tag;
+    }
+
+    @Override
+    public void handleUpdateTag(CompoundTag tag, HolderLookup.Provider registries) {
+        loadAdditional(tag, registries);
     }
 }
