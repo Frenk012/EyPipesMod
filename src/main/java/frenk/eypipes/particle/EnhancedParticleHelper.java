@@ -99,7 +99,7 @@ public class EnhancedParticleHelper {
                 Vec3 offset = direction.scale(offsetScale);
                 Vec3 pos = eyePos.add(offset);
 
-                level.addParticle(ModParticles.SMOKE_WISP.get(),
+                level.addParticle(ModParticles.SMOKE_STREAM.get(),
                         pos.x + (random.nextDouble() - 0.5) * 0.05,
                         pos.y,
                         pos.z + (random.nextDouble() - 0.5) * 0.05,
@@ -109,13 +109,13 @@ public class EnhancedParticleHelper {
             }
         }
 
-        // === LAYER 4: Ambient vanilla smoke for density ===
+        // === LAYER 4: Ambient custom smoke for density ===
         for (int i = 0; i < 8; i++) {
             double offsetScale = 0.25 + random.nextFloat() * 0.25;
             Vec3 offset = direction.scale(offsetScale);
             Vec3 pos = eyePos.add(offset);
 
-            level.addParticle(ParticleTypes.SMOKE,
+            level.addParticle(ModParticles.SPIRAL_SMOKE.get(),
                     pos.x + (random.nextDouble() - 0.5) * 0.1,
                     pos.y + (random.nextDouble() - 0.5) * 0.05,
                     pos.z + (random.nextDouble() - 0.5) * 0.1,
@@ -164,7 +164,7 @@ public class EnhancedParticleHelper {
 
         // === Small smoke wisps from bowl ===
         if (random.nextFloat() < 0.3f) {
-            level.addParticle(ParticleTypes.SMOKE,
+            level.addParticle(ModParticles.SMOKE_STREAM.get(),
                     bowlPosition.x + (random.nextDouble() - 0.5) * 0.02,
                     bowlPosition.y + 0.02,
                     bowlPosition.z + (random.nextDouble() - 0.5) * 0.02,
@@ -190,7 +190,7 @@ public class EnhancedParticleHelper {
         // Subtle smoke wisps from bowl - 40% chance based on intensity
         if (random.nextFloat() < 0.4f * intensity) {
             // Tiny smoke puff - reduced spread (0.02 vs 0.05)
-            level.addParticle(ParticleTypes.SMOKE,
+            level.addParticle(ModParticles.SMOKE_STREAM.get(),
                     locatorWorldPos.x + (random.nextDouble() - 0.5) * 0.02,
                     locatorWorldPos.y + 0.02,
                     locatorWorldPos.z + (random.nextDouble() - 0.5) * 0.02,
@@ -201,7 +201,7 @@ public class EnhancedParticleHelper {
 
         // Very occasional smoke wisp for visual interest
         if (EyPipesConfig.CLIENT.enableSmokeWisps.get() && random.nextFloat() < 0.1f * intensity) {
-            level.addParticle(ModParticles.SMOKE_WISP.get(),
+            level.addParticle(ModParticles.SMOKE_STREAM.get(),
                     locatorWorldPos.x + (random.nextDouble() - 0.5) * 0.015,
                     locatorWorldPos.y + 0.01,
                     locatorWorldPos.z + (random.nextDouble() - 0.5) * 0.015,

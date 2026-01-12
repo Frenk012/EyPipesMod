@@ -1,5 +1,8 @@
 {
   "textures": [
-    "eypipes:smoke"
+    "eypipes:pipe_smoke_blob_0",
+    "eypipes:pipe_smoke_blob_1",
+    "eypipes:pipe_smoke_blob_2",
+    "eypipes:pipe_smoke_blob_3"
   ]
 }

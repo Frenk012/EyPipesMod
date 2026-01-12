@@ -196,7 +196,7 @@ public class PipeItem extends Item implements GeoItem, ICurioItem {
                     Vec3 thirdPersonPos = positions[1];
 
                     for (int i = 0; i < 10; i++) {
-                        level.addParticle(ParticleTypes.SMOKE,
+                        level.addParticle(ModParticles.SMOKE_STREAM.get(),
                                 thirdPersonPos.x + (level.random.nextGaussian() * 0.02),
                                 thirdPersonPos.y + (level.random.nextGaussian() * 0.02),
                                 thirdPersonPos.z + (level.random.nextGaussian() * 0.02),
@@ -211,7 +211,7 @@ public class PipeItem extends Item implements GeoItem, ICurioItem {
                 Vec3 thirdPersonPos = positions[1];
                 for (ServerPlayer player : serverLevel.players()) {
                     if (player != entity && player.distanceTo(entity) <= 32.0) {
-                        serverLevel.sendParticles(player, ParticleTypes.SMOKE,
+                        serverLevel.sendParticles(player, ModParticles.SMOKE_STREAM.get(),
                                 false,
                                 thirdPersonPos.x + (level.random.nextGaussian() * 0.02),
                                 thirdPersonPos.y + (level.random.nextGaussian() * 0.02),
@@ -358,7 +358,7 @@ public class PipeItem extends Item implements GeoItem, ICurioItem {
         Vec3 resultThird = basePos
                 .add(lookVec.scale(0.5))  // Use full lookVec to follow vertical direction
                 .add(rightVecThird.scale(offsetX + 0.2f))
-                .add(upVecThird.scale(-offsetY + 0.3f));  // Add 0.3f higher
+                .add(upVecThird.scale(-offsetY + 0.2f));  // Lowered spawn point
 
         // First-person: full look direction
         Vec3 rightVecFirst = lookVec.cross(new Vec3(0, 1, 0)).normalize();

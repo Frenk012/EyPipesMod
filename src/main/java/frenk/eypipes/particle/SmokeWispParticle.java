@@ -24,14 +24,14 @@ public class SmokeWispParticle extends TextureSheetParticle {
         super(level, x, y, z, 0, 0, 0);
         this.spriteSet = spriteSet;
 
-        // Light gray smoke color
-        float grayValue = 0.6F + this.random.nextFloat() * 0.2F;
+        // Light gray smoke color (brighter for visibility)
+        float grayValue = 0.75F + this.random.nextFloat() * 0.2F;
         this.rCol = grayValue;
         this.gCol = grayValue;
         this.bCol = grayValue;
-        this.setAlpha(0.6F);
+        this.setAlpha(1.0F);
 
-        // Start small, will expand
+        // Small starting size
         this.quadSize = 0.05F;
 
         // Long lifetime for trailing effect
@@ -80,12 +80,12 @@ public class SmokeWispParticle extends TextureSheetParticle {
         this.yd *= 0.98;
         this.zd *= 0.98;
 
-        // Expand size over time
+        // Expand size over time (small)
         float ageRatio = (float) this.age / this.lifetime;
         this.quadSize = 0.05F + ageRatio * 0.15F;
 
-        // Fade out gradually
-        this.setAlpha(0.6F * (1.0F - ageRatio));
+        // Fade out gradually (maximum opacity)
+        this.setAlpha(1.0F * (1.0F - ageRatio * 0.7F));
 
         // Update sprite for animation
         if (spriteSet != null) {

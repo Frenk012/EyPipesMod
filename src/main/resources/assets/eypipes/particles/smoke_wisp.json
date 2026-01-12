@@ -1,5 +1,20 @@
 {
   "textures": [
-    "eypipes:smoke"
+    "eypipes:pipe_smoke_wisp_0",
+    "eypipes:pipe_smoke_wisp_0",
+    "eypipes:pipe_smoke_wisp_1",
+    "eypipes:pipe_smoke_wisp_1",
+    "eypipes:pipe_smoke_wisp_2",
+    "eypipes:pipe_smoke_wisp_2",
+    "eypipes:pipe_smoke_wisp_3",
+    "eypipes:pipe_smoke_wisp_3",
+    "eypipes:pipe_smoke_wisp_4",
+    "eypipes:pipe_smoke_wisp_4",
+    "eypipes:pipe_smoke_wisp_5",
+    "eypipes:pipe_smoke_wisp_5",
+    "eypipes:pipe_smoke_wisp_6",
+    "eypipes:pipe_smoke_wisp_6",
+    "eypipes:pipe_smoke_wisp_7",
+    "eypipes:pipe_smoke_wisp_7"
   ]
 }

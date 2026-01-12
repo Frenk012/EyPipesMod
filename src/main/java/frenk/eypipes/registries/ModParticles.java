@@ -45,6 +45,11 @@ public class ModParticles {
             PARTICLE_TYPES.register("spark",
                     () -> new SimpleParticleType(false));
 
+    // NEW: Smoke stream particle - continuous flowing smoke
+    public static final DeferredHolder<ParticleType<?>, SimpleParticleType> SMOKE_STREAM =
+            PARTICLE_TYPES.register("smoke_stream",
+                    () -> new SimpleParticleType(false));
+
     public static void register(IEventBus eventBus) {
         PARTICLE_TYPES.register(eventBus);
         EyPipes.LOGGER.info("Registering EyPipes Particles");

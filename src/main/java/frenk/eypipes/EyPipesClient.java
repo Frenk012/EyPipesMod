@@ -20,6 +20,7 @@ import frenk.eypipes.particle.AshParticle;
 import frenk.eypipes.particle.SmokeWispParticle;
 import frenk.eypipes.particle.SpiralSmokeParticle;
 import frenk.eypipes.particle.SparkParticle;
+import frenk.eypipes.particle.SmokeStreamParticle;
 import frenk.eypipes.registries.ModBlockEntities;
 import frenk.eypipes.registries.ModBlocks;
 import frenk.eypipes.registries.ModItems;
@@ -144,8 +145,9 @@ public class EyPipesClient {
         // Register particle factories - Enhanced particles
         event.registerSpriteSet(ModParticles.SPIRAL_SMOKE.get(), SpiralSmokeParticle.Provider::new);
         event.registerSpriteSet(ModParticles.SPARK.get(), SparkParticle.Provider::new);
+        event.registerSpriteSet(ModParticles.SMOKE_STREAM.get(), SmokeStreamParticle.Provider::new);
 
-        EyPipes.LOGGER.debug("Registered EyPipes particle providers (6 types)");
+        EyPipes.LOGGER.debug("Registered EyPipes particle providers (7 types)");
     }
 
     /**

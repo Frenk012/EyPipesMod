@@ -3,7 +3,6 @@ package frenk.eypipes.item;
 import frenk.eypipes.config.EyPipesConfig;
 import frenk.eypipes.registries.ModParticles;
 import frenk.eypipes.registries.ModSounds;
-import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundSource;
@@ -160,7 +159,7 @@ public class CigarItem extends Item implements GeoItem, ICurioItem {
                 // Client-side particles
                 Vec3 correctPosition = positions[0]; // First person position
                 for (int i = 0; i < 8; i++) {
-                    level.addParticle(ParticleTypes.SMOKE,
+                    level.addParticle(ModParticles.SMOKE_STREAM.get(),
                             correctPosition.x + (level.random.nextGaussian() * 0.02),
                             correctPosition.y + (level.random.nextGaussian() * 0.02),
                             correctPosition.z + (level.random.nextGaussian() * 0.02),
@@ -178,7 +177,7 @@ public class CigarItem extends Item implements GeoItem, ICurioItem {
                 Vec3 thirdPersonPos = positions[1];
                 for (ServerPlayer player : serverLevel.players()) {
                     if (player != entity && player.distanceTo(entity) <= 32.0) {
-                        serverLevel.sendParticles(player, ParticleTypes.SMOKE,
+                        serverLevel.sendParticles(player, ModParticles.SMOKE_STREAM.get(),
                                 false,
                                 thirdPersonPos.x + (level.random.nextGaussian() * 0.02),
                                 thirdPersonPos.y + (level.random.nextGaussian() * 0.02),
@@ -330,7 +329,7 @@ public class CigarItem extends Item implements GeoItem, ICurioItem {
         Vec3 resultThird = basePos
                 .add(horizontalLookVec.scale(0.45))
                 .add(rightVecThird.scale(offsetX))
-                .add(upVecThird.scale(-offsetY));
+                .add(upVecThird.scale(-offsetY - 0.15f));  // Lowered spawn point
 
         // First-person: full look direction
         Vec3 rightVecFirst = lookVec.cross(new Vec3(0, 1, 0)).normalize();
