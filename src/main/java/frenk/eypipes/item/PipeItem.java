@@ -110,8 +110,13 @@ public class PipeItem extends Item implements GeoItem, ICurioItem {
         if (!stack.has(net.minecraft.core.component.DataComponents.CUSTOM_DATA)) {
             return 1; // Default: dried quality
         }
-        return stack.get(net.minecraft.core.component.DataComponents.CUSTOM_DATA)
-                .copyTag().getInt(QUALITY_KEY);
+        net.minecraft.nbt.CompoundTag tag = stack.get(net.minecraft.core.component.DataComponents.CUSTOM_DATA).copyTag();
+        // If QUALITY_KEY doesn't exist, NBT returns 0 which would be FRESH (0.5x multiplier)
+        // We want to default to DRIED (1.0x multiplier) instead
+        if (!tag.contains(QUALITY_KEY)) {
+            return 1; // Default: dried quality
+        }
+        return tag.getInt(QUALITY_KEY);
     }
 
     private void setQualityLevel(ItemStack stack, int qualityLevel) {
@@ -180,6 +185,17 @@ public class PipeItem extends Item implements GeoItem, ICurioItem {
                 }
 
                 int currentDamage = itemStack.getDamageValue();
+                int remainingUses = itemStack.getMaxDamage() - currentDamage;
+
+                // If pipe has herbs loaded, only allow same herb type
+                if (remainingUses > 0) {
+                    int currentHerbType = getHerbType(itemStack);
+                    if (currentHerbType != herbType) {
+                        // Different herb type - cannot mix, pipe must be empty first
+                        return InteractionResultHolder.fail(itemStack);
+                    }
+                }
+
                 int maxInsertable = currentDamage - 1;
                 int insertCount = player.isCreative() ? maxInsertable : Math.min(maxInsertable, offHandStack.getCount());
                 if (insertCount <= 0) {
@@ -189,6 +205,7 @@ public class PipeItem extends Item implements GeoItem, ICurioItem {
                 itemStack.setDamageValue(currentDamage - insertCount);
 
                 // Store the herb type and quality level that was loaded
+                // (only changes type if pipe was empty, otherwise keeps same type)
                 setHerbType(itemStack, herbType);
                 setQualityLevel(itemStack, getQualityFromHerb(offHandStack));
 
@@ -448,9 +465,72 @@ public class PipeItem extends Item implements GeoItem, ICurioItem {
     public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltipComponents, TooltipFlag tooltipFlag) {
         super.appendHoverText(stack, context, tooltipComponents, tooltipFlag);
 
+        // Calculate remaining uses
+        int remainingUses = stack.getMaxDamage() - stack.getDamageValue();
+
+        // Show loaded herb info if there are remaining uses
+        if (remainingUses > 0) {
+            int herbType = getHerbType(stack);
+            int qualityLevel = getQualityLevel(stack);
+            String herbTranslationKey = getHerbTranslationKey(herbType);
+
+            // Show herb name and remaining count
+            tooltipComponents.add(Component.translatable("tooltip.eypipes.loaded_herb",
+                    Component.translatable(herbTranslationKey).withStyle(getHerbColor(herbType)),
+                    remainingUses)
+                    .withStyle(ChatFormatting.GRAY));
+
+            // Show quality level with color based on fermentation
+            String qualityName = frenk.eypipes.registries.ModDataComponents.getQualityName(qualityLevel);
+            ChatFormatting qualityColor = getQualityColor(qualityLevel);
+            tooltipComponents.add(Component.translatable("tooltip.eypipes.quality",
+                    Component.translatable("tooltip.eypipes.quality." + qualityName.toLowerCase()).withStyle(qualityColor))
+                    .withStyle(ChatFormatting.GRAY));
+        } else {
+            // Pipe is empty
+            tooltipComponents.add(Component.translatable("tooltip.eypipes.pipe_empty")
+                    .withStyle(ChatFormatting.DARK_GRAY, ChatFormatting.ITALIC));
+        }
+
         // Show mod name
         tooltipComponents.add(Component.translatable("itemGroup.eypipes.eypipes_tab")
                 .withStyle(ChatFormatting.BLUE, ChatFormatting.ITALIC));
+    }
+
+    /**
+     * Get the translation key for a herb type.
+     */
+    private String getHerbTranslationKey(int herbType) {
+        return switch (herbType) {
+            case HERB_VALERIANA -> "item.eypipes.valeriana_cutted";
+            case HERB_GINSENG -> "item.eypipes.ginseng_cutted";
+            case HERB_SALVIA -> "item.eypipes.salvia_cutted";
+            default -> "item.eypipes.erbapipa_cutted";
+        };
+    }
+
+    /**
+     * Get the color formatting for a herb type.
+     */
+    private ChatFormatting getHerbColor(int herbType) {
+        return switch (herbType) {
+            case HERB_VALERIANA -> ChatFormatting.LIGHT_PURPLE;
+            case HERB_GINSENG -> ChatFormatting.GOLD;
+            case HERB_SALVIA -> ChatFormatting.DARK_GREEN;
+            default -> ChatFormatting.GREEN;
+        };
+    }
+
+    /**
+     * Get the color formatting for a quality level.
+     */
+    private ChatFormatting getQualityColor(int qualityLevel) {
+        return switch (qualityLevel) {
+            case 0 -> ChatFormatting.GRAY;           // Fresh
+            case 2 -> ChatFormatting.YELLOW;         // Aged
+            case 3 -> ChatFormatting.GOLD;           // Fermented
+            default -> ChatFormatting.WHITE;         // Dried
+        };
     }
 
     // GeckoLib 4 methods

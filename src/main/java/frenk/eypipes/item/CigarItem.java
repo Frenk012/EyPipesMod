@@ -296,6 +296,18 @@ public class CigarItem extends Item implements GeoItem, ICurioItem {
     public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltipComponents, TooltipFlag tooltipFlag) {
         super.appendHoverText(stack, context, tooltipComponents, tooltipFlag);
 
+        // Calculate remaining uses
+        int remainingUses = stack.getMaxDamage() - stack.getDamageValue();
+
+        // Show remaining puffs
+        if (remainingUses > 0) {
+            tooltipComponents.add(Component.translatable("tooltip.eypipes.cigar_remaining", remainingUses)
+                    .withStyle(ChatFormatting.GRAY));
+        } else {
+            tooltipComponents.add(Component.translatable("tooltip.eypipes.cigar_finished")
+                    .withStyle(ChatFormatting.DARK_GRAY, ChatFormatting.ITALIC));
+        }
+
         // Show mod name
         tooltipComponents.add(Component.translatable("itemGroup.eypipes.eypipes_tab")
                 .withStyle(ChatFormatting.BLUE, ChatFormatting.ITALIC));

@@ -23,10 +23,11 @@ public class ModBlockTagProvider extends BlockTagsProvider {
 
     @Override
     protected void addTags(HolderLookup.Provider provider) {
-        // Drying rack and pipe rack are mineable with axe (wooden)
+        // Drying rack, pipe rack, and cutting board are mineable with axe (wooden)
         tag(BlockTags.MINEABLE_WITH_AXE)
                 .add(ModBlocks.DRYING_RACK.get())
-                .add(ModBlocks.PIPE_RACK.get());
+                .add(ModBlocks.PIPE_RACK.get())
+                .add(ModBlocks.CUTTING_BOARD.get());
 
         // Tobacco jar is mineable with pickaxe (ceramic/brick material)
         tag(BlockTags.MINEABLE_WITH_PICKAXE)
@@ -34,10 +35,16 @@ public class ModBlockTagProvider extends BlockTagsProvider {
 
         // Crop block tags
         tag(BlockTags.CROPS)
-                .add(ModBlocks.ERBAPIPA_CROP.get());
+                .add(ModBlocks.ERBAPIPA_CROP.get())
+                .add(ModBlocks.VALERIANA_CROP.get())
+                .add(ModBlocks.GINSENG_CROP.get())
+                .add(ModBlocks.SALVIA_CROP.get());
 
         // Bee-pollinated crops
         tag(BlockTags.BEE_GROWABLES)
-                .add(ModBlocks.ERBAPIPA_CROP.get());
+                .add(ModBlocks.ERBAPIPA_CROP.get())
+                .add(ModBlocks.VALERIANA_CROP.get())
+                .add(ModBlocks.GINSENG_CROP.get())
+                .add(ModBlocks.SALVIA_CROP.get());
     }
 }

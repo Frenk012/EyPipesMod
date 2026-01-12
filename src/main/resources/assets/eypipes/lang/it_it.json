@@ -61,7 +61,15 @@
     "item.eypipes.salvia.hint": "Sembra brillare misteriosamente...",
 
     "tooltip.eypipes.quality": "Qualità: %s",
+    "tooltip.eypipes.quality.fresh": "Fresca (0.5x)",
+    "tooltip.eypipes.quality.dried": "Essiccata (1.0x)",
+    "tooltip.eypipes.quality.aged": "Stagionata (1.5x)",
+    "tooltip.eypipes.quality.fermented": "Fermentata (2.0x)",
     "tooltip.eypipes.effect_multiplier": "Potenza Effetto: %s",
+    "tooltip.eypipes.loaded_herb": "Caricata: %s (%s rimanenti)",
+    "tooltip.eypipes.pipe_empty": "Vuota - Shift+Destro per ricaricare",
+    "tooltip.eypipes.cigar_remaining": "Tirate rimanenti: %s",
+    "tooltip.eypipes.cigar_finished": "Finito",
 
     "tag.item.eypipes.erbapipa": "Erbapipa",
     "tag.item.eypipes.smoking_items": "Materiali Fumabili"

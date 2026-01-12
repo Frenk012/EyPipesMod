@@ -95,6 +95,9 @@ public class ModLootTableProvider extends LootTableProvider {
 
             // Pipe rack drops itself
             dropSelf(ModBlocks.PIPE_RACK.get());
+
+            // Cutting board drops itself
+            dropSelf(ModBlocks.CUTTING_BOARD.get());
         }
 
         @Override
@@ -108,7 +111,8 @@ public class ModLootTableProvider extends LootTableProvider {
                     ModBlocks.SALVIA_CROP.get(),
                     ModBlocks.DRYING_RACK.get(),
                     ModBlocks.TOBACCO_JAR.get(),
-                    ModBlocks.PIPE_RACK.get()
+                    ModBlocks.PIPE_RACK.get(),
+                    ModBlocks.CUTTING_BOARD.get()
             );
         }
     }
