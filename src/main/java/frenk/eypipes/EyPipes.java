@@ -33,6 +33,7 @@ public class EyPipes {
         ModParticles.register(modEventBus);
         ModSounds.register(modEventBus);
         ModCreativeTabs.register(modEventBus);
+        ModDataComponents.register(modEventBus);
 
         // Register mod configuration
         modContainer.registerConfig(ModConfig.Type.COMMON, EyPipesConfig.COMMON_SPEC);

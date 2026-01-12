@@ -25,15 +25,6 @@ public class ModParticles {
             PARTICLE_TYPES.register("ember",
                     () -> new SimpleParticleType(false));
 
-    // NEW: Ash particle - falling ash particles
-    public static final DeferredHolder<ParticleType<?>, SimpleParticleType> ASH =
-            PARTICLE_TYPES.register("ash",
-                    () -> new SimpleParticleType(false));
-
-    // NEW: Smoke wisp particle - wispy smoke trails
-    public static final DeferredHolder<ParticleType<?>, SimpleParticleType> SMOKE_WISP =
-            PARTICLE_TYPES.register("smoke_wisp",
-                    () -> new SimpleParticleType(false));
 
     // NEW: Spiral smoke particle - 3D helix smoke effect
     public static final DeferredHolder<ParticleType<?>, SimpleParticleType> SPIRAL_SMOKE =
@@ -48,6 +39,11 @@ public class ModParticles {
     // NEW: Smoke stream particle - continuous flowing smoke
     public static final DeferredHolder<ParticleType<?>, SimpleParticleType> SMOKE_STREAM =
             PARTICLE_TYPES.register("smoke_stream",
+                    () -> new SimpleParticleType(false));
+
+    // NEW: Steam particle - for drying rack visualization
+    public static final DeferredHolder<ParticleType<?>, SimpleParticleType> STEAM =
+            PARTICLE_TYPES.register("steam",
                     () -> new SimpleParticleType(false));
 
     public static void register(IEventBus eventBus) {

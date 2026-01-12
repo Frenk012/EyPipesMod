@@ -1,0 +1,95 @@
+{
+    "parent": "minecraft:block/block",
+    "textures": {
+        "jar": "eypipes:block/tobacco_jar",
+        "lid": "eypipes:block/tobacco_jar_lid",
+        "inside": "eypipes:block/tobacco_jar_inside",
+        "particle": "eypipes:block/tobacco_jar"
+    },
+    "elements": [
+        {
+            "name": "jar_base",
+            "from": [4, 0, 4],
+            "to": [12, 1, 12],
+            "faces": {
+                "north": {"uv": [4, 15, 12, 16], "texture": "#jar"},
+                "east": {"uv": [4, 15, 12, 16], "texture": "#jar"},
+                "south": {"uv": [4, 15, 12, 16], "texture": "#jar"},
+                "west": {"uv": [4, 15, 12, 16], "texture": "#jar"},
+                "up": {"uv": [4, 4, 12, 12], "texture": "#jar"},
+                "down": {"uv": [4, 4, 12, 12], "texture": "#jar"}
+            }
+        },
+        {
+            "name": "jar_body",
+            "from": [3, 1, 3],
+            "to": [13, 10, 13],
+            "faces": {
+                "north": {"uv": [3, 6, 13, 15], "texture": "#jar"},
+                "east": {"uv": [3, 6, 13, 15], "texture": "#jar"},
+                "south": {"uv": [3, 6, 13, 15], "texture": "#jar"},
+                "west": {"uv": [3, 6, 13, 15], "texture": "#jar"},
+                "up": {"uv": [3, 3, 13, 13], "texture": "#inside"},
+                "down": {"uv": [3, 3, 13, 13], "texture": "#jar"}
+            }
+        },
+        {
+            "name": "jar_neck",
+            "from": [4, 10, 4],
+            "to": [12, 11, 12],
+            "faces": {
+                "north": {"uv": [4, 5, 12, 6], "texture": "#jar"},
+                "east": {"uv": [4, 5, 12, 6], "texture": "#jar"},
+                "south": {"uv": [4, 5, 12, 6], "texture": "#jar"},
+                "west": {"uv": [4, 5, 12, 6], "texture": "#jar"},
+                "up": {"uv": [4, 4, 12, 12], "texture": "#inside"},
+                "down": {"uv": [4, 4, 12, 12], "texture": "#jar"}
+            }
+        },
+        {
+            "name": "lid",
+            "from": [3, 11, 3],
+            "to": [13, 12, 13],
+            "faces": {
+                "north": {"uv": [3, 4, 13, 5], "texture": "#lid"},
+                "east": {"uv": [3, 4, 13, 5], "texture": "#lid"},
+                "south": {"uv": [3, 4, 13, 5], "texture": "#lid"},
+                "west": {"uv": [3, 4, 13, 5], "texture": "#lid"},
+                "up": {"uv": [3, 3, 13, 13], "texture": "#lid"},
+                "down": {"uv": [3, 3, 13, 13], "texture": "#lid"}
+            }
+        }
+    ],
+    "display": {
+        "thirdperson_righthand": {
+            "rotation": [75, 45, 0],
+            "translation": [0, 2.5, 0],
+            "scale": [0.375, 0.375, 0.375]
+        },
+        "thirdperson_lefthand": {
+            "rotation": [75, 45, 0],
+            "translation": [0, 2.5, 0],
+            "scale": [0.375, 0.375, 0.375]
+        },
+        "firstperson_righthand": {
+            "rotation": [0, 45, 0],
+            "scale": [0.4, 0.4, 0.4]
+        },
+        "firstperson_lefthand": {
+            "rotation": [0, 225, 0],
+            "scale": [0.4, 0.4, 0.4]
+        },
+        "ground": {
+            "translation": [0, 3, 0],
+            "scale": [0.25, 0.25, 0.25]
+        },
+        "gui": {
+            "rotation": [30, 225, 0],
+            "translation": [0, 0, 0],
+            "scale": [0.625, 0.625, 0.625]
+        },
+        "fixed": {
+            "scale": [0.5, 0.5, 0.5]
+        }
+    }
+}

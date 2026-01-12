@@ -2,6 +2,8 @@ package frenk.eypipes.registries;
 
 import frenk.eypipes.EyPipes;
 import frenk.eypipes.block.entity.DryingRackBlockEntity;
+import frenk.eypipes.block.entity.PipeRackBlockEntity;
+import frenk.eypipes.block.entity.TobaccoJarBlockEntity;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.neoforged.bus.api.IEventBus;
@@ -19,6 +21,18 @@ public class ModBlockEntities {
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<DryingRackBlockEntity>> DRYING_RACK =
             BLOCK_ENTITIES.register("drying_rack_erb",
                     () -> BlockEntityType.Builder.of(DryingRackBlockEntity::new, ModBlocks.DRYING_RACK.get())
+                            .build(null));
+
+    // Tobacco Jar Block Entity
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<TobaccoJarBlockEntity>> TOBACCO_JAR =
+            BLOCK_ENTITIES.register("tobacco_jar",
+                    () -> BlockEntityType.Builder.of(TobaccoJarBlockEntity::new, ModBlocks.TOBACCO_JAR.get())
+                            .build(null));
+
+    // Pipe Rack Block Entity
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<PipeRackBlockEntity>> PIPE_RACK =
+            BLOCK_ENTITIES.register("pipe_rack",
+                    () -> BlockEntityType.Builder.of(PipeRackBlockEntity::new, ModBlocks.PIPE_RACK.get())
                             .build(null));
 
     public static void register(IEventBus eventBus) {

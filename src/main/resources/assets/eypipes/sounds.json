@@ -8,5 +8,26 @@
       }
     ],
     "subtitle": "Pipe exhale"
+  },
+  "tobacco_crackle": {
+    "category": "players",
+    "sounds": [
+      {
+        "name": "minecraft:block/campfire/crackle1",
+        "volume": 0.4,
+        "pitch": 1.2
+      },
+      {
+        "name": "minecraft:block/campfire/crackle2",
+        "volume": 0.4,
+        "pitch": 1.2
+      },
+      {
+        "name": "minecraft:block/campfire/crackle3",
+        "volume": 0.4,
+        "pitch": 1.2
+      }
+    ],
+    "subtitle": "Tobacco crackling"
   }
 }

@@ -18,8 +18,14 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.level.Level;
+import net.minecraft.network.chat.Component;
+import net.minecraft.ChatFormatting;
+import java.util.List;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.phys.Vec3;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,6 +57,14 @@ public class PipeItem extends Item implements GeoItem, ICurioItem {
     // Usage settings
     private static final int USAGE_TIME = 60;
     private static final String SMOKING_KEY = "smoking";
+    private static final String HERB_TYPE_KEY = "herb_type";
+    private static final String QUALITY_KEY = "quality_level";
+
+    // Herb type constants
+    public static final int HERB_ERBAPIPA = 0;
+    public static final int HERB_VALERIANA = 1;
+    public static final int HERB_GINSENG = 2;
+    public static final int HERB_SALVIA = 3;
 
     // Scheduled executor for delayed particle spawning
     private static final ScheduledExecutorService PARTICLE_EXECUTOR = Executors.newScheduledThreadPool(2);
@@ -74,6 +88,59 @@ public class PipeItem extends Item implements GeoItem, ICurioItem {
         stack.update(net.minecraft.core.component.DataComponents.CUSTOM_DATA,
                 net.minecraft.world.item.component.CustomData.EMPTY,
                 data -> data.update(tag -> tag.putBoolean(SMOKING_KEY, smoking)));
+    }
+
+    // Herb type helpers
+    private int getHerbType(ItemStack stack) {
+        if (!stack.has(net.minecraft.core.component.DataComponents.CUSTOM_DATA)) {
+            return HERB_ERBAPIPA;
+        }
+        return stack.get(net.minecraft.core.component.DataComponents.CUSTOM_DATA)
+                .copyTag().getInt(HERB_TYPE_KEY);
+    }
+
+    private void setHerbType(ItemStack stack, int herbType) {
+        stack.update(net.minecraft.core.component.DataComponents.CUSTOM_DATA,
+                net.minecraft.world.item.component.CustomData.EMPTY,
+                data -> data.update(tag -> tag.putInt(HERB_TYPE_KEY, herbType)));
+    }
+
+    // Quality level helpers (for fermented tobacco effects)
+    private int getQualityLevel(ItemStack stack) {
+        if (!stack.has(net.minecraft.core.component.DataComponents.CUSTOM_DATA)) {
+            return 1; // Default: dried quality
+        }
+        return stack.get(net.minecraft.core.component.DataComponents.CUSTOM_DATA)
+                .copyTag().getInt(QUALITY_KEY);
+    }
+
+    private void setQualityLevel(ItemStack stack, int qualityLevel) {
+        stack.update(net.minecraft.core.component.DataComponents.CUSTOM_DATA,
+                net.minecraft.world.item.component.CustomData.EMPTY,
+                data -> data.update(tag -> tag.putInt(QUALITY_KEY, qualityLevel)));
+    }
+
+    /**
+     * Get quality level from an herb item (reads from its data component).
+     * Default quality for cutted herbs is DRIED (1).
+     */
+    private int getQualityFromHerb(ItemStack herbStack) {
+        if (herbStack.has(frenk.eypipes.registries.ModDataComponents.FERMENTATION_LEVEL.get())) {
+            return herbStack.get(frenk.eypipes.registries.ModDataComponents.FERMENTATION_LEVEL.get());
+        }
+        return 1; // Default: dried quality
+    }
+
+    /**
+     * Determine herb type from an ItemStack.
+     * Returns -1 if the item is not a valid cutted herb.
+     */
+    private int getHerbTypeFromItem(ItemStack itemStack) {
+        if (itemStack.is(ModItems.ERBAPIPA_CUTTED.get())) return HERB_ERBAPIPA;
+        if (itemStack.is(ModItems.VALERIANA_CUTTED.get())) return HERB_VALERIANA;
+        if (itemStack.is(ModItems.GINSENG_CUTTED.get())) return HERB_GINSENG;
+        if (itemStack.is(ModItems.SALVIA_CUTTED.get())) return HERB_SALVIA;
+        return -1; // Not a valid herb
     }
 
     @Override
@@ -101,10 +168,12 @@ public class PipeItem extends Item implements GeoItem, ICurioItem {
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
         ItemStack itemStack = player.getItemInHand(hand);
 
-        // Check for shift+right-click with erbapipa_cutted in off-hand for durability repair
+        // Check for shift+right-click with any cutted herb in off-hand for refill
         if (player.isShiftKeyDown() && hand == InteractionHand.MAIN_HAND) {
             ItemStack offHandStack = player.getItemInHand(InteractionHand.OFF_HAND);
-            if (offHandStack.is(ModItems.ERBAPIPA_CUTTED.get()) && itemStack.isDamageableItem()) {
+            int herbType = getHerbTypeFromItem(offHandStack);
+
+            if (herbType >= 0 && itemStack.isDamageableItem()) {
                 // Check if pipe is already at maximum durability
                 if (itemStack.getDamageValue() <= 1) {
                     return InteractionResultHolder.fail(itemStack);
@@ -115,12 +184,16 @@ public class PipeItem extends Item implements GeoItem, ICurioItem {
                 int newDamage = Math.max(0, currentDamage - 1);
                 itemStack.setDamageValue(newDamage);
 
-                // Consume one erbapipa_cutted
+                // Store the herb type and quality level that was loaded
+                setHerbType(itemStack, herbType);
+                setQualityLevel(itemStack, getQualityFromHerb(offHandStack));
+
+                // Consume one herb
                 if (!player.isCreative()) {
                     offHandStack.shrink(1);
                 }
 
-                // Play repair sound and set cooldown
+                // Play refill sound and set cooldown
                 level.playSound(null, player.getX(), player.getY(), player.getZ(),
                         ModSounds.PIPE_REFILL.get(), SoundSource.PLAYERS, 1.0F, 1.2F);
                 player.getCooldowns().addCooldown(this, 20);
@@ -173,6 +246,13 @@ public class PipeItem extends Item implements GeoItem, ICurioItem {
 
         int totalTicks = USAGE_TIME - remainingUseTicks;
         int frequency = Math.max(4, (int) Math.pow((USAGE_TIME - totalTicks) / 10.0, 2));
+
+        // Play tobacco crackling sound every 40 ticks (2 seconds)
+        if (totalTicks > 0 && totalTicks % 40 == 0 && !level.isClientSide()) {
+            level.playSound(null, entity.getX(), entity.getY(), entity.getZ(),
+                    ModSounds.TOBACCO_CRACKLE.get(), SoundSource.PLAYERS,
+                    0.3F, 0.9F + level.random.nextFloat() * 0.2F);
+        }
 
         if (remainingUseTicks % frequency == 0) {
             float intensity = 1.0f - ((float) remainingUseTicks / USAGE_TIME);
@@ -229,6 +309,9 @@ public class PipeItem extends Item implements GeoItem, ICurioItem {
         if (!level.isClientSide()) {
             level.playSound(null, entity.getX(), entity.getY(), entity.getZ(),
                     ModSounds.PIPE_EXHALE.get(), SoundSource.PLAYERS, 0.8F, 1.0F);
+
+            // Apply herb effects based on what was loaded and quality level
+            applySmokingEffects(entity, getHerbType(item), getQualityLevel(item));
         }
 
         item.setDamageValue(item.getDamageValue() + 1);
@@ -238,9 +321,47 @@ public class PipeItem extends Item implements GeoItem, ICurioItem {
             player.getCooldowns().addCooldown(this, 20);
         }
 
-        // Ash effect removed - user didn't want gray particles flying up
-
         return item;
+    }
+
+    /**
+     * Apply potion effects based on the herb type that was smoked.
+     * Duration is multiplied by quality level:
+     * - Fresh (0): 0.5x duration
+     * - Dried (1): 1.0x duration
+     * - Aged (2): 1.5x duration
+     * - Fermented (3): 2.0x duration
+     *
+     * Effects vary by herb:
+     * - Erbapipa: No special effect (relaxation)
+     * - Valeriana: Calming - Slowness I + Night Vision (base 30s)
+     * - Ginseng: Energizing - Speed I + Haste I (base 30s)
+     * - Salvia: Visions - Night Vision II + Glowing (base 20s)
+     */
+    private void applySmokingEffects(LivingEntity entity, int herbType, int qualityLevel) {
+        float multiplier = frenk.eypipes.registries.ModDataComponents.getQualityMultiplier(qualityLevel);
+
+        switch (herbType) {
+            case HERB_VALERIANA -> {
+                // Calming effect: slower movement but better night vision
+                int duration = (int) (600 * multiplier); // base 30 seconds
+                entity.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, duration, 0));
+                entity.addEffect(new MobEffectInstance(MobEffects.NIGHT_VISION, duration, 0));
+            }
+            case HERB_GINSENG -> {
+                // Energizing effect: faster movement and mining
+                int duration = (int) (600 * multiplier); // base 30 seconds
+                entity.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SPEED, duration, 0));
+                entity.addEffect(new MobEffectInstance(MobEffects.DIG_SPEED, duration, 0));
+            }
+            case HERB_SALVIA -> {
+                // Vision effect: enhanced sight but you glow
+                int duration = (int) (400 * multiplier); // base 20 seconds
+                entity.addEffect(new MobEffectInstance(MobEffects.NIGHT_VISION, duration, 1));
+                entity.addEffect(new MobEffectInstance(MobEffects.GLOWING, duration, 0));
+            }
+            // HERB_ERBAPIPA (default) - no special effects, just relaxation
+        }
     }
 
     @Override
@@ -317,6 +438,15 @@ public class PipeItem extends Item implements GeoItem, ICurioItem {
     @Override
     public boolean isRepairable(ItemStack stack) {
         return false; // Disable anvil repair - use erbapipa_cutted instead
+    }
+
+    @Override
+    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltipComponents, TooltipFlag tooltipFlag) {
+        super.appendHoverText(stack, context, tooltipComponents, tooltipFlag);
+
+        // Show mod name
+        tooltipComponents.add(Component.translatable("itemGroup.eypipes.eypipes_tab")
+                .withStyle(ChatFormatting.BLUE, ChatFormatting.ITALIC));
     }
 
     // GeckoLib 4 methods

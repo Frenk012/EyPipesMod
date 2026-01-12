@@ -3,6 +3,7 @@ package frenk.eypipes.block.entity;
 import frenk.eypipes.config.EyPipesConfig;
 import frenk.eypipes.registries.ModBlockEntities;
 import frenk.eypipes.registries.ModItems;
+import frenk.eypipes.registries.ModParticles;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -110,20 +111,44 @@ public class DryingRackBlockEntity extends BlockEntity {
 
     /**
      * Static ticker method called every game tick.
-     * Processes drying of erbapipa into erbapipa_dried.
+     * Processes drying of herbs (erbapipa, valeriana, ginseng, salvia) into their dried variants.
      */
     public static void tick(Level level, BlockPos pos, BlockState state, DryingRackBlockEntity entity) {
-        if (level.isClientSide()) return;
+        // Client-side: spawn steam particles during drying
+        if (level.isClientSide()) {
+            // Only spawn particles occasionally (every 10 ticks)
+            if (level.getGameTime() % 10 == 0) {
+                for (int i = 0; i < SLOT_COUNT; i++) {
+                    if (!entity.items[i].isEmpty() && canBeDried(entity.items[i])) {
+                        // Calculate position for each slot (spread across the rack)
+                        double offsetX = (i - 1) * 0.25; // -0.25, 0, 0.25 for slots 0, 1, 2
+                        double x = pos.getX() + 0.5 + offsetX;
+                        double y = pos.getY() + 0.6;
+                        double z = pos.getZ() + 0.5;
+
+                        // Spawn steam particle rising upward
+                        level.addParticle(ModParticles.STEAM.get(), x, y, z,
+                                (level.random.nextDouble() - 0.5) * 0.02, // slight x drift
+                                0.02 + level.random.nextDouble() * 0.01,   // upward velocity
+                                (level.random.nextDouble() - 0.5) * 0.02); // slight z drift
+                    }
+                }
+            }
+            return;
+        }
 
         boolean changed = false;
         int dryingTime = EyPipesConfig.COMMON.dryingTimeTicks.get();
 
         for (int i = 0; i < SLOT_COUNT; i++) {
-            if (!entity.items[i].isEmpty() && entity.items[i].is(ModItems.ERBAPIPA.get())) {
+            if (entity.items[i].isEmpty()) continue;
+
+            ItemStack driedResult = getDriedResult(entity.items[i]);
+            if (driedResult != null) {
                 entity.dryingTimes[i]++;
 
                 if (entity.dryingTimes[i] >= dryingTime) {
-                    entity.items[i] = new ItemStack(ModItems.ERBAPIPA_DRIED.get());
+                    entity.items[i] = driedResult.copy();
                     entity.dryingTimes[i] = 0;
                     changed = true;
                 }
@@ -134,6 +159,33 @@ public class DryingRackBlockEntity extends BlockEntity {
             entity.setChanged();
             level.sendBlockUpdated(pos, state, state, Block.UPDATE_ALL);
         }
+    }
+
+    /**
+     * Get the dried result for a fresh herb, or null if item cannot be dried.
+     */
+    @Nullable
+    private static ItemStack getDriedResult(ItemStack input) {
+        if (input.is(ModItems.ERBAPIPA.get())) {
+            return new ItemStack(ModItems.ERBAPIPA_DRIED.get());
+        }
+        if (input.is(ModItems.VALERIANA.get())) {
+            return new ItemStack(ModItems.VALERIANA_DRIED.get());
+        }
+        if (input.is(ModItems.GINSENG.get())) {
+            return new ItemStack(ModItems.GINSENG_DRIED.get());
+        }
+        if (input.is(ModItems.SALVIA.get())) {
+            return new ItemStack(ModItems.SALVIA_DRIED.get());
+        }
+        return null;
+    }
+
+    /**
+     * Check if an item can be dried in the drying rack.
+     */
+    public static boolean canBeDried(ItemStack stack) {
+        return getDriedResult(stack) != null;
     }
 
     @Override

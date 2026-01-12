@@ -3,6 +3,18 @@
     "item.eypipes.erbapipa_dried": "Dried Erbapipa",
     "item.eypipes.erbapipa_cutted": "Cutted Erbapipa",
     "item.eypipes.erbapipa_seeds": "Erbapipa Seeds",
+    "item.eypipes.valeriana": "Valerian",
+    "item.eypipes.valeriana_dried": "Dried Valerian",
+    "item.eypipes.valeriana_cutted": "Cutted Valerian",
+    "item.eypipes.valeriana_seeds": "Valerian Seeds",
+    "item.eypipes.ginseng": "Ginseng",
+    "item.eypipes.ginseng_dried": "Dried Ginseng",
+    "item.eypipes.ginseng_cutted": "Cutted Ginseng",
+    "item.eypipes.ginseng_seeds": "Ginseng Seeds",
+    "item.eypipes.salvia": "Salvia",
+    "item.eypipes.salvia_dried": "Dried Salvia",
+    "item.eypipes.salvia_cutted": "Cutted Salvia",
+    "item.eypipes.salvia_seeds": "Salvia Seeds",
     "item.eypipes.pipe": "Pipe",
     "item.eypipes.cigar": "Cigar",
     "item.eypipes.drying_rack": "Drying Rack",
@@ -16,7 +28,12 @@
     "item.eypipes.churchward_pipe": "Churchward Pipe",
     "item.eypipes.bent_pipe": "Bent Pipe",
     "block.eypipes.erbapipa_crop": "Erbapipa Crop",
+    "block.eypipes.valeriana_crop": "Valerian Plant",
+    "block.eypipes.ginseng_crop": "Ginseng Plant",
+    "block.eypipes.salvia_crop": "Salvia Plant",
     "block.eypipes.drying_rack_erb": "Drying Rack",
+    "block.eypipes.tobacco_jar": "Tobacco Jar",
+    "block.eypipes.pipe_rack": "Pipe Rack",
     "itemGroup.eypipes.eypipes_tab": "EyPipes",
 
     "config.eypipes.common": "EyPipes Common Config",
@@ -28,5 +45,12 @@
     "curios.modifiers.pipe_chest": "When equipped in chest slot:",
 
     "jei.eypipes.category.drying": "Drying Rack",
-    "jei.eypipes.drying.time": "Drying Time: %s seconds"
+    "jei.eypipes.drying.time": "Drying Time: %s seconds",
+
+    "item.eypipes.valeriana.hint": "Has a calming aroma...",
+    "item.eypipes.ginseng.hint": "Emanates an invigorating scent...",
+    "item.eypipes.salvia.hint": "Seems to shimmer mysteriously...",
+
+    "tooltip.eypipes.quality": "Quality: %s",
+    "tooltip.eypipes.effect_multiplier": "Effect Strength: %s"
 }

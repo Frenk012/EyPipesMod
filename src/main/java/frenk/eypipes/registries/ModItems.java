@@ -3,7 +3,9 @@ package frenk.eypipes.registries;
 import frenk.eypipes.EyPipes;
 import frenk.eypipes.config.EyPipesConfig;
 import frenk.eypipes.item.CigarItem;
+import frenk.eypipes.item.HerbItem;
 import frenk.eypipes.item.PipeItem;
+import net.minecraft.ChatFormatting;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemNameBlockItem;
@@ -30,9 +32,48 @@ public class ModItems {
     public static final DeferredItem<Item> ERBAPIPA_CUTTED = ITEMS.register("erbapipa_cutted",
             () -> new Item(new Item.Properties()));
 
-    // Seeds item (plants the crop)
+    // Valeriana - calming effect (Slowness + Night Vision)
+    public static final DeferredItem<Item> VALERIANA = ITEMS.register("valeriana",
+            () -> new HerbItem(new Item.Properties(), "item.eypipes.valeriana.hint", ChatFormatting.LIGHT_PURPLE));
+
+    public static final DeferredItem<Item> VALERIANA_DRIED = ITEMS.register("valeriana_dried",
+            () -> new Item(new Item.Properties()));
+
+    public static final DeferredItem<Item> VALERIANA_CUTTED = ITEMS.register("valeriana_cutted",
+            () -> new Item(new Item.Properties()));
+
+    // Ginseng - energizing effect (Speed + Haste)
+    public static final DeferredItem<Item> GINSENG = ITEMS.register("ginseng",
+            () -> new HerbItem(new Item.Properties(), "item.eypipes.ginseng.hint", ChatFormatting.GOLD));
+
+    public static final DeferredItem<Item> GINSENG_DRIED = ITEMS.register("ginseng_dried",
+            () -> new Item(new Item.Properties()));
+
+    public static final DeferredItem<Item> GINSENG_CUTTED = ITEMS.register("ginseng_cutted",
+            () -> new Item(new Item.Properties()));
+
+    // Salvia - vision effect (Night Vision II + Glowing)
+    public static final DeferredItem<Item> SALVIA = ITEMS.register("salvia",
+            () -> new HerbItem(new Item.Properties(), "item.eypipes.salvia.hint", ChatFormatting.DARK_GREEN));
+
+    public static final DeferredItem<Item> SALVIA_DRIED = ITEMS.register("salvia_dried",
+            () -> new Item(new Item.Properties()));
+
+    public static final DeferredItem<Item> SALVIA_CUTTED = ITEMS.register("salvia_cutted",
+            () -> new Item(new Item.Properties()));
+
+    // Seeds items (plants the crops)
     public static final DeferredItem<Item> ERBAPIPA_SEEDS = ITEMS.register("erbapipa_seeds",
             () -> new ItemNameBlockItem(ModBlocks.ERBAPIPA_CROP.get(), new Item.Properties()));
+
+    public static final DeferredItem<Item> VALERIANA_SEEDS = ITEMS.register("valeriana_seeds",
+            () -> new ItemNameBlockItem(ModBlocks.VALERIANA_CROP.get(), new Item.Properties()));
+
+    public static final DeferredItem<Item> GINSENG_SEEDS = ITEMS.register("ginseng_seeds",
+            () -> new ItemNameBlockItem(ModBlocks.GINSENG_CROP.get(), new Item.Properties()));
+
+    public static final DeferredItem<Item> SALVIA_SEEDS = ITEMS.register("salvia_seeds",
+            () -> new ItemNameBlockItem(ModBlocks.SALVIA_CROP.get(), new Item.Properties()));
 
     // Pipe item - GeckoLib animated trinket with 50 durability
     public static final DeferredItem<Item> PIPE = ITEMS.register("pipe",
@@ -73,6 +114,12 @@ public class ModItems {
     // Block items
     public static final DeferredItem<Item> DRYING_RACK_ITEM = ITEMS.register("drying_rack_erb",
             () -> new BlockItem(ModBlocks.DRYING_RACK.get(), new Item.Properties()));
+
+    public static final DeferredItem<Item> TOBACCO_JAR_ITEM = ITEMS.register("tobacco_jar",
+            () -> new BlockItem(ModBlocks.TOBACCO_JAR.get(), new Item.Properties()));
+
+    public static final DeferredItem<Item> PIPE_RACK_ITEM = ITEMS.register("pipe_rack",
+            () -> new BlockItem(ModBlocks.PIPE_RACK.get(), new Item.Properties()));
 
     public static void register(IEventBus eventBus) {
         ITEMS.register(eventBus);

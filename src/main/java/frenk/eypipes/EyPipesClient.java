@@ -5,6 +5,7 @@ import frenk.eypipes.client.curios.PipeCuriosRenderer;
 import frenk.eypipes.client.renderer.CigarItemRenderer;
 import frenk.eypipes.client.renderer.DryingRackRenderer;
 import frenk.eypipes.client.renderer.PipeItemRenderer;
+import frenk.eypipes.client.renderer.PipeRackRenderer;
 import frenk.eypipes.client.renderer.WoodenPipeRenderer;
 import frenk.eypipes.client.renderer.ClayPipeRenderer;
 import frenk.eypipes.client.renderer.CornCobPipeRenderer;
@@ -16,11 +17,10 @@ import frenk.eypipes.client.renderer.ChurchwardPipeRenderer;
 import frenk.eypipes.client.renderer.BentPipeRenderer;
 import frenk.eypipes.particle.RingOfSmokeParticle;
 import frenk.eypipes.particle.EmberParticle;
-import frenk.eypipes.particle.AshParticle;
-import frenk.eypipes.particle.SmokeWispParticle;
 import frenk.eypipes.particle.SpiralSmokeParticle;
 import frenk.eypipes.particle.SparkParticle;
 import frenk.eypipes.particle.SmokeStreamParticle;
+import frenk.eypipes.particle.SteamParticle;
 import frenk.eypipes.registries.ModBlockEntities;
 import frenk.eypipes.registries.ModBlocks;
 import frenk.eypipes.registries.ModItems;
@@ -84,7 +84,10 @@ public class EyPipesClient {
         // Register drying rack block entity renderer
         event.registerBlockEntityRenderer(ModBlockEntities.DRYING_RACK.get(), DryingRackRenderer::new);
 
-        EyPipes.LOGGER.debug("Registered EyPipes block entity renderers");
+        // Register pipe rack block entity renderer
+        event.registerBlockEntityRenderer(ModBlockEntities.PIPE_RACK.get(), PipeRackRenderer::new);
+
+        EyPipes.LOGGER.debug("Registered EyPipes block entity renderers (2 total)");
     }
 
     /**
@@ -136,18 +139,15 @@ public class EyPipesClient {
      */
     @SubscribeEvent
     public static void onRegisterParticles(RegisterParticleProvidersEvent event) {
-        // Register particle factories - Core particles
+        // Register particle factories
         event.registerSpriteSet(ModParticles.RING_OF_SMOKE.get(), RingOfSmokeParticle.Provider::new);
         event.registerSpriteSet(ModParticles.EMBER.get(), EmberParticle.Provider::new);
-        event.registerSpriteSet(ModParticles.ASH.get(), AshParticle.Provider::new);
-        event.registerSpriteSet(ModParticles.SMOKE_WISP.get(), SmokeWispParticle.Provider::new);
-
-        // Register particle factories - Enhanced particles
         event.registerSpriteSet(ModParticles.SPIRAL_SMOKE.get(), SpiralSmokeParticle.Provider::new);
         event.registerSpriteSet(ModParticles.SPARK.get(), SparkParticle.Provider::new);
         event.registerSpriteSet(ModParticles.SMOKE_STREAM.get(), SmokeStreamParticle.Provider::new);
+        event.registerSpriteSet(ModParticles.STEAM.get(), SteamParticle.Provider::new);
 
-        EyPipes.LOGGER.debug("Registered EyPipes particle providers (7 types)");
+        EyPipes.LOGGER.debug("Registered EyPipes particle providers (6 types)");
     }
 
     /**

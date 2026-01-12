@@ -3,7 +3,6 @@ package frenk.eypipes.block;
 import com.mojang.serialization.MapCodec;
 import frenk.eypipes.block.entity.DryingRackBlockEntity;
 import frenk.eypipes.registries.ModBlockEntities;
-import frenk.eypipes.registries.ModItems;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.Containers;
@@ -82,8 +81,8 @@ public class DryingRackBlock extends BaseEntityBlock {
 
         ItemStack heldItem = player.getItemInHand(hand);
 
-        // If player is holding erbapipa, try to insert it
-        if (heldItem.is(ModItems.ERBAPIPA.get())) {
+        // If player is holding a dryable herb, try to insert it
+        if (DryingRackBlockEntity.canBeDried(heldItem)) {
             if (dryingRack.insertItem(heldItem)) {
                 // Decrement the held item
                 heldItem.shrink(1);

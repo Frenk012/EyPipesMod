@@ -3,6 +3,18 @@
     "item.eypipes.erbapipa_dried": "Erbapipa Essiccata",
     "item.eypipes.erbapipa_cutted": "Erbapipa Tagliata",
     "item.eypipes.erbapipa_seeds": "Semi di Erbapipa",
+    "item.eypipes.valeriana": "Valeriana",
+    "item.eypipes.valeriana_dried": "Valeriana Essiccata",
+    "item.eypipes.valeriana_cutted": "Valeriana Tagliata",
+    "item.eypipes.valeriana_seeds": "Semi di Valeriana",
+    "item.eypipes.ginseng": "Ginseng",
+    "item.eypipes.ginseng_dried": "Ginseng Essiccato",
+    "item.eypipes.ginseng_cutted": "Ginseng Tagliato",
+    "item.eypipes.ginseng_seeds": "Semi di Ginseng",
+    "item.eypipes.salvia": "Salvia",
+    "item.eypipes.salvia_dried": "Salvia Essiccata",
+    "item.eypipes.salvia_cutted": "Salvia Tagliata",
+    "item.eypipes.salvia_seeds": "Semi di Salvia",
     "item.eypipes.pipe": "Pipa",
     "item.eypipes.cigar": "Sigaro",
     "item.eypipes.drying_rack": "Essiccatoio",
@@ -16,7 +28,12 @@
     "item.eypipes.churchward_pipe": "Pipa Churchward",
     "item.eypipes.bent_pipe": "Pipa Curva",
     "block.eypipes.erbapipa_crop": "Pianta di Erbapipa",
+    "block.eypipes.valeriana_crop": "Pianta di Valeriana",
+    "block.eypipes.ginseng_crop": "Pianta di Ginseng",
+    "block.eypipes.salvia_crop": "Pianta di Salvia",
     "block.eypipes.drying_rack_erb": "Essiccatoio",
+    "block.eypipes.tobacco_jar": "Barattolo da Tabacco",
+    "block.eypipes.pipe_rack": "Porta Pipe",
     "itemGroup.eypipes.eypipes_tab": "EyPipes",
 
     "config.eypipes.common": "Configurazione Comune EyPipes",
@@ -28,5 +45,12 @@
     "curios.modifiers.pipe_chest": "Quando equipaggiato sul petto:",
 
     "jei.eypipes.category.drying": "Essiccatoio",
-    "jei.eypipes.drying.time": "Tempo di Essiccazione: %s secondi"
+    "jei.eypipes.drying.time": "Tempo di Essiccazione: %s secondi",
+
+    "item.eypipes.valeriana.hint": "Ha un aroma calmante...",
+    "item.eypipes.ginseng.hint": "Emana un profumo rinvigorente...",
+    "item.eypipes.salvia.hint": "Sembra brillare misteriosamente...",
+
+    "tooltip.eypipes.quality": "Qualità: %s",
+    "tooltip.eypipes.effect_multiplier": "Potenza Effetto: %s"
 }

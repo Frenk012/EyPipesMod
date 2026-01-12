@@ -247,7 +247,7 @@ public class EnhancedParticleHelper {
 
     /**
      * Spawn the ash effect when finishing smoking.
-     * Creates falling ash particles for a realistic post-smoke effect.
+     * Uses vanilla smoke particles for falling ash effect.
      */
     public static void spawnAshEffect(Level level, Vec3 position) {
         if (!level.isClientSide()) return;
@@ -256,14 +256,15 @@ public class EnhancedParticleHelper {
         RandomSource random = level.random;
         int ashCount = 3 + random.nextInt(4);
 
+        // Use vanilla smoke for ash-like effect (falling, fading particles)
         for (int i = 0; i < ashCount; i++) {
-            level.addParticle(ModParticles.ASH.get(),
+            level.addParticle(ParticleTypes.SMOKE,
                     position.x + (random.nextDouble() - 0.5) * 0.1,
                     position.y,
                     position.z + (random.nextDouble() - 0.5) * 0.1,
-                    (random.nextDouble() - 0.5) * 0.08,
-                    -0.02 - random.nextDouble() * 0.03,
-                    (random.nextDouble() - 0.5) * 0.08);
+                    (random.nextDouble() - 0.5) * 0.02,
+                    -0.01 - random.nextDouble() * 0.02,
+                    (random.nextDouble() - 0.5) * 0.02);
         }
 
         // Add a few final embers dying out

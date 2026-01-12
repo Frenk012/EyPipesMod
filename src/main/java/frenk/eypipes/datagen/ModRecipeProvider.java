@@ -58,5 +58,46 @@ public class ModRecipeProvider extends RecipeProvider {
                 .requires(Items.SHEARS)
                 .unlockedBy("has_erbapipa_dried", has(ModItems.ERBAPIPA_DRIED.get()))
                 .save(recipeOutput);
+
+        // Valeriana cutted from dried
+        ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ModItems.VALERIANA_CUTTED.get(), 4)
+                .requires(ModItems.VALERIANA_DRIED.get())
+                .requires(Items.SHEARS)
+                .unlockedBy("has_valeriana_dried", has(ModItems.VALERIANA_DRIED.get()))
+                .save(recipeOutput);
+
+        // Ginseng cutted from dried
+        ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ModItems.GINSENG_CUTTED.get(), 4)
+                .requires(ModItems.GINSENG_DRIED.get())
+                .requires(Items.SHEARS)
+                .unlockedBy("has_ginseng_dried", has(ModItems.GINSENG_DRIED.get()))
+                .save(recipeOutput);
+
+        // Salvia cutted from dried
+        ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ModItems.SALVIA_CUTTED.get(), 4)
+                .requires(ModItems.SALVIA_DRIED.get())
+                .requires(Items.SHEARS)
+                .unlockedBy("has_salvia_dried", has(ModItems.SALVIA_DRIED.get()))
+                .save(recipeOutput);
+
+        // Tobacco Jar recipe - clay pot style
+        ShapedRecipeBuilder.shaped(RecipeCategory.DECORATIONS, ModItems.TOBACCO_JAR_ITEM.get())
+                .pattern("WLW")
+                .pattern("B B")
+                .pattern("BBB")
+                .define('W', Items.OAK_PLANKS)
+                .define('L', Items.OAK_SLAB)
+                .define('B', Items.BRICK)
+                .unlockedBy("has_erbapipa_dried", has(ModItems.ERBAPIPA_DRIED.get()))
+                .save(recipeOutput);
+
+        // Pipe Rack recipe - wooden wall mount
+        ShapedRecipeBuilder.shaped(RecipeCategory.DECORATIONS, ModItems.PIPE_RACK_ITEM.get())
+                .pattern("WWW")
+                .pattern("S S")
+                .define('W', Items.OAK_PLANKS)
+                .define('S', Items.STICK)
+                .unlockedBy("has_pipe", has(ModItems.PIPE.get()))
+                .save(recipeOutput);
     }
 }

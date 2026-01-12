@@ -3,6 +3,9 @@ package frenk.eypipes.registries;
 import frenk.eypipes.EyPipes;
 import frenk.eypipes.block.DryingRackBlock;
 import frenk.eypipes.block.ErbapipaCropBlock;
+import frenk.eypipes.block.HerbCropBlock;
+import frenk.eypipes.block.PipeRackBlock;
+import frenk.eypipes.block.TobaccoJarBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.SoundType;
@@ -29,6 +32,39 @@ public class ModBlocks {
                     .sound(SoundType.CROP)
                     .pushReaction(PushReaction.DESTROY)));
 
+    // Valeriana Crop Block - single-block crop with 4 growth stages
+    public static final DeferredBlock<HerbCropBlock> VALERIANA_CROP = BLOCKS.register("valeriana_crop",
+            () -> new HerbCropBlock(BlockBehaviour.Properties.of()
+                    .mapColor(MapColor.COLOR_PURPLE)
+                    .noCollission()
+                    .randomTicks()
+                    .instabreak()
+                    .sound(SoundType.CROP)
+                    .pushReaction(PushReaction.DESTROY),
+                    () -> ModItems.VALERIANA_SEEDS.get()));
+
+    // Ginseng Crop Block - single-block crop with 4 growth stages
+    public static final DeferredBlock<HerbCropBlock> GINSENG_CROP = BLOCKS.register("ginseng_crop",
+            () -> new HerbCropBlock(BlockBehaviour.Properties.of()
+                    .mapColor(MapColor.TERRACOTTA_ORANGE)
+                    .noCollission()
+                    .randomTicks()
+                    .instabreak()
+                    .sound(SoundType.CROP)
+                    .pushReaction(PushReaction.DESTROY),
+                    () -> ModItems.GINSENG_SEEDS.get()));
+
+    // Salvia Crop Block - single-block crop with 4 growth stages
+    public static final DeferredBlock<HerbCropBlock> SALVIA_CROP = BLOCKS.register("salvia_crop",
+            () -> new HerbCropBlock(BlockBehaviour.Properties.of()
+                    .mapColor(MapColor.COLOR_GRAY)
+                    .noCollission()
+                    .randomTicks()
+                    .instabreak()
+                    .sound(SoundType.CROP)
+                    .pushReaction(PushReaction.DESTROY),
+                    () -> ModItems.SALVIA_SEEDS.get()));
+
     // Drying Rack Block - Block entity for drying erbapipa
     public static final DeferredBlock<DryingRackBlock> DRYING_RACK = BLOCKS.register("drying_rack_erb",
             () -> new DryingRackBlock(BlockBehaviour.Properties.of()
@@ -37,6 +73,22 @@ public class ModBlocks {
                     .sound(SoundType.WOOD)
                     .noOcclusion()
                     .noCollission()));
+
+    // Tobacco Jar Block - Container for fermenting herbs
+    public static final DeferredBlock<TobaccoJarBlock> TOBACCO_JAR = BLOCKS.register("tobacco_jar",
+            () -> new TobaccoJarBlock(BlockBehaviour.Properties.of()
+                    .mapColor(MapColor.TERRACOTTA_BROWN)
+                    .strength(1.5f)
+                    .sound(SoundType.DECORATED_POT)
+                    .noOcclusion()));
+
+    // Pipe Rack Block - Wall-mounted display for pipes
+    public static final DeferredBlock<PipeRackBlock> PIPE_RACK = BLOCKS.register("pipe_rack",
+            () -> new PipeRackBlock(BlockBehaviour.Properties.of()
+                    .mapColor(MapColor.WOOD)
+                    .strength(1.0f)
+                    .sound(SoundType.WOOD)
+                    .noOcclusion()));
 
     public static void register(IEventBus eventBus) {
         BLOCKS.register(eventBus);

@@ -27,6 +27,10 @@ public class ModSounds {
     public static final DeferredHolder<SoundEvent, SoundEvent> PIPE_IGNITE =
             registerSound("pipe_ignite");
 
+    // Tobacco crackle sound - played periodically while smoking
+    public static final DeferredHolder<SoundEvent, SoundEvent> TOBACCO_CRACKLE =
+            registerSound("tobacco_crackle");
+
     private static DeferredHolder<SoundEvent, SoundEvent> registerSound(String name) {
         ResourceLocation id = ResourceLocation.fromNamespaceAndPath(EyPipes.MOD_ID, name);
         return SOUND_EVENTS.register(name, () -> SoundEvent.createVariableRangeEvent(id));

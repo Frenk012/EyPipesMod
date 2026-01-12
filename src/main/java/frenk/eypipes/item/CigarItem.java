@@ -13,9 +13,13 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.network.chat.Component;
+import net.minecraft.ChatFormatting;
+import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import software.bernie.geckolib.animatable.GeoItem;
@@ -286,6 +290,15 @@ public class CigarItem extends Item implements GeoItem, ICurioItem {
     @Override
     public boolean isRepairable(ItemStack stack) {
         return false; // Cigars cannot be repaired - they are consumed
+    }
+
+    @Override
+    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltipComponents, TooltipFlag tooltipFlag) {
+        super.appendHoverText(stack, context, tooltipComponents, tooltipFlag);
+
+        // Show mod name
+        tooltipComponents.add(Component.translatable("itemGroup.eypipes.eypipes_tab")
+                .withStyle(ChatFormatting.BLUE, ChatFormatting.ITALIC));
     }
 
     // GeckoLib 4 methods

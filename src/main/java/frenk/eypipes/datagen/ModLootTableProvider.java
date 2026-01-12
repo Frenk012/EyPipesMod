@@ -1,6 +1,7 @@
 package frenk.eypipes.datagen;
 
 import frenk.eypipes.block.ErbapipaCropBlock;
+import frenk.eypipes.block.HerbCropBlock;
 import frenk.eypipes.registries.ModBlocks;
 import frenk.eypipes.registries.ModItems;
 import net.minecraft.advancements.critereon.StatePropertiesPredicate;
@@ -39,7 +40,7 @@ public class ModLootTableProvider extends LootTableProvider {
         @Override
         protected void generate() {
             // Erbapipa crop - drops seeds always, plus erbapipa when mature (age 7)
-            LootItemCondition.Builder matureCondition = LootItemBlockStatePropertyCondition
+            LootItemCondition.Builder erbapipaMatureCondition = LootItemBlockStatePropertyCondition
                     .hasBlockStateProperties(ModBlocks.ERBAPIPA_CROP.get())
                     .setProperties(StatePropertiesPredicate.Builder.properties()
                             .hasProperty(ErbapipaCropBlock.AGE, 7));
@@ -48,10 +49,52 @@ public class ModLootTableProvider extends LootTableProvider {
                     createCropDrops(ModBlocks.ERBAPIPA_CROP.get(),
                             ModItems.ERBAPIPA.get(),
                             ModItems.ERBAPIPA_SEEDS.get(),
-                            matureCondition));
+                            erbapipaMatureCondition));
+
+            // Valeriana crop - drops seeds always, plus valeriana when mature (age 3)
+            LootItemCondition.Builder valerianaMatureCondition = LootItemBlockStatePropertyCondition
+                    .hasBlockStateProperties(ModBlocks.VALERIANA_CROP.get())
+                    .setProperties(StatePropertiesPredicate.Builder.properties()
+                            .hasProperty(HerbCropBlock.AGE, 3));
+
+            add(ModBlocks.VALERIANA_CROP.get(),
+                    createCropDrops(ModBlocks.VALERIANA_CROP.get(),
+                            ModItems.VALERIANA.get(),
+                            ModItems.VALERIANA_SEEDS.get(),
+                            valerianaMatureCondition));
+
+            // Ginseng crop - drops seeds always, plus ginseng when mature (age 3)
+            LootItemCondition.Builder ginsengMatureCondition = LootItemBlockStatePropertyCondition
+                    .hasBlockStateProperties(ModBlocks.GINSENG_CROP.get())
+                    .setProperties(StatePropertiesPredicate.Builder.properties()
+                            .hasProperty(HerbCropBlock.AGE, 3));
+
+            add(ModBlocks.GINSENG_CROP.get(),
+                    createCropDrops(ModBlocks.GINSENG_CROP.get(),
+                            ModItems.GINSENG.get(),
+                            ModItems.GINSENG_SEEDS.get(),
+                            ginsengMatureCondition));
+
+            // Salvia crop - drops seeds always, plus salvia when mature (age 3)
+            LootItemCondition.Builder salviaMatureCondition = LootItemBlockStatePropertyCondition
+                    .hasBlockStateProperties(ModBlocks.SALVIA_CROP.get())
+                    .setProperties(StatePropertiesPredicate.Builder.properties()
+                            .hasProperty(HerbCropBlock.AGE, 3));
+
+            add(ModBlocks.SALVIA_CROP.get(),
+                    createCropDrops(ModBlocks.SALVIA_CROP.get(),
+                            ModItems.SALVIA.get(),
+                            ModItems.SALVIA_SEEDS.get(),
+                            salviaMatureCondition));
 
             // Drying rack drops itself
             dropSelf(ModBlocks.DRYING_RACK.get());
+
+            // Tobacco jar drops itself
+            dropSelf(ModBlocks.TOBACCO_JAR.get());
+
+            // Pipe rack drops itself
+            dropSelf(ModBlocks.PIPE_RACK.get());
         }
 
         @Override
@@ -60,7 +103,12 @@ public class ModLootTableProvider extends LootTableProvider {
             // Even blocks with manual loot tables in resources need to be included
             return List.of(
                     ModBlocks.ERBAPIPA_CROP.get(),
-                    ModBlocks.DRYING_RACK.get()
+                    ModBlocks.VALERIANA_CROP.get(),
+                    ModBlocks.GINSENG_CROP.get(),
+                    ModBlocks.SALVIA_CROP.get(),
+                    ModBlocks.DRYING_RACK.get(),
+                    ModBlocks.TOBACCO_JAR.get(),
+                    ModBlocks.PIPE_RACK.get()
             );
         }
     }

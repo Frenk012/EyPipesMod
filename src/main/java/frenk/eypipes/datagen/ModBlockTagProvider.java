@@ -23,9 +23,14 @@ public class ModBlockTagProvider extends BlockTagsProvider {
 
     @Override
     protected void addTags(HolderLookup.Provider provider) {
-        // Drying rack is mineable with axe
+        // Drying rack and pipe rack are mineable with axe (wooden)
         tag(BlockTags.MINEABLE_WITH_AXE)
-                .add(ModBlocks.DRYING_RACK.get());
+                .add(ModBlocks.DRYING_RACK.get())
+                .add(ModBlocks.PIPE_RACK.get());
+
+        // Tobacco jar is mineable with pickaxe (ceramic/brick material)
+        tag(BlockTags.MINEABLE_WITH_PICKAXE)
+                .add(ModBlocks.TOBACCO_JAR.get());
 
         // Crop block tags
         tag(BlockTags.CROPS)

@@ -36,12 +36,34 @@ public class EyPipesJEIPlugin implements IModPlugin {
 
     @Override
     public void registerRecipes(IRecipeRegistration registration) {
-        // Register drying recipes
+        // Register drying recipes for all herbs
+        // Using default drying time from config (typically 200 ticks = 10 seconds)
+        int dryingTime = 200; // TODO: Could read from config
+
         List<DryingRecipe> dryingRecipes = List.of(
+                // Erbapipa drying
                 new DryingRecipe(
                         new ItemStack(ModItems.ERBAPIPA.get()),
                         new ItemStack(ModItems.ERBAPIPA_DRIED.get()),
-                        200 // 10 seconds at 20 ticks/sec
+                        dryingTime
+                ),
+                // Valeriana drying
+                new DryingRecipe(
+                        new ItemStack(ModItems.VALERIANA.get()),
+                        new ItemStack(ModItems.VALERIANA_DRIED.get()),
+                        dryingTime
+                ),
+                // Ginseng drying
+                new DryingRecipe(
+                        new ItemStack(ModItems.GINSENG.get()),
+                        new ItemStack(ModItems.GINSENG_DRIED.get()),
+                        dryingTime
+                ),
+                // Salvia drying
+                new DryingRecipe(
+                        new ItemStack(ModItems.SALVIA.get()),
+                        new ItemStack(ModItems.SALVIA_DRIED.get()),
+                        dryingTime
                 )
         );
 
