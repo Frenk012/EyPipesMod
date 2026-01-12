@@ -43,9 +43,9 @@ ordering = "AFTER"
 side = "BOTH"
 
 [[dependencies.${mod_id}]]
-modId = "jei"
+modId = "roughlyenoughitems"
 type = "optional"
-versionRange = "[19.0,)"
+versionRange = "${rei_version_range}"
 ordering = "AFTER"
 side = "CLIENT"
 

@@ -179,18 +179,22 @@ public class PipeItem extends Item implements GeoItem, ICurioItem {
                     return InteractionResultHolder.fail(itemStack);
                 }
 
-                // Increase durability by 1 (decrease damage by 1)
                 int currentDamage = itemStack.getDamageValue();
-                int newDamage = Math.max(0, currentDamage - 1);
-                itemStack.setDamageValue(newDamage);
+                int maxInsertable = currentDamage - 1;
+                int insertCount = player.isCreative() ? maxInsertable : Math.min(maxInsertable, offHandStack.getCount());
+                if (insertCount <= 0) {
+                    return InteractionResultHolder.fail(itemStack);
+                }
+
+                itemStack.setDamageValue(currentDamage - insertCount);
 
                 // Store the herb type and quality level that was loaded
                 setHerbType(itemStack, herbType);
                 setQualityLevel(itemStack, getQualityFromHerb(offHandStack));
 
-                // Consume one herb
+                // Consume herbs
                 if (!player.isCreative()) {
-                    offHandStack.shrink(1);
+                    offHandStack.shrink(insertCount);
                 }
 
                 // Play refill sound and set cooldown
@@ -358,7 +362,7 @@ public class PipeItem extends Item implements GeoItem, ICurioItem {
                 // Vision effect: enhanced sight but you glow
                 int duration = (int) (400 * multiplier); // base 20 seconds
                 entity.addEffect(new MobEffectInstance(MobEffects.NIGHT_VISION, duration, 1));
-                entity.addEffect(new MobEffectInstance(MobEffects.GLOWING, duration, 0));
+                entity.addEffect(new MobEffectInstance(MobEffects.WEAKNESS, duration, 0));
             }
             // HERB_ERBAPIPA (default) - no special effects, just relaxation
         }
