@@ -52,10 +52,17 @@
     "rei.eypipes.category.cutting_board": "Cutting Board",
     "rei.eypipes.drying.time": "Drying Time: %s seconds",
 
+    "emi.category.eypipes.drying": "Drying Rack",
+    "emi.category.eypipes.fermenting": "Tobacco Jar Fermenting",
+    "emi.category.eypipes.cutting_board": "Cutting Board",
+
     "item.eypipes.valeriana.hint": "Has a calming aroma...",
     "item.eypipes.ginseng.hint": "Emanates an invigorating scent...",
     "item.eypipes.salvia.hint": "Seems to shimmer mysteriously...",
 
     "tooltip.eypipes.quality": "Quality: %s",
-    "tooltip.eypipes.effect_multiplier": "Effect Strength: %s"
+    "tooltip.eypipes.effect_multiplier": "Effect Strength: %s",
+
+    "tag.item.eypipes.erbapipa": "Erbapipa",
+    "tag.item.eypipes.smoking_items": "Smoking Items"
 }

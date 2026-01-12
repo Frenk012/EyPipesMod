@@ -1,7 +1,9 @@
 package frenk.eypipes.datagen;
 
+import frenk.eypipes.EyPipes;
 import frenk.eypipes.registries.ModItems;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.data.PackOutput;
 import net.minecraft.data.recipes.*;
 import net.minecraft.world.item.Items;
@@ -54,26 +56,6 @@ public class ModRecipeProvider extends RecipeProvider {
         // These use CuttingRecipe which:
         // - Damages shears instead of consuming them
         // - Preserves fermentation level from input to output
-
-        // Erbapipa cutted from dried
-        CuttingRecipeBuilder.cutting(ModItems.ERBAPIPA_DRIED.get(), ModItems.ERBAPIPA_CUTTED.get(), 4)
-                .unlockedBy("has_erbapipa_dried", has(ModItems.ERBAPIPA_DRIED.get()))
-                .save(recipeOutput);
-
-        // Valeriana cutted from dried
-        CuttingRecipeBuilder.cutting(ModItems.VALERIANA_DRIED.get(), ModItems.VALERIANA_CUTTED.get(), 4)
-                .unlockedBy("has_valeriana_dried", has(ModItems.VALERIANA_DRIED.get()))
-                .save(recipeOutput);
-
-        // Ginseng cutted from dried
-        CuttingRecipeBuilder.cutting(ModItems.GINSENG_DRIED.get(), ModItems.GINSENG_CUTTED.get(), 4)
-                .unlockedBy("has_ginseng_dried", has(ModItems.GINSENG_DRIED.get()))
-                .save(recipeOutput);
-
-        // Salvia cutted from dried
-        CuttingRecipeBuilder.cutting(ModItems.SALVIA_DRIED.get(), ModItems.SALVIA_CUTTED.get(), 4)
-                .unlockedBy("has_salvia_dried", has(ModItems.SALVIA_DRIED.get()))
-                .save(recipeOutput);
 
         // Tobacco Jar recipe - clay pot style
         ShapedRecipeBuilder.shaped(RecipeCategory.DECORATIONS, ModItems.TOBACCO_JAR_ITEM.get())
@@ -205,5 +187,127 @@ public class ModRecipeProvider extends RecipeProvider {
                 .define('W', Items.OAK_PLANKS)
                 .unlockedBy("has_erbapipa_dried", has(ModItems.ERBAPIPA_DRIED.get()))
                 .save(recipeOutput);
+
+        // === DRYING RACK RECIPES ===
+        // These are data-driven recipes for the drying rack block
+
+        DryingRecipeBuilder.drying(ModItems.ERBAPIPA.get(), ModItems.ERBAPIPA_DRIED.get(), 6000)
+                .unlockedBy("has_erbapipa", has(ModItems.ERBAPIPA.get()))
+                .save(recipeOutput, ResourceLocation.fromNamespaceAndPath(EyPipes.MOD_ID,"drying/erbapipa"));
+
+        DryingRecipeBuilder.drying(ModItems.VALERIANA.get(), ModItems.VALERIANA_DRIED.get(), 6000)
+                .unlockedBy("has_valeriana", has(ModItems.VALERIANA.get()))
+                .save(recipeOutput, ResourceLocation.fromNamespaceAndPath(EyPipes.MOD_ID,"drying/valeriana"));
+
+        DryingRecipeBuilder.drying(ModItems.GINSENG.get(), ModItems.GINSENG_DRIED.get(), 6000)
+                .unlockedBy("has_ginseng", has(ModItems.GINSENG.get()))
+                .save(recipeOutput, ResourceLocation.fromNamespaceAndPath(EyPipes.MOD_ID,"drying/ginseng"));
+
+        DryingRecipeBuilder.drying(ModItems.SALVIA.get(), ModItems.SALVIA_DRIED.get(), 6000)
+                .unlockedBy("has_salvia", has(ModItems.SALVIA.get()))
+                .save(recipeOutput, ResourceLocation.fromNamespaceAndPath(EyPipes.MOD_ID,"drying/salvia"));
+
+        // === FERMENTING RECIPES (TOBACCO JAR) ===
+        // Aged quality (1 MC day = 24000 ticks)
+        // Fermented quality (3 MC days = 72000 ticks)
+
+        // Erbapipa dried - aged
+        FermentingRecipeBuilder.aged(ModItems.ERBAPIPA_DRIED.get(), ModItems.ERBAPIPA_DRIED.get())
+                .unlockedBy("has_erbapipa_dried", has(ModItems.ERBAPIPA_DRIED.get()))
+                .save(recipeOutput, ResourceLocation.fromNamespaceAndPath(EyPipes.MOD_ID,"fermenting/erbapipa_dried_aged"));
+
+        // Erbapipa dried - fermented
+        FermentingRecipeBuilder.fermented(ModItems.ERBAPIPA_DRIED.get(), ModItems.ERBAPIPA_DRIED.get())
+                .unlockedBy("has_erbapipa_dried", has(ModItems.ERBAPIPA_DRIED.get()))
+                .save(recipeOutput, ResourceLocation.fromNamespaceAndPath(EyPipes.MOD_ID,"fermenting/erbapipa_dried_fermented"));
+
+        // Erbapipa cutted - aged
+        FermentingRecipeBuilder.aged(ModItems.ERBAPIPA_CUTTED.get(), ModItems.ERBAPIPA_CUTTED.get())
+                .unlockedBy("has_erbapipa_cutted", has(ModItems.ERBAPIPA_CUTTED.get()))
+                .save(recipeOutput, ResourceLocation.fromNamespaceAndPath(EyPipes.MOD_ID,"fermenting/erbapipa_cutted_aged"));
+
+        // Erbapipa cutted - fermented
+        FermentingRecipeBuilder.fermented(ModItems.ERBAPIPA_CUTTED.get(), ModItems.ERBAPIPA_CUTTED.get())
+                .unlockedBy("has_erbapipa_cutted", has(ModItems.ERBAPIPA_CUTTED.get()))
+                .save(recipeOutput, ResourceLocation.fromNamespaceAndPath(EyPipes.MOD_ID,"fermenting/erbapipa_cutted_fermented"));
+
+        // Valeriana dried - aged
+        FermentingRecipeBuilder.aged(ModItems.VALERIANA_DRIED.get(), ModItems.VALERIANA_DRIED.get())
+                .unlockedBy("has_valeriana_dried", has(ModItems.VALERIANA_DRIED.get()))
+                .save(recipeOutput, ResourceLocation.fromNamespaceAndPath(EyPipes.MOD_ID,"fermenting/valeriana_dried_aged"));
+
+        // Valeriana dried - fermented
+        FermentingRecipeBuilder.fermented(ModItems.VALERIANA_DRIED.get(), ModItems.VALERIANA_DRIED.get())
+                .unlockedBy("has_valeriana_dried", has(ModItems.VALERIANA_DRIED.get()))
+                .save(recipeOutput, ResourceLocation.fromNamespaceAndPath(EyPipes.MOD_ID,"fermenting/valeriana_dried_fermented"));
+
+        // Valeriana cutted - aged
+        FermentingRecipeBuilder.aged(ModItems.VALERIANA_CUTTED.get(), ModItems.VALERIANA_CUTTED.get())
+                .unlockedBy("has_valeriana_cutted", has(ModItems.VALERIANA_CUTTED.get()))
+                .save(recipeOutput, ResourceLocation.fromNamespaceAndPath(EyPipes.MOD_ID,"fermenting/valeriana_cutted_aged"));
+
+        // Valeriana cutted - fermented
+        FermentingRecipeBuilder.fermented(ModItems.VALERIANA_CUTTED.get(), ModItems.VALERIANA_CUTTED.get())
+                .unlockedBy("has_valeriana_cutted", has(ModItems.VALERIANA_CUTTED.get()))
+                .save(recipeOutput, ResourceLocation.fromNamespaceAndPath(EyPipes.MOD_ID,"fermenting/valeriana_cutted_fermented"));
+
+        // Ginseng dried - aged
+        FermentingRecipeBuilder.aged(ModItems.GINSENG_DRIED.get(), ModItems.GINSENG_DRIED.get())
+                .unlockedBy("has_ginseng_dried", has(ModItems.GINSENG_DRIED.get()))
+                .save(recipeOutput, ResourceLocation.fromNamespaceAndPath(EyPipes.MOD_ID,"fermenting/ginseng_dried_aged"));
+
+        // Ginseng dried - fermented
+        FermentingRecipeBuilder.fermented(ModItems.GINSENG_DRIED.get(), ModItems.GINSENG_DRIED.get())
+                .unlockedBy("has_ginseng_dried", has(ModItems.GINSENG_DRIED.get()))
+                .save(recipeOutput, ResourceLocation.fromNamespaceAndPath(EyPipes.MOD_ID,"fermenting/ginseng_dried_fermented"));
+
+        // Ginseng cutted - aged
+        FermentingRecipeBuilder.aged(ModItems.GINSENG_CUTTED.get(), ModItems.GINSENG_CUTTED.get())
+                .unlockedBy("has_ginseng_cutted", has(ModItems.GINSENG_CUTTED.get()))
+                .save(recipeOutput, ResourceLocation.fromNamespaceAndPath(EyPipes.MOD_ID,"fermenting/ginseng_cutted_aged"));
+
+        // Ginseng cutted - fermented
+        FermentingRecipeBuilder.fermented(ModItems.GINSENG_CUTTED.get(), ModItems.GINSENG_CUTTED.get())
+                .unlockedBy("has_ginseng_cutted", has(ModItems.GINSENG_CUTTED.get()))
+                .save(recipeOutput, ResourceLocation.fromNamespaceAndPath(EyPipes.MOD_ID,"fermenting/ginseng_cutted_fermented"));
+
+        // Salvia dried - aged
+        FermentingRecipeBuilder.aged(ModItems.SALVIA_DRIED.get(), ModItems.SALVIA_DRIED.get())
+                .unlockedBy("has_salvia_dried", has(ModItems.SALVIA_DRIED.get()))
+                .save(recipeOutput, ResourceLocation.fromNamespaceAndPath(EyPipes.MOD_ID,"fermenting/salvia_dried_aged"));
+
+        // Salvia dried - fermented
+        FermentingRecipeBuilder.fermented(ModItems.SALVIA_DRIED.get(), ModItems.SALVIA_DRIED.get())
+                .unlockedBy("has_salvia_dried", has(ModItems.SALVIA_DRIED.get()))
+                .save(recipeOutput, ResourceLocation.fromNamespaceAndPath(EyPipes.MOD_ID,"fermenting/salvia_dried_fermented"));
+
+        // Salvia cutted - aged
+        FermentingRecipeBuilder.aged(ModItems.SALVIA_CUTTED.get(), ModItems.SALVIA_CUTTED.get())
+                .unlockedBy("has_salvia_cutted", has(ModItems.SALVIA_CUTTED.get()))
+                .save(recipeOutput, ResourceLocation.fromNamespaceAndPath(EyPipes.MOD_ID,"fermenting/salvia_cutted_aged"));
+
+        // Salvia cutted - fermented
+        FermentingRecipeBuilder.fermented(ModItems.SALVIA_CUTTED.get(), ModItems.SALVIA_CUTTED.get())
+                .unlockedBy("has_salvia_cutted", has(ModItems.SALVIA_CUTTED.get()))
+                .save(recipeOutput, ResourceLocation.fromNamespaceAndPath(EyPipes.MOD_ID,"fermenting/salvia_cutted_fermented"));
+
+        // === CUTTING BOARD BLOCK RECIPES ===
+        // These are for the cutting board block (different from crafting table cutting)
+
+        CuttingBoardRecipeBuilder.cuttingBoard(ModItems.ERBAPIPA_DRIED.get(), ModItems.ERBAPIPA_CUTTED.get(), 4)
+                .unlockedBy("has_erbapipa_dried", has(ModItems.ERBAPIPA_DRIED.get()))
+                .save(recipeOutput, ResourceLocation.fromNamespaceAndPath(EyPipes.MOD_ID,"cutting_board/erbapipa"));
+
+        CuttingBoardRecipeBuilder.cuttingBoard(ModItems.VALERIANA_DRIED.get(), ModItems.VALERIANA_CUTTED.get(), 4)
+                .unlockedBy("has_valeriana_dried", has(ModItems.VALERIANA_DRIED.get()))
+                .save(recipeOutput, ResourceLocation.fromNamespaceAndPath(EyPipes.MOD_ID,"cutting_board/valeriana"));
+
+        CuttingBoardRecipeBuilder.cuttingBoard(ModItems.GINSENG_DRIED.get(), ModItems.GINSENG_CUTTED.get(), 4)
+                .unlockedBy("has_ginseng_dried", has(ModItems.GINSENG_DRIED.get()))
+                .save(recipeOutput, ResourceLocation.fromNamespaceAndPath(EyPipes.MOD_ID,"cutting_board/ginseng"));
+
+        CuttingBoardRecipeBuilder.cuttingBoard(ModItems.SALVIA_DRIED.get(), ModItems.SALVIA_CUTTED.get(), 4)
+                .unlockedBy("has_salvia_dried", has(ModItems.SALVIA_DRIED.get()))
+                .save(recipeOutput, ResourceLocation.fromNamespaceAndPath(EyPipes.MOD_ID,"cutting_board/salvia"));
     }
 }

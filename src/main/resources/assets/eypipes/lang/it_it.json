@@ -52,10 +52,17 @@
     "rei.eypipes.category.cutting_board": "Tagliere",
     "rei.eypipes.drying.time": "Tempo di Essiccazione: %s secondi",
 
+    "emi.category.eypipes.drying": "Essiccatoio",
+    "emi.category.eypipes.fermenting": "Fermentazione Barattolo",
+    "emi.category.eypipes.cutting_board": "Tagliere",
+
     "item.eypipes.valeriana.hint": "Ha un aroma calmante...",
     "item.eypipes.ginseng.hint": "Emana un profumo rinvigorente...",
     "item.eypipes.salvia.hint": "Sembra brillare misteriosamente...",
 
     "tooltip.eypipes.quality": "Qualità: %s",
-    "tooltip.eypipes.effect_multiplier": "Potenza Effetto: %s"
+    "tooltip.eypipes.effect_multiplier": "Potenza Effetto: %s",
+
+    "tag.item.eypipes.erbapipa": "Erbapipa",
+    "tag.item.eypipes.smoking_items": "Materiali Fumabili"
 }
