@@ -12,13 +12,11 @@ import me.shedaniel.rei.api.client.registry.display.DisplayRegistry;
 import me.shedaniel.rei.api.common.category.CategoryIdentifier;
 import me.shedaniel.rei.api.common.util.EntryStacks;
 import me.shedaniel.rei.forge.REIPluginClient;
-import me.shedaniel.rei.plugin.common.displays.crafting.DefaultCraftingDisplay;
-import net.minecraft.world.item.crafting.RecipeType;
 
 /**
  * REI plugin for EyPipes mod.
  * Adds drying rack, tobacco jar, and cutting board recipe categories to REI.
- * Reads recipes from the data-driven recipe manager.
+ * Bundle recipes use vanilla crafting format and appear automatically in REI.
  */
 @REIPluginClient
 public class EyPipesREIPlugin implements REIClientPlugin {
@@ -59,5 +57,7 @@ public class EyPipesREIPlugin implements REIClientPlugin {
         // Register cutting board recipes from data-driven JSON
         registry.registerRecipeFiller(CuttingBoardRecipe.class, ModRecipes.CUTTING_BOARD_TYPE.get(),
                 CuttingBoardDisplay::new);
+
+        // Bundle recipes use vanilla crafting format and appear automatically in REI
     }
 }

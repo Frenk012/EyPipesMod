@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "eypipes:salvia_bundle"
+    }
+  ],
+  "result": {
+    "id": "eypipes:salvia_dried",
+    "count": 9
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "eypipes:valeriana_bundle"
+    }
+  ],
+  "result": {
+    "id": "eypipes:valeriana_dried",
+    "count": 9
+  }
+}

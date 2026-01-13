@@ -29,21 +29,25 @@ public class ModCreativeTabs {
                                 output.accept(ModItems.ERBAPIPA.get());
                                 output.accept(ModItems.ERBAPIPA_DRIED.get());
                                 output.accept(ModItems.ERBAPIPA_CUTTED.get());
+                                output.accept(ModItems.ERBAPIPA_BUNDLE_ITEM.get());
                                 // Valeriana (calming herb)
                                 output.accept(ModItems.VALERIANA_SEEDS.get());
                                 output.accept(ModItems.VALERIANA.get());
                                 output.accept(ModItems.VALERIANA_DRIED.get());
                                 output.accept(ModItems.VALERIANA_CUTTED.get());
+                                output.accept(ModItems.VALERIANA_BUNDLE_ITEM.get());
                                 // Ginseng (energizing herb)
                                 output.accept(ModItems.GINSENG_SEEDS.get());
                                 output.accept(ModItems.GINSENG.get());
                                 output.accept(ModItems.GINSENG_DRIED.get());
                                 output.accept(ModItems.GINSENG_CUTTED.get());
+                                output.accept(ModItems.GINSENG_BUNDLE_ITEM.get());
                                 // Salvia (vision herb)
                                 output.accept(ModItems.SALVIA_SEEDS.get());
                                 output.accept(ModItems.SALVIA.get());
                                 output.accept(ModItems.SALVIA_DRIED.get());
                                 output.accept(ModItems.SALVIA_CUTTED.get());
+                                output.accept(ModItems.SALVIA_BUNDLE_ITEM.get());
                                 // Smoking items
                                 output.accept(ModItems.PIPE.get());
                                 output.accept(ModItems.CIGAR.get());

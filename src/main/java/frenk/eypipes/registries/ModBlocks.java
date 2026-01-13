@@ -4,11 +4,10 @@ import frenk.eypipes.EyPipes;
 import frenk.eypipes.block.CuttingBoardBlock;
 import frenk.eypipes.block.DryingRackBlock;
 import frenk.eypipes.block.ErbapipaCropBlock;
+import frenk.eypipes.block.HerbBundleBlock;
 import frenk.eypipes.block.HerbCropBlock;
 import frenk.eypipes.block.PipeRackBlock;
 import frenk.eypipes.block.TobaccoJarBlock;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.material.MapColor;
@@ -98,6 +97,31 @@ public class ModBlocks {
                     .strength(1.0f)
                     .sound(SoundType.WOOD)
                     .noOcclusion()));
+
+    // Herb Bundle Blocks - Storage blocks for dried herbs (9 herbs = 1 bundle)
+    public static final DeferredBlock<HerbBundleBlock> ERBAPIPA_BUNDLE = BLOCKS.register("erbapipa_bundle",
+            () -> new HerbBundleBlock(BlockBehaviour.Properties.of()
+                    .mapColor(MapColor.PLANT)
+                    .strength(0.5f)
+                    .sound(SoundType.GRASS)));
+
+    public static final DeferredBlock<HerbBundleBlock> VALERIANA_BUNDLE = BLOCKS.register("valeriana_bundle",
+            () -> new HerbBundleBlock(BlockBehaviour.Properties.of()
+                    .mapColor(MapColor.COLOR_PURPLE)
+                    .strength(0.5f)
+                    .sound(SoundType.GRASS)));
+
+    public static final DeferredBlock<HerbBundleBlock> GINSENG_BUNDLE = BLOCKS.register("ginseng_bundle",
+            () -> new HerbBundleBlock(BlockBehaviour.Properties.of()
+                    .mapColor(MapColor.TERRACOTTA_ORANGE)
+                    .strength(0.5f)
+                    .sound(SoundType.GRASS)));
+
+    public static final DeferredBlock<HerbBundleBlock> SALVIA_BUNDLE = BLOCKS.register("salvia_bundle",
+            () -> new HerbBundleBlock(BlockBehaviour.Properties.of()
+                    .mapColor(MapColor.COLOR_GRAY)
+                    .strength(0.5f)
+                    .sound(SoundType.GRASS)));
 
     public static void register(IEventBus eventBus) {
         BLOCKS.register(eventBus);

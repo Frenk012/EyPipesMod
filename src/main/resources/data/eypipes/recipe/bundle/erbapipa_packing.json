@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "HHH",
+    "HHH",
+    "HHH"
+  ],
+  "key": {
+    "H": {
+      "item": "eypipes:erbapipa_dried"
+    }
+  },
+  "result": {
+    "id": "eypipes:erbapipa_bundle",
+    "count": 1
+  }
+}

@@ -58,6 +58,32 @@ public class ModRecipes {
     public static final DeferredHolder<RecipeSerializer<?>, CuttingBoardRecipe.Serializer> CUTTING_BOARD_SERIALIZER =
             RECIPE_SERIALIZERS.register("cutting_board", CuttingBoardRecipe.Serializer::new);
 
+    // Herb bundle packing recipe type (9 herbs -> 1 bundle)
+    public static final DeferredHolder<RecipeType<?>, RecipeType<HerbBundlePackingRecipe>> HERB_BUNDLE_PACKING_TYPE =
+            RECIPE_TYPES.register("herb_bundle_packing", () -> new RecipeType<HerbBundlePackingRecipe>() {
+                @Override
+                public String toString() {
+                    return EyPipes.MOD_ID + ":herb_bundle_packing";
+                }
+            });
+
+    // Herb bundle packing recipe serializer (9 herbs -> 1 bundle)
+    public static final DeferredHolder<RecipeSerializer<?>, HerbBundlePackingRecipe.Serializer> HERB_BUNDLE_PACKING_SERIALIZER =
+            RECIPE_SERIALIZERS.register("herb_bundle_packing", HerbBundlePackingRecipe.Serializer::new);
+
+    // Herb bundle unpacking recipe type (1 bundle -> 9 herbs)
+    public static final DeferredHolder<RecipeType<?>, RecipeType<HerbBundleUnpackingRecipe>> HERB_BUNDLE_UNPACKING_TYPE =
+            RECIPE_TYPES.register("herb_bundle_unpacking", () -> new RecipeType<HerbBundleUnpackingRecipe>() {
+                @Override
+                public String toString() {
+                    return EyPipes.MOD_ID + ":herb_bundle_unpacking";
+                }
+            });
+
+    // Herb bundle unpacking recipe serializer (1 bundle -> 9 herbs)
+    public static final DeferredHolder<RecipeSerializer<?>, HerbBundleUnpackingRecipe.Serializer> HERB_BUNDLE_UNPACKING_SERIALIZER =
+            RECIPE_SERIALIZERS.register("herb_bundle_unpacking", HerbBundleUnpackingRecipe.Serializer::new);
+
     /**
      * Register all recipe types and serializers.
      */

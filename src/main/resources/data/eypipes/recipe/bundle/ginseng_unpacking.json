@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "eypipes:ginseng_bundle"
+    }
+  ],
+  "result": {
+    "id": "eypipes:ginseng_dried",
+    "count": 9
+  }
+}

@@ -309,5 +309,45 @@ public class ModRecipeProvider extends RecipeProvider {
         CuttingBoardRecipeBuilder.cuttingBoard(ModItems.SALVIA_DRIED.get(), ModItems.SALVIA_CUTTED.get(), 4)
                 .unlockedBy("has_salvia_dried", has(ModItems.SALVIA_DRIED.get()))
                 .save(recipeOutput, ResourceLocation.fromNamespaceAndPath(EyPipes.MOD_ID,"cutting_board/salvia"));
+
+        // === HERB BUNDLE RECIPES ===
+        // Packing: 9 dried herbs -> 1 bundle (preserves fermentation level)
+        // Unpacking: 1 bundle -> 9 dried herbs (preserves fermentation level)
+
+        // Erbapipa bundle
+        HerbBundleRecipeBuilder.packing(ModItems.ERBAPIPA_DRIED.get(), ModItems.ERBAPIPA_BUNDLE_ITEM.get())
+                .unlockedBy("has_erbapipa_dried", has(ModItems.ERBAPIPA_DRIED.get()))
+                .save(recipeOutput, ResourceLocation.fromNamespaceAndPath(EyPipes.MOD_ID, "bundle/erbapipa_packing"));
+
+        HerbBundleRecipeBuilder.unpacking(ModItems.ERBAPIPA_BUNDLE_ITEM.get(), ModItems.ERBAPIPA_DRIED.get())
+                .unlockedBy("has_erbapipa_bundle", has(ModItems.ERBAPIPA_BUNDLE_ITEM.get()))
+                .save(recipeOutput, ResourceLocation.fromNamespaceAndPath(EyPipes.MOD_ID, "bundle/erbapipa_unpacking"));
+
+        // Valeriana bundle
+        HerbBundleRecipeBuilder.packing(ModItems.VALERIANA_DRIED.get(), ModItems.VALERIANA_BUNDLE_ITEM.get())
+                .unlockedBy("has_valeriana_dried", has(ModItems.VALERIANA_DRIED.get()))
+                .save(recipeOutput, ResourceLocation.fromNamespaceAndPath(EyPipes.MOD_ID, "bundle/valeriana_packing"));
+
+        HerbBundleRecipeBuilder.unpacking(ModItems.VALERIANA_BUNDLE_ITEM.get(), ModItems.VALERIANA_DRIED.get())
+                .unlockedBy("has_valeriana_bundle", has(ModItems.VALERIANA_BUNDLE_ITEM.get()))
+                .save(recipeOutput, ResourceLocation.fromNamespaceAndPath(EyPipes.MOD_ID, "bundle/valeriana_unpacking"));
+
+        // Ginseng bundle
+        HerbBundleRecipeBuilder.packing(ModItems.GINSENG_DRIED.get(), ModItems.GINSENG_BUNDLE_ITEM.get())
+                .unlockedBy("has_ginseng_dried", has(ModItems.GINSENG_DRIED.get()))
+                .save(recipeOutput, ResourceLocation.fromNamespaceAndPath(EyPipes.MOD_ID, "bundle/ginseng_packing"));
+
+        HerbBundleRecipeBuilder.unpacking(ModItems.GINSENG_BUNDLE_ITEM.get(), ModItems.GINSENG_DRIED.get())
+                .unlockedBy("has_ginseng_bundle", has(ModItems.GINSENG_BUNDLE_ITEM.get()))
+                .save(recipeOutput, ResourceLocation.fromNamespaceAndPath(EyPipes.MOD_ID, "bundle/ginseng_unpacking"));
+
+        // Salvia bundle
+        HerbBundleRecipeBuilder.packing(ModItems.SALVIA_DRIED.get(), ModItems.SALVIA_BUNDLE_ITEM.get())
+                .unlockedBy("has_salvia_dried", has(ModItems.SALVIA_DRIED.get()))
+                .save(recipeOutput, ResourceLocation.fromNamespaceAndPath(EyPipes.MOD_ID, "bundle/salvia_packing"));
+
+        HerbBundleRecipeBuilder.unpacking(ModItems.SALVIA_BUNDLE_ITEM.get(), ModItems.SALVIA_DRIED.get())
+                .unlockedBy("has_salvia_bundle", has(ModItems.SALVIA_BUNDLE_ITEM.get()))
+                .save(recipeOutput, ResourceLocation.fromNamespaceAndPath(EyPipes.MOD_ID, "bundle/salvia_unpacking"));
     }
 }

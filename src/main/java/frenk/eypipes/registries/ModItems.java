@@ -3,6 +3,7 @@ package frenk.eypipes.registries;
 import frenk.eypipes.EyPipes;
 import frenk.eypipes.config.EyPipesConfig;
 import frenk.eypipes.item.CigarItem;
+import frenk.eypipes.item.HerbBundleBlockItem;
 import frenk.eypipes.item.HerbItem;
 import frenk.eypipes.item.KnifeItem;
 import frenk.eypipes.item.PipeItem;
@@ -14,8 +15,6 @@ import net.minecraft.world.level.block.ComposterBlock;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
-
-import java.util.function.Supplier;
 
 /**
  * Registry for all EyPipes items using NeoForge DeferredRegister
@@ -129,6 +128,19 @@ public class ModItems {
     // Knife item - used to cut dried herbs on the cutting board
     public static final DeferredItem<Item> KNIFE = ITEMS.register("knife",
             () -> new KnifeItem(new Item.Properties().stacksTo(1).durability(64)));
+
+    // Herb Bundle block items - storage blocks for dried herbs
+    public static final DeferredItem<Item> ERBAPIPA_BUNDLE_ITEM = ITEMS.register("erbapipa_bundle",
+            () -> new HerbBundleBlockItem(ModBlocks.ERBAPIPA_BUNDLE.get(), new Item.Properties(), ChatFormatting.GREEN));
+
+    public static final DeferredItem<Item> VALERIANA_BUNDLE_ITEM = ITEMS.register("valeriana_bundle",
+            () -> new HerbBundleBlockItem(ModBlocks.VALERIANA_BUNDLE.get(), new Item.Properties(), ChatFormatting.LIGHT_PURPLE));
+
+    public static final DeferredItem<Item> GINSENG_BUNDLE_ITEM = ITEMS.register("ginseng_bundle",
+            () -> new HerbBundleBlockItem(ModBlocks.GINSENG_BUNDLE.get(), new Item.Properties(), ChatFormatting.GOLD));
+
+    public static final DeferredItem<Item> SALVIA_BUNDLE_ITEM = ITEMS.register("salvia_bundle",
+            () -> new HerbBundleBlockItem(ModBlocks.SALVIA_BUNDLE.get(), new Item.Properties(), ChatFormatting.DARK_GREEN));
 
     public static void register(IEventBus eventBus) {
         ITEMS.register(eventBus);

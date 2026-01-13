@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "HHH",
+    "HHH",
+    "HHH"
+  ],
+  "key": {
+    "H": {
+      "item": "eypipes:ginseng_dried"
+    }
+  },
+  "result": {
+    "id": "eypipes:ginseng_bundle",
+    "count": 1
+  }
+}

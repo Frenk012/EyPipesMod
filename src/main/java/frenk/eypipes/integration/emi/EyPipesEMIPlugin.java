@@ -71,5 +71,7 @@ public class EyPipesEMIPlugin implements EmiPlugin {
         for (RecipeHolder<CuttingBoardRecipe> holder : recipeManager.getAllRecipesFor(ModRecipes.CUTTING_BOARD_TYPE.get())) {
             registry.addRecipe(new CuttingBoardEmiRecipe(holder));
         }
+
+        // Bundle recipes use vanilla crafting format and appear automatically in EMI
     }
 }

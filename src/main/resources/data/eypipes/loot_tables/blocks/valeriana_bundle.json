@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:block",
+  "pools": [
+    {
+      "rolls": 1.0,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "eypipes:valeriana_bundle",
+          "functions": [
+            {
+              "function": "minecraft:copy_components",
+              "include": [
+                "eypipes:fermentation_level"
+              ],
+              "source": "block_entity"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

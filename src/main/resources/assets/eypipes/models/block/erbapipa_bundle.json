@@ -1,0 +1,7 @@
+{
+    "parent": "minecraft:block/cube_column",
+    "textures": {
+        "end": "eypipes:block/erbapipa_bundle_top",
+        "side": "eypipes:block/erbapipa_bundle_side"
+    }
+}

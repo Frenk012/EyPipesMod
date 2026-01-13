@@ -3,6 +3,7 @@ package frenk.eypipes.registries;
 import frenk.eypipes.EyPipes;
 import frenk.eypipes.block.entity.CuttingBoardBlockEntity;
 import frenk.eypipes.block.entity.DryingRackBlockEntity;
+import frenk.eypipes.block.entity.HerbBundleBlockEntity;
 import frenk.eypipes.block.entity.PipeRackBlockEntity;
 import frenk.eypipes.block.entity.TobaccoJarBlockEntity;
 import net.minecraft.core.registries.Registries;
@@ -40,6 +41,16 @@ public class ModBlockEntities {
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<CuttingBoardBlockEntity>> CUTTING_BOARD =
             BLOCK_ENTITIES.register("cutting_board",
                     () -> BlockEntityType.Builder.of(CuttingBoardBlockEntity::new, ModBlocks.CUTTING_BOARD.get())
+                            .build(null));
+
+    // Herb Bundle Block Entity (for all 4 bundle types)
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<HerbBundleBlockEntity>> HERB_BUNDLE =
+            BLOCK_ENTITIES.register("herb_bundle",
+                    () -> BlockEntityType.Builder.of(HerbBundleBlockEntity::new,
+                            ModBlocks.ERBAPIPA_BUNDLE.get(),
+                            ModBlocks.VALERIANA_BUNDLE.get(),
+                            ModBlocks.GINSENG_BUNDLE.get(),
+                            ModBlocks.SALVIA_BUNDLE.get())
                             .build(null));
 
     public static void register(IEventBus eventBus) {

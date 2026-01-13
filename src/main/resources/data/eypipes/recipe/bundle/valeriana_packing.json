@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "HHH",
+    "HHH",
+    "HHH"
+  ],
+  "key": {
+    "H": {
+      "item": "eypipes:valeriana_dried"
+    }
+  },
+  "result": {
+    "id": "eypipes:valeriana_bundle",
+    "count": 1
+  }
+}
