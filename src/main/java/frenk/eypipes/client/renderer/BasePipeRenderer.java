@@ -2,6 +2,8 @@ package frenk.eypipes.client.renderer;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
+import frenk.eypipes.client.layer.BurningTobaccoLayer;
+import frenk.eypipes.config.EyPipesConfig;
 import frenk.eypipes.item.PipeItem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -22,6 +24,11 @@ public abstract class BasePipeRenderer extends GeoItemRenderer<PipeItem> {
     // Shared static state for particle system (same for all pipe variants)
     private static Vec3 lastLocatorWorldPos = Vec3.ZERO;
     private static boolean isSmokingFirstPerson = false;
+    private static boolean isLeftHand = false;
+
+    // Track the current ItemStack being rendered and if it's being smoked
+    private static ItemStack currentRenderingStack = ItemStack.EMPTY;
+    private static boolean currentStackIsBeingSmoked = false;
 
     private static final float SMOKING_TRANSLATE_X = 0.0f;
     private static final float SMOKING_TRANSLATE_Y = 0.1f;
@@ -31,6 +38,8 @@ public abstract class BasePipeRenderer extends GeoItemRenderer<PipeItem> {
 
     public BasePipeRenderer(GeoModel<PipeItem> model) {
         super(model);
+        // Add burning tobacco effect layer (glowing embers when smoking)
+        addRenderLayer(new BurningTobaccoLayer(this));
     }
 
     @Override
@@ -44,7 +53,12 @@ public abstract class BasePipeRenderer extends GeoItemRenderer<PipeItem> {
         Player player = Minecraft.getInstance().player;
         boolean isSmoking = player != null && player.isUsingItem() && player.getUseItem() == stack;
 
+        // Update shared state for BurningTobaccoLayer
+        currentRenderingStack = stack;
+        currentStackIsBeingSmoked = isSmoking;
+
         isSmokingFirstPerson = isFirstPerson && isSmoking;
+        isLeftHand = transformType == ItemDisplayContext.FIRST_PERSON_LEFT_HAND;
 
         if (isFirstPerson && isSmoking) {
             poseStack.pushPose();
@@ -60,11 +74,11 @@ public abstract class BasePipeRenderer extends GeoItemRenderer<PipeItem> {
             poseStack.translate(translateX, translateY, translateZ);
             poseStack.mulPose(Axis.XP.rotationDegrees(rotateX));
 
-            if (transformType == ItemDisplayContext.FIRST_PERSON_LEFT_HAND) {
+            if (isLeftHand) {
                 poseStack.scale(-1.0f, 1.0f, 1.0f);
             }
 
-            updateLocatorPosition(player);
+            updateLocatorPosition(player, isLeftHand);
 
             super.renderByItem(stack, transformType, poseStack, bufferSource, packedLight, packedOverlay);
             poseStack.popPose();
@@ -78,7 +92,7 @@ public abstract class BasePipeRenderer extends GeoItemRenderer<PipeItem> {
         super.renderByItem(stack, transformType, poseStack, bufferSource, packedLight, packedOverlay);
     }
 
-    private void updateLocatorPosition(Player player) {
+    private void updateLocatorPosition(Player player, boolean leftHand) {
         if (player == null) return;
 
         Vec3 eyePos = player.getEyePosition(1.0f);
@@ -95,9 +109,15 @@ public abstract class BasePipeRenderer extends GeoItemRenderer<PipeItem> {
         Vec3 upVec = new Vec3(0, 1, 0);
         Vec3 rightVec = flatLook.cross(upVec);
 
-        float forwardOffset = 0.5f;
-        float downOffset = -0.15f;
-        float rightOffset = 0.4f;
+        // Use config values for particle position offsets
+        float forwardOffset = EyPipesConfig.CLIENT.particleOffsetFirstViewForward.get().floatValue();
+        float downOffset = EyPipesConfig.CLIENT.particleOffsetFirstViewDown.get().floatValue();
+        float rightOffset = EyPipesConfig.CLIENT.particleOffsetFirstViewRight.get().floatValue();
+
+        // Flip the right offset for left hand
+        if (leftHand) {
+            rightOffset = -rightOffset;
+        }
 
         lastLocatorWorldPos = eyePos
                 .add(flatLook.scale(forwardOffset))
@@ -111,5 +131,24 @@ public abstract class BasePipeRenderer extends GeoItemRenderer<PipeItem> {
 
     public static boolean isCurrentlySmokingFirstPerson() {
         return isSmokingFirstPerson;
+    }
+
+    public static boolean isUsingLeftHand() {
+        return isLeftHand;
+    }
+
+    /**
+     * Check if the currently rendering pipe stack is being smoked.
+     * Used by BurningTobaccoLayer to only show embers on the active pipe.
+     */
+    public static boolean isCurrentStackBeingSmoked() {
+        return currentStackIsBeingSmoked;
+    }
+
+    /**
+     * Get the ItemStack currently being rendered.
+     */
+    public static ItemStack getCurrentRenderingStack() {
+        return currentRenderingStack;
     }
 }

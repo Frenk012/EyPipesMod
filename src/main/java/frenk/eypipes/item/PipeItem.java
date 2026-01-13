@@ -234,6 +234,11 @@ public class PipeItem extends Item implements GeoItem, ICurioItem {
         setSmoking(itemStack, true);
         LOGGER.debug("Pipe use started for player {}", player.getName().getString());
 
+        // Notify burning tobacco layer (client-side only)
+        if (level.isClientSide()) {
+            frenk.eypipes.client.layer.BurningTobaccoLayer.onStartSmoking(player, itemStack);
+        }
+
         // Trigger animation
         if (!level.isClientSide() && player instanceof ServerPlayer serverPlayer) {
             triggerAnim(serverPlayer, GeoItem.getOrAssignId(itemStack, (ServerLevel) level), "smokeController", "smoke");
@@ -250,6 +255,11 @@ public class PipeItem extends Item implements GeoItem, ICurioItem {
             finishUsing(stack, level, entity);
         }
         setSmoking(stack, false);
+
+        // Notify burning tobacco layer to start afterglow (client-side only)
+        if (level.isClientSide() && entity instanceof Player player) {
+            frenk.eypipes.client.layer.BurningTobaccoLayer.onStopSmoking(player, stack, level.getGameTime());
+        }
 
         // Stop animation when releasing
         if (!level.isClientSide() && entity instanceof ServerPlayer serverPlayer) {
@@ -293,7 +303,8 @@ public class PipeItem extends Item implements GeoItem, ICurioItem {
                     }
                 } else {
                     // THIRD-PERSON or not local player: Use original eye-based position
-                    Vec3[] positions = calculateParticlePosition(entity);
+                    boolean isLeftHand = entity.getUsedItemHand() == InteractionHand.OFF_HAND;
+                    Vec3[] positions = calculateParticlePosition(entity, isLeftHand);
                     Vec3 thirdPersonPos = positions[1];
 
                     for (int i = 0; i < 10; i++) {
@@ -308,7 +319,8 @@ public class PipeItem extends Item implements GeoItem, ICurioItem {
                 }
             } else if (level instanceof ServerLevel serverLevel) {
                 // Server-side particles for other players (always third-person)
-                Vec3[] positions = calculateParticlePosition(entity);
+                boolean isLeftHand = entity.getUsedItemHand() == InteractionHand.OFF_HAND;
+                Vec3[] positions = calculateParticlePosition(entity, isLeftHand);
                 Vec3 thirdPersonPos = positions[1];
                 for (ServerPlayer player : serverLevel.players()) {
                     if (player != entity && player.distanceTo(entity) <= 32.0) {
@@ -337,6 +349,11 @@ public class PipeItem extends Item implements GeoItem, ICurioItem {
 
         item.setDamageValue(item.getDamageValue() + 1);
         setSmoking(item, false);
+
+        // Notify burning tobacco layer to start afterglow (client-side only)
+        if (level.isClientSide() && entity instanceof Player player) {
+            frenk.eypipes.client.layer.BurningTobaccoLayer.onStopSmoking(player, item, level.getGameTime());
+        }
 
         if (entity instanceof Player player) {
             player.getCooldowns().addCooldown(this, 20);
@@ -551,7 +568,7 @@ public class PipeItem extends Item implements GeoItem, ICurioItem {
      * Calculate smoke particle spawn position for first-person and third-person views.
      * Returns array: [0] = first person position, [1] = third person position
      */
-    private Vec3[] calculateParticlePosition(LivingEntity entity) {
+    private Vec3[] calculateParticlePosition(LivingEntity entity, boolean isLeftHand) {
         Vec3 lookVec = entity.getViewVector(1.0F);
 
         Vec3 basePos = new Vec3(
@@ -569,9 +586,12 @@ public class PipeItem extends Item implements GeoItem, ICurioItem {
         float offsetY = EyPipesConfig.CLIENT.particleOffsetThirdViewY.get().floatValue();
         float offsetZ = EyPipesConfig.CLIENT.particleOffsetThirdViewZ.get().floatValue();
 
+        // Flip the X offset for left hand
+        float handMultiplier = isLeftHand ? -1.0f : 1.0f;
+
         Vec3 resultThird = basePos
                 .add(lookVec.scale(0.5))  // Use full lookVec to follow vertical direction
-                .add(rightVecThird.scale(offsetX + 0.2f))
+                .add(rightVecThird.scale((offsetX + 0.2f) * handMultiplier))
                 .add(upVecThird.scale(-offsetY + 0.2f));  // Lowered spawn point
 
         // First-person: full look direction
@@ -580,7 +600,7 @@ public class PipeItem extends Item implements GeoItem, ICurioItem {
 
         Vec3 resultFirst = basePos
                 .add(lookVec.scale(0.4))
-                .add(rightVecFirst.scale(0.33))
+                .add(rightVecFirst.scale(0.33 * handMultiplier))
                 .add(upVecFirst.scale(0.0));
 
         return new Vec3[]{resultFirst, resultThird};

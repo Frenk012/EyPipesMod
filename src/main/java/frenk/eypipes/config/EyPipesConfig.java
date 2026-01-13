@@ -220,7 +220,12 @@ public class EyPipesConfig {
      * Client configuration - Client-side settings
      */
     public static class Client {
-        // Particle Offset Settings
+        // Particle Offset Settings - First Person
+        public final ModConfigSpec.DoubleValue particleOffsetFirstViewForward;
+        public final ModConfigSpec.DoubleValue particleOffsetFirstViewDown;
+        public final ModConfigSpec.DoubleValue particleOffsetFirstViewRight;
+
+        // Particle Offset Settings - Third Person
         public final ModConfigSpec.DoubleValue particleOffsetThirdViewX;
         public final ModConfigSpec.DoubleValue particleOffsetThirdViewY;
         public final ModConfigSpec.DoubleValue particleOffsetThirdViewZ;
@@ -243,9 +248,27 @@ public class EyPipesConfig {
             builder.comment("EyPipes Client Configuration")
                    .push("client");
 
-            // Particle Offset Settings
+            // Particle Offset Settings - First Person
+            builder.comment("Particle Position Offsets (First Person View)")
+                   .push("particleOffsetsFirstPerson");
+
+            particleOffsetFirstViewForward = builder
+                    .comment("Forward offset for smoke particles in first person view")
+                    .defineInRange("firstViewForward", 0.5, -2.0, 2.0);
+
+            particleOffsetFirstViewDown = builder
+                    .comment("Down offset for smoke particles in first person view (negative = up)")
+                    .defineInRange("firstViewDown", -0.15, -2.0, 2.0);
+
+            particleOffsetFirstViewRight = builder
+                    .comment("Right offset for smoke particles in first person view")
+                    .defineInRange("firstViewRight", 0.7, -2.0, 2.0);
+
+            builder.pop();
+
+            // Particle Offset Settings - Third Person
             builder.comment("Particle Position Offsets (Third Person View)")
-                   .push("particleOffsets");
+                   .push("particleOffsetsThirdPerson");
 
             particleOffsetThirdViewX = builder
                     .comment("X offset for smoke particles in third person view")
