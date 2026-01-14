@@ -239,10 +239,8 @@ public class PipeItem extends Item implements GeoItem, ICurioItem {
             frenk.eypipes.client.layer.BurningTobaccoLayer.onStartSmoking(player, itemStack);
         }
 
-        // Trigger animation
-        if (!level.isClientSide() && player instanceof ServerPlayer serverPlayer) {
-            triggerAnim(serverPlayer, GeoItem.getOrAssignId(itemStack, (ServerLevel) level), "smokeController", "smoke");
-        }
+        // Animation is handled by BasePipeRenderer's custom transformation
+        // GeckoLib animation disabled due to inconsistent behavior between dev/production
 
         player.awardStat(Stats.ITEM_USED.get(this));
 
@@ -261,10 +259,7 @@ public class PipeItem extends Item implements GeoItem, ICurioItem {
             frenk.eypipes.client.layer.BurningTobaccoLayer.onStopSmoking(player, stack, level.getGameTime());
         }
 
-        // Stop animation when releasing
-        if (!level.isClientSide() && entity instanceof ServerPlayer serverPlayer) {
-            stopTriggeredAnim(serverPlayer, GeoItem.getOrAssignId(stack, (ServerLevel) level), "smokeController", "smoke");
-        }
+        // Animation handled by BasePipeRenderer - no GeckoLib animation stop needed
 
         if (entity instanceof Player player) {
             player.getCooldowns().addCooldown(this, 20);
@@ -582,9 +577,17 @@ public class PipeItem extends Item implements GeoItem, ICurioItem {
         Vec3 rightVecThird = new Vec3(-horizontalLookVec.z, 0, horizontalLookVec.x).normalize();
         Vec3 upVecThird = new Vec3(0, 1, 0);
 
-        float offsetX = EyPipesConfig.CLIENT.particleOffsetThirdViewX.get().floatValue();
-        float offsetY = EyPipesConfig.CLIENT.particleOffsetThirdViewY.get().floatValue();
-        float offsetZ = EyPipesConfig.CLIENT.particleOffsetThirdViewZ.get().floatValue();
+        // Use default values on server side (config CLIENT is only available on client)
+        float offsetX = 0.0f;
+        float offsetY = 0.0f;
+        float offsetZ = 0.0f;
+        try {
+            offsetX = EyPipesConfig.CLIENT.particleOffsetThirdViewX.get().floatValue();
+            offsetY = EyPipesConfig.CLIENT.particleOffsetThirdViewY.get().floatValue();
+            offsetZ = EyPipesConfig.CLIENT.particleOffsetThirdViewZ.get().floatValue();
+        } catch (IllegalStateException e) {
+            // Config not loaded (server-side), use default values
+        }
 
         // Flip the X offset for left hand
         float handMultiplier = isLeftHand ? -1.0f : 1.0f;

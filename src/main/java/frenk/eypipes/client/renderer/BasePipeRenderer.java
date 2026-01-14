@@ -17,7 +17,7 @@ import software.bernie.geckolib.renderer.GeoItemRenderer;
 /**
  * Base renderer for all pipe variants.
  * Handles custom first-person positioning during use.
- * Variant renderers extend this and provide their specific model.
+ * GeckoLib animation is disabled due to inconsistent behavior between dev/production.
  */
 public abstract class BasePipeRenderer extends GeoItemRenderer<PipeItem> {
 
@@ -30,6 +30,7 @@ public abstract class BasePipeRenderer extends GeoItemRenderer<PipeItem> {
     private static ItemStack currentRenderingStack = ItemStack.EMPTY;
     private static boolean currentStackIsBeingSmoked = false;
 
+    // Custom animation parameters (replaces unreliable GeckoLib animation)
     private static final float SMOKING_TRANSLATE_X = 0.0f;
     private static final float SMOKING_TRANSLATE_Y = 0.1f;
     private static final float SMOKING_TRANSLATE_Z = 0.4f;
@@ -63,8 +64,10 @@ public abstract class BasePipeRenderer extends GeoItemRenderer<PipeItem> {
         if (isFirstPerson && isSmoking) {
             poseStack.pushPose();
 
-            int useTicks = player.getTicksUsingItem();
-            float progress = Math.min(useTicks / TRANSITION_TICKS, 1.0f);
+            // Use partialTick for smooth interpolation
+            float partialTick = Minecraft.getInstance().getTimer().getGameTimeDeltaPartialTick(false);
+            float smoothTicks = player.getTicksUsingItem() + partialTick;
+            float progress = Math.min(smoothTicks / TRANSITION_TICKS, 1.0f);
 
             float translateX = SMOKING_TRANSLATE_X * progress;
             float translateY = SMOKING_TRANSLATE_Y * progress;
@@ -78,7 +81,7 @@ public abstract class BasePipeRenderer extends GeoItemRenderer<PipeItem> {
                 poseStack.scale(-1.0f, 1.0f, 1.0f);
             }
 
-            updateLocatorPosition(player, isLeftHand);
+            updateLocatorPosition(player, isLeftHand, partialTick);
 
             super.renderByItem(stack, transformType, poseStack, bufferSource, packedLight, packedOverlay);
             poseStack.popPose();
@@ -92,11 +95,11 @@ public abstract class BasePipeRenderer extends GeoItemRenderer<PipeItem> {
         super.renderByItem(stack, transformType, poseStack, bufferSource, packedLight, packedOverlay);
     }
 
-    private void updateLocatorPosition(Player player, boolean leftHand) {
+    private void updateLocatorPosition(Player player, boolean leftHand, float partialTick) {
         if (player == null) return;
 
-        Vec3 eyePos = player.getEyePosition(1.0f);
-        Vec3 lookVec = player.getViewVector(1.0f);
+        Vec3 eyePos = player.getEyePosition(partialTick);
+        Vec3 lookVec = player.getViewVector(partialTick);
 
         Vec3 flatLook = new Vec3(lookVec.x, 0, lookVec.z);
         if (flatLook.lengthSqr() < 0.0001) {

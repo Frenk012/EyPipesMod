@@ -155,12 +155,11 @@ public class BurningTobaccoLayer extends GeoRenderLayer<PipeItem> {
         if (animationTicker > 1000f) animationTicker = 0f;
 
         // Determine bowl position based on pipe type
-        // Corn cob pipe has a taller bowl (Y=8 vs Y=7.5 for other pipes)
+        // These values match the smokeparticles locator in each pipe model
         float bowlY = 7.5f;  // Default for most pipes
         float bowlZ = 2.0f;
 
-        // Check for pipes with taller bowls (smokeparticles at Y=8 instead of Y=7.5)
-        // These pipes need ember at ~8.1 (8.5 - 0.4 = 8.1) to be visible above bowl rim
+        // Check for pipes with taller bowls
         if (currentStack.getItem() == ModItems.CORN_COB_PIPE.get() ||
             currentStack.getItem() == ModItems.CALABASH_PIPE.get() ||
             currentStack.getItem() == ModItems.CLAY_PIPE.get()) {
