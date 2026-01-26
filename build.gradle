@@ -41,6 +41,13 @@ repositories {
             includeGroup "curse.maven"
         }
     }
+    maven {
+        name = 'JEI'
+        url = "https://maven.blamejared.com"
+        content {
+            includeGroup("mezz.jei")
+        }
+    }
 }
 
 base {
@@ -105,6 +112,11 @@ dependencies {
     // emi-580555 is the project ID, 6420931 is the file ID for 1.1.22+1.21.1+neoforge
     compileOnly "curse.maven:emi-580555:6420931"
     // EMI runtime loaded from run/mods folder
+
+    // JEI for recipe viewing (optional)
+    compileOnly "mezz.jei:jei-1.21.1-common-api:${jei_version}"
+    compileOnly "mezz.jei:jei-1.21.1-neoforge-api:${jei_version}"
+    // JEI runtime loaded from run/mods folder
 }
 
 var generateModMetadata = tasks.register("generateModMetadata", ProcessResources) {
@@ -122,7 +134,8 @@ var generateModMetadata = tasks.register("generateModMetadata", ProcessResources
             mod_description        : mod_description,
             geckolib_version_range : geckolib_version_range,
             curios_version_range   : curios_version_range,
-            rei_version_range      : rei_version_range
+            rei_version_range      : rei_version_range,
+            jei_version_range      : jei_version_range
     ]
     inputs.properties replaceProperties
     expand replaceProperties
