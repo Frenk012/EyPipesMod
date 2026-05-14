@@ -51,8 +51,12 @@ public class CigarItem extends Item implements GeoItem, ICurioItem {
     private static final int USAGE_TIME = 60;
     private static final String SMOKING_KEY = "smoking";
 
-    // Scheduled executor for delayed particle spawning
-    private static final ScheduledExecutorService PARTICLE_EXECUTOR = Executors.newScheduledThreadPool(2);
+    // Scheduled executor for delayed particle spawning - daemon threads die with JVM, no server-stop leak
+    private static final ScheduledExecutorService PARTICLE_EXECUTOR = Executors.newScheduledThreadPool(2, r -> {
+        Thread t = new Thread(r, "eypipes-cigar-particle-scheduler");
+        t.setDaemon(true);
+        return t;
+    });
 
     public CigarItem(Properties properties) {
         super(properties);
@@ -240,18 +244,19 @@ public class CigarItem extends Item implements GeoItem, ICurioItem {
                 final int particleIndex = i;
                 final double offsetMultiplier = 0.3 + (particleIndex * 0.15);
 
-                PARTICLE_EXECUTOR.schedule(() -> {
-                    if (entity.isAlive()) {
-                        Vec3 vec = entity.getViewVector(1.0F);
-                        level.addParticle(ModParticles.RING_OF_SMOKE.get(),
-                                entity.getX() + vec.x * offsetMultiplier,
-                                entity.getY() + entity.getEyeHeight() + vec.y * offsetMultiplier,
-                                entity.getZ() + vec.z * offsetMultiplier,
-                                vec.x * velocityMultiplier,
-                                vec.y * velocityMultiplier,
-                                vec.z * velocityMultiplier);
-                    }
-                }, particleIndex * 800L, TimeUnit.MILLISECONDS);
+                PARTICLE_EXECUTOR.schedule(() ->
+                    net.minecraft.client.Minecraft.getInstance().execute(() -> {
+                        if (entity.isAlive()) {
+                            Vec3 vec = entity.getViewVector(1.0F);
+                            level.addParticle(ModParticles.RING_OF_SMOKE.get(),
+                                    entity.getX() + vec.x * offsetMultiplier,
+                                    entity.getY() + entity.getEyeHeight() + vec.y * offsetMultiplier,
+                                    entity.getZ() + vec.z * offsetMultiplier,
+                                    vec.x * velocityMultiplier,
+                                    vec.y * velocityMultiplier,
+                                    vec.z * velocityMultiplier);
+                        }
+                    }), particleIndex * 800L, TimeUnit.MILLISECONDS);
             }
         } else if (level instanceof ServerLevel serverLevel) {
             // Server-side smoke for other players
@@ -259,25 +264,26 @@ public class CigarItem extends Item implements GeoItem, ICurioItem {
                 final int particleIndex = i;
                 final double offsetMultiplier = 0.3 + (particleIndex * 0.15);
 
-                PARTICLE_EXECUTOR.schedule(() -> {
-                    if (entity.isAlive()) {
-                        Vec3 vec = entity.getViewVector(1.0F);
-                        for (ServerPlayer player : serverLevel.players()) {
-                            if (player != entity) {
-                                serverLevel.sendParticles(player, ModParticles.RING_OF_SMOKE.get(),
-                                        false,
-                                        entity.getX() + vec.x * offsetMultiplier,
-                                        entity.getY() + entity.getEyeHeight() + vec.y * offsetMultiplier,
-                                        entity.getZ() + vec.z * offsetMultiplier,
-                                        1,
-                                        vec.x * velocityMultiplier,
-                                        vec.y * velocityMultiplier,
-                                        vec.z * velocityMultiplier,
-                                        1.0);
+                PARTICLE_EXECUTOR.schedule(() ->
+                    serverLevel.getServer().execute(() -> {
+                        if (entity.isAlive()) {
+                            Vec3 vec = entity.getViewVector(1.0F);
+                            for (ServerPlayer player : serverLevel.players()) {
+                                if (player != entity) {
+                                    serverLevel.sendParticles(player, ModParticles.RING_OF_SMOKE.get(),
+                                            false,
+                                            entity.getX() + vec.x * offsetMultiplier,
+                                            entity.getY() + entity.getEyeHeight() + vec.y * offsetMultiplier,
+                                            entity.getZ() + vec.z * offsetMultiplier,
+                                            1,
+                                            vec.x * velocityMultiplier,
+                                            vec.y * velocityMultiplier,
+                                            vec.z * velocityMultiplier,
+                                            1.0);
+                                }
                             }
                         }
-                    }
-                }, particleIndex * 800L, TimeUnit.MILLISECONDS);
+                    }), particleIndex * 800L, TimeUnit.MILLISECONDS);
             }
         }
     }
@@ -346,10 +352,17 @@ public class CigarItem extends Item implements GeoItem, ICurioItem {
         Vec3 rightVecThird = new Vec3(horizontalLookVec.z, 0, -horizontalLookVec.x).normalize();
         Vec3 upVecThird = new Vec3(0, 1, 0);
 
-        // Cigar offsets (slightly different from pipe)
-        float offsetX = EyPipesConfig.CLIENT.particleOffsetThirdViewX.get().floatValue();
-        float offsetY = EyPipesConfig.CLIENT.particleOffsetThirdViewY.get().floatValue() + 0.05f;
-        float offsetZ = EyPipesConfig.CLIENT.particleOffsetThirdViewZ.get().floatValue();
+        // Cigar offsets - CLIENT config may be unavailable on server side
+        float offsetX = 0.0f;
+        float offsetY = 0.05f;
+        float offsetZ = 0.0f;
+        try {
+            offsetX = EyPipesConfig.CLIENT.particleOffsetThirdViewX.get().floatValue();
+            offsetY = EyPipesConfig.CLIENT.particleOffsetThirdViewY.get().floatValue() + 0.05f;
+            offsetZ = EyPipesConfig.CLIENT.particleOffsetThirdViewZ.get().floatValue();
+        } catch (IllegalStateException e) {
+            // Config not loaded (server-side), use default values
+        }
 
         Vec3 resultThird = basePos
                 .add(horizontalLookVec.scale(0.45))

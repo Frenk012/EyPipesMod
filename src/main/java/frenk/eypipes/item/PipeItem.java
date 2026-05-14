@@ -66,8 +66,12 @@ public class PipeItem extends Item implements GeoItem, ICurioItem {
     public static final int HERB_GINSENG = 2;
     public static final int HERB_SALVIA = 3;
 
-    // Scheduled executor for delayed particle spawning
-    private static final ScheduledExecutorService PARTICLE_EXECUTOR = Executors.newScheduledThreadPool(2);
+    // Scheduled executor for delayed particle spawning - daemon threads die with JVM, no server-stop leak
+    private static final ScheduledExecutorService PARTICLE_EXECUTOR = Executors.newScheduledThreadPool(2, r -> {
+        Thread t = new Thread(r, "eypipes-particle-scheduler");
+        t.setDaemon(true);
+        return t;
+    });
 
     public PipeItem(Properties properties) {
         super(properties);
@@ -415,21 +419,20 @@ public class PipeItem extends Item implements GeoItem, ICurioItem {
                 final double offsetMultiplier = 0.3 + (particleIndex * 0.1);
                 final float velScale = velocityMultiplier * (0.7f + particleIndex * 0.2f);
 
-                PARTICLE_EXECUTOR.schedule(() -> {
-                    if (entity.isAlive()) {
-                        // Get CURRENT position and direction when spawning
-                        Vec3 vec = entity.getViewVector(1.0F);
-
-                        level.addParticle(ModParticles.RING_OF_SMOKE.get(),
-                                entity.getX() + vec.x * offsetMultiplier,
-                                entity.getY() + entity.getEyeHeight() + vec.y * offsetMultiplier,
-                                entity.getZ() + vec.z * offsetMultiplier,
-                                vec.x * velScale,
-                                vec.y * velScale,
-                                vec.z * velScale);
-                        // Smoke wisps removed - keep only the smoke rings
-                    }
-                }, particleIndex * RING_DELAY_MS, TimeUnit.MILLISECONDS);
+                PARTICLE_EXECUTOR.schedule(() ->
+                    // Dispatch back to render thread - addParticle is not thread-safe
+                    Minecraft.getInstance().execute(() -> {
+                        if (entity.isAlive()) {
+                            Vec3 vec = entity.getViewVector(1.0F);
+                            level.addParticle(ModParticles.RING_OF_SMOKE.get(),
+                                    entity.getX() + vec.x * offsetMultiplier,
+                                    entity.getY() + entity.getEyeHeight() + vec.y * offsetMultiplier,
+                                    entity.getZ() + vec.z * offsetMultiplier,
+                                    vec.x * velScale,
+                                    vec.y * velScale,
+                                    vec.z * velScale);
+                        }
+                    }), particleIndex * RING_DELAY_MS, TimeUnit.MILLISECONDS);
             }
         } else if (level instanceof ServerLevel serverLevel) {
             // Server-side smoke rings for other players with delayed spawning
@@ -438,27 +441,27 @@ public class PipeItem extends Item implements GeoItem, ICurioItem {
                 final double offsetMultiplier = 0.3 + (particleIndex * 0.1);
                 final float velScale = velocityMultiplier * (0.7f + particleIndex * 0.2f);
 
-                PARTICLE_EXECUTOR.schedule(() -> {
-                    if (entity.isAlive()) {
-                        // Get CURRENT position and direction when spawning
-                        Vec3 vec = entity.getViewVector(1.0F);
-
-                        for (ServerPlayer player : serverLevel.players()) {
-                            if (player != entity) {
-                                serverLevel.sendParticles(player, ModParticles.RING_OF_SMOKE.get(),
-                                        false,
-                                        entity.getX() + vec.x * offsetMultiplier,
-                                        entity.getY() + entity.getEyeHeight() + vec.y * offsetMultiplier,
-                                        entity.getZ() + vec.z * offsetMultiplier,
-                                        1,
-                                        vec.x * velScale,
-                                        vec.y * velScale,
-                                        vec.z * velScale,
-                                        1.0);
+                PARTICLE_EXECUTOR.schedule(() ->
+                    // Dispatch back to server thread - players() and sendParticles() are not thread-safe
+                    serverLevel.getServer().execute(() -> {
+                        if (entity.isAlive()) {
+                            Vec3 vec = entity.getViewVector(1.0F);
+                            for (ServerPlayer player : serverLevel.players()) {
+                                if (player != entity) {
+                                    serverLevel.sendParticles(player, ModParticles.RING_OF_SMOKE.get(),
+                                            false,
+                                            entity.getX() + vec.x * offsetMultiplier,
+                                            entity.getY() + entity.getEyeHeight() + vec.y * offsetMultiplier,
+                                            entity.getZ() + vec.z * offsetMultiplier,
+                                            1,
+                                            vec.x * velScale,
+                                            vec.y * velScale,
+                                            vec.z * velScale,
+                                            1.0);
+                                }
                             }
                         }
-                    }
-                }, particleIndex * RING_DELAY_MS, TimeUnit.MILLISECONDS);
+                    }), particleIndex * RING_DELAY_MS, TimeUnit.MILLISECONDS);
             }
         }
     }

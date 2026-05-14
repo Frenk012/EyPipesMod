@@ -158,6 +158,8 @@ public class BurningTobaccoLayer extends GeoRenderLayer<PipeItem> {
         // These values match the smokeparticles locator in each pipe model
         float bowlY = 7.5f;  // Default for most pipes
         float bowlZ = 2.0f;
+        float bowlRadius = 1.2f;  // Default bowl radius
+        boolean isMeerschaum = currentStack.getItem() == ModItems.MEERSCHAUM_PIPE.get();
 
         // Check for pipes with taller bowls
         if (currentStack.getItem() == ModItems.CORN_COB_PIPE.get() ||
@@ -166,8 +168,20 @@ public class BurningTobaccoLayer extends GeoRenderLayer<PipeItem> {
             bowlY = 8.5f;  // Higher bowl position
         }
 
+        // Meerschaum pipe has a larger bowl opening (8x8 top area)
+        if (isMeerschaum) {
+            bowlY = 8.0f;   // Higher position to be visible on top of the model
+            bowlZ = 2.0f;   // Center of the 8-unit deep bowl
+            bowlRadius = 3.5f;  // Larger to cover the entire black top area
+        }
+
         // Render glowing embers in the bowl area
-        renderBowlEmbers(poseStack, bufferSource, intensity, partialTick, bowlY, bowlZ);
+        renderBowlEmbers(poseStack, bufferSource, intensity, partialTick, bowlY, bowlZ, bowlRadius);
+
+        // Render glowing skull eyes for meerschaum pipe
+        if (isMeerschaum) {
+            renderSkullEyes(poseStack, bufferSource, intensity, partialTick);
+        }
     }
 
     /**
@@ -175,9 +189,11 @@ public class BurningTobaccoLayer extends GeoRenderLayer<PipeItem> {
      * Creates animated flickering embers using vertex-based rendering.
      * @param bowlY Y position based on pipe type
      * @param bowlZ Z position of the bowl
+     * @param bowlRadiusUnits Radius of the bowl in model units
      */
     private void renderBowlEmbers(PoseStack poseStack, MultiBufferSource bufferSource,
-                                   float intensity, float partialTick, float bowlY, float bowlZ) {
+                                   float intensity, float partialTick, float bowlY, float bowlZ,
+                                   float bowlRadiusUnits) {
         poseStack.pushPose();
 
         // Position at the top of the bowl using the smokeparticles bone position
@@ -200,8 +216,8 @@ public class BurningTobaccoLayer extends GeoRenderLayer<PipeItem> {
         float flicker2 = (float) (0.8f + 0.2f * Math.sin(time * 4.5f + 1.5f));
         float flicker3 = (float) (0.6f + 0.4f * Math.sin(time * 2.0f + 3.0f));
 
-        // Bowl is 2 units wide, so radius is 1 unit
-        float bowlRadius = 1.2f * scale;
+        // Convert bowl radius from model units to render scale
+        float bowlRadius = bowlRadiusUnits * scale;
 
         // Central bright ember (hottest part) - VERY BRIGHT
         renderEmberQuad(posMatrix, pose, vertexConsumer,
@@ -238,6 +254,124 @@ public class BurningTobaccoLayer extends GeoRenderLayer<PipeItem> {
                 intensity * 0.6f * flicker2, 1.0f, 0.4f, 0.08f);
 
         poseStack.popPose();
+    }
+
+    /**
+     * Render glowing red/orange eyes on the meerschaum pipe skull.
+     * Eyes flicker with ember-like glow without rotation.
+     */
+    private void renderSkullEyes(PoseStack poseStack, MultiBufferSource bufferSource,
+                                  float intensity, float partialTick) {
+        poseStack.pushPose();
+
+        float scale = 1f / 16f;
+
+        // Skull face is on the front of the bowl (negative Z direction)
+        // Bowl cube: origin [-4, 0.25, -2], size [8, 7, 8]
+        // Front face is at Z = -2
+        // Eyes are approximately at Y = 4-5 from model origin (middle-upper part of skull)
+
+        float eyeY = 3.4f;      // Vertical position of eyes
+        float eyeZ = -2.04f;    // Slightly in front of the skull face
+        float eyeSpacing = 2.8f; // Distance between eyes (left at X=-2, right at X=+2)
+        float eyeSize = 2.2f;    // Size of each eye glow (2x larger)
+
+        // Get the pose for vertex rendering
+        PoseStack.Pose pose = poseStack.last();
+        Matrix4f posMatrix = pose.pose();
+
+        // Use emissive render type for bright glow
+        VertexConsumer vertexConsumer = bufferSource.getBuffer(
+                RenderType.entityTranslucentEmissive(WHITE_TEXTURE));
+
+        // Calculate flicker animation (different frequency than bowl embers)
+        float time = animationTicker;
+        float eyeFlicker = (float) (0.75f + 0.25f * Math.sin(time * 2.5f));
+        float eyeFlicker2 = (float) (0.8f + 0.2f * Math.sin(time * 3.2f + 0.5f));
+
+        // Eye colors - deep red/orange incandescent
+        float baseR = 1.0f;
+        float baseG = 0.25f + 0.15f * eyeFlicker;
+        float baseB = 0.05f;
+
+        // Left eye
+        renderEyeGlow(posMatrix, pose, vertexConsumer,
+                -eyeSpacing * scale, eyeY * scale, eyeZ * scale,
+                eyeSize * scale,
+                intensity * eyeFlicker, baseR, baseG, baseB);
+
+        // Right eye
+        renderEyeGlow(posMatrix, pose, vertexConsumer,
+                eyeSpacing * scale, eyeY * scale, eyeZ * scale,
+                eyeSize * scale,
+                intensity * eyeFlicker2, baseR, baseG, baseB);
+
+        // Inner bright core for each eye
+        float coreSize = eyeSize * 0.5f;
+        float coreR = 1.0f;
+        float coreG = 0.5f + 0.2f * eyeFlicker;
+        float coreB = 0.1f;
+
+        renderEyeGlow(posMatrix, pose, vertexConsumer,
+                -eyeSpacing * scale, eyeY * scale, eyeZ * scale,
+                coreSize * scale,
+                intensity * eyeFlicker * 1.2f, coreR, coreG, coreB);
+
+        renderEyeGlow(posMatrix, pose, vertexConsumer,
+                eyeSpacing * scale, eyeY * scale, eyeZ * scale,
+                coreSize * scale,
+                intensity * eyeFlicker2 * 1.2f, coreR, coreG, coreB);
+
+        poseStack.popPose();
+    }
+
+    /**
+     * Render a single eye glow quad facing forward (negative Z direction).
+     */
+    private void renderEyeGlow(Matrix4f posMatrix, PoseStack.Pose pose,
+                                VertexConsumer vertexConsumer,
+                                float x, float y, float z, float size,
+                                float alpha, float r, float g, float b) {
+        if (alpha < 0.01f) return;
+
+        int alphaInt = Math.min(255, (int) (alpha * 255));
+        int redInt = (int) (r * 255);
+        int greenInt = (int) (g * 255);
+        int blueInt = (int) (b * 255);
+
+        float halfSize = size / 2;
+
+        // Full brightness for emissive effect
+        int light = 15728880;
+
+        // Render a quad facing forward (toward negative Z / toward camera when looking at skull)
+        vertexConsumer.addVertex(posMatrix, x - halfSize, y - halfSize, z)
+                .setColor(redInt, greenInt, blueInt, alphaInt)
+                .setUv(0, 0)
+                .setOverlay(OverlayTexture.NO_OVERLAY)
+                .setLight(light)
+                .setNormal(pose, 0, 0, -1);
+
+        vertexConsumer.addVertex(posMatrix, x - halfSize, y + halfSize, z)
+                .setColor(redInt, greenInt, blueInt, alphaInt)
+                .setUv(0, 1)
+                .setOverlay(OverlayTexture.NO_OVERLAY)
+                .setLight(light)
+                .setNormal(pose, 0, 0, -1);
+
+        vertexConsumer.addVertex(posMatrix, x + halfSize, y + halfSize, z)
+                .setColor(redInt, greenInt, blueInt, alphaInt)
+                .setUv(1, 1)
+                .setOverlay(OverlayTexture.NO_OVERLAY)
+                .setLight(light)
+                .setNormal(pose, 0, 0, -1);
+
+        vertexConsumer.addVertex(posMatrix, x + halfSize, y - halfSize, z)
+                .setColor(redInt, greenInt, blueInt, alphaInt)
+                .setUv(1, 0)
+                .setOverlay(OverlayTexture.NO_OVERLAY)
+                .setLight(light)
+                .setNormal(pose, 0, 0, -1);
     }
 
     /**
