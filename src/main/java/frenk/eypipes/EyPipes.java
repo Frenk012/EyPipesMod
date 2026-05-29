@@ -41,6 +41,9 @@ public class EyPipes {
         modContainer.registerConfig(ModConfig.Type.COMMON, EyPipesConfig.COMMON_SPEC);
         modContainer.registerConfig(ModConfig.Type.CLIENT, EyPipesConfig.CLIENT_SPEC);
 
+        // Epic Fight optional integration (registers AnimationRegistryEvent listener)
+        frenk.eypipes.integration.epicfight.EpicFightCompat.init(modEventBus);
+
         // Register common setup event
         modEventBus.addListener(this::commonSetup);
 
@@ -51,8 +54,10 @@ public class EyPipes {
     private void commonSetup(final FMLCommonSetupEvent event) {
         event.enqueueWork(() -> {
             LOGGER.info("EyPipes common setup complete!");
-            // Register compostables
             registerCompostables();
+            if (frenk.eypipes.integration.epicfight.EpicFightCompat.isLoaded()) {
+                LOGGER.info("Epic Fight detected - smoking animations will load with resources");
+            }
         });
     }
 

@@ -99,6 +99,9 @@ dependencies {
     // GeckoLib 4 for animations
     implementation "software.bernie.geckolib:geckolib-neoforge-${minecraft_version}:${geckolib_version}"
 
+    // Epic Fight (optional) - place epicfight-1.21.1-*.jar in libs/ folder for dev
+    compileOnly fileTree(dir: 'libs', include: ['epicfight*.jar'])
+
     // Curios API for wearable slots
     compileOnly "top.theillusivec4.curios:curios-neoforge:${curios_version}:api"
     localRuntime "top.theillusivec4.curios:curios-neoforge:${curios_version}"
