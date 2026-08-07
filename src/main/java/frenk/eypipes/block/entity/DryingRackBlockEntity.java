@@ -1,6 +1,10 @@
 package frenk.eypipes.block.entity;
 
 import frenk.eypipes.compat.Nbt;
+//? if >=1.21.6 {
+/*import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
+*///?}
 import net.minecraft.world.Containers;
 import frenk.eypipes.config.EyPipesConfig;
 import frenk.eypipes.registries.ModBlockEntities;
@@ -246,6 +250,7 @@ public class DryingRackBlockEntity extends BlockEntity {
     }
     *///?}
 
+    //? if <1.21.6 {
     @Override
     protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.saveAdditional(tag, registries);
@@ -269,6 +274,28 @@ public class DryingRackBlockEntity extends BlockEntity {
             dryingStartTimes[i] = Nbt.getLong(tag, "DryingStart" + i, 0);
         }
     }
+    //?} else {
+    /*@Override
+    protected void saveAdditional(ValueOutput output) {
+        super.saveAdditional(output);
+        for (int i = 0; i < SLOT_COUNT; i++) {
+            Nbt.putStack(output, "Item" + i, items[i]);
+            // Save start time instead of elapsed time
+            Nbt.putLong(output, "DryingStart" + i, dryingStartTimes[i]);
+        }
+    }
+
+    @Override
+    protected void loadAdditional(ValueInput input) {
+        super.loadAdditional(input);
+        for (int i = 0; i < SLOT_COUNT; i++) {
+            items[i] = Nbt.getStack(input, "Item" + i);
+            // Racks saved in the old format stored elapsed ticks under "DryingTime<i>";
+            // those fall back to 0 here and the tick method fixes them up.
+            dryingStartTimes[i] = Nbt.getLong(input, "DryingStart" + i, 0);
+        }
+    }
+    *///?}
 
     // Client synchronization methods
     @Nullable
@@ -277,6 +304,7 @@ public class DryingRackBlockEntity extends BlockEntity {
         return ClientboundBlockEntityDataPacket.create(this);
     }
 
+    //? if <1.21.6 {
     @Override
     public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
         CompoundTag tag = new CompoundTag();
@@ -288,4 +316,15 @@ public class DryingRackBlockEntity extends BlockEntity {
     public void handleUpdateTag(CompoundTag tag, HolderLookup.Provider registries) {
         loadAdditional(tag, registries);
     }
+    //?} else {
+    /*@Override
+    public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
+        return saveCustomOnly(registries);
+    }
+
+    @Override
+    public void handleUpdateTag(ValueInput input) {
+        loadAdditional(input);
+    }
+    *///?}
 }

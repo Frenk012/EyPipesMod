@@ -1,6 +1,10 @@
 package frenk.eypipes.block.entity;
 
 import frenk.eypipes.compat.Nbt;
+//? if >=1.21.6 {
+/*import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
+*///?}
 import net.minecraft.world.Containers;
 import frenk.eypipes.registries.ModBlockEntities;
 import frenk.eypipes.registries.ModDataComponents;
@@ -277,6 +281,7 @@ public class TobaccoJarBlockEntity extends BlockEntity {
     }
     *///?}
 
+    //? if <1.21.6 {
     @Override
     protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.saveAdditional(tag, registries);
@@ -296,6 +301,25 @@ public class TobaccoJarBlockEntity extends BlockEntity {
             fermentationStartTimes[i] = Nbt.getLong(tag, "FermentStart" + i, 0);
         }
     }
+    //?} else {
+    /*@Override
+    protected void saveAdditional(ValueOutput output) {
+        super.saveAdditional(output);
+        for (int i = 0; i < SLOT_COUNT; i++) {
+            Nbt.putStack(output, "Item" + i, items[i]);
+            Nbt.putLong(output, "FermentStart" + i, fermentationStartTimes[i]);
+        }
+    }
+
+    @Override
+    protected void loadAdditional(ValueInput input) {
+        super.loadAdditional(input);
+        for (int i = 0; i < SLOT_COUNT; i++) {
+            items[i] = Nbt.getStack(input, "Item" + i);
+            fermentationStartTimes[i] = Nbt.getLong(input, "FermentStart" + i, 0);
+        }
+    }
+    *///?}
 
     // Client synchronization methods
     @Nullable
@@ -304,6 +328,7 @@ public class TobaccoJarBlockEntity extends BlockEntity {
         return ClientboundBlockEntityDataPacket.create(this);
     }
 
+    //? if <1.21.6 {
     @Override
     public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
         CompoundTag tag = new CompoundTag();
@@ -315,4 +340,15 @@ public class TobaccoJarBlockEntity extends BlockEntity {
     public void handleUpdateTag(CompoundTag tag, HolderLookup.Provider registries) {
         loadAdditional(tag, registries);
     }
+    //?} else {
+    /*@Override
+    public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
+        return saveCustomOnly(registries);
+    }
+
+    @Override
+    public void handleUpdateTag(ValueInput input) {
+        loadAdditional(input);
+    }
+    *///?}
 }

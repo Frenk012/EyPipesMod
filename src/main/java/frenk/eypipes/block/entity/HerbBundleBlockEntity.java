@@ -1,6 +1,10 @@
 package frenk.eypipes.block.entity;
 
 import frenk.eypipes.compat.Nbt;
+//? if >=1.21.6 {
+/*import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
+*///?}
 import frenk.eypipes.registries.ModBlockEntities;
 import frenk.eypipes.registries.ModDataComponents;
 import net.minecraft.core.BlockPos;
@@ -31,6 +35,7 @@ public class HerbBundleBlockEntity extends BlockEntity {
         setChanged();
     }
 
+    //? if <1.21.6 {
     @Override
     protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.saveAdditional(tag, registries);
@@ -42,4 +47,17 @@ public class HerbBundleBlockEntity extends BlockEntity {
         super.loadAdditional(tag, registries);
         fermentationLevel = Nbt.getInt(tag, FERMENTATION_KEY, fermentationLevel);
     }
+    //?} else {
+    /*@Override
+    protected void saveAdditional(ValueOutput output) {
+        super.saveAdditional(output);
+        Nbt.putInt(output, FERMENTATION_KEY, fermentationLevel);
+    }
+
+    @Override
+    protected void loadAdditional(ValueInput input) {
+        super.loadAdditional(input);
+        fermentationLevel = Nbt.getInt(input, FERMENTATION_KEY, fermentationLevel);
+    }
+    *///?}
 }

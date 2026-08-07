@@ -1,6 +1,10 @@
 package frenk.eypipes.block.entity;
 
 import frenk.eypipes.compat.Nbt;
+//? if >=1.21.6 {
+/*import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
+*///?}
 import net.minecraft.world.level.Level;
 import net.minecraft.world.Containers;
 import frenk.eypipes.registries.ModBlockEntities;
@@ -155,6 +159,7 @@ public class CuttingBoardBlockEntity extends BlockEntity {
     }
     *///?}
 
+    //? if <1.21.6 {
     @Override
     protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.saveAdditional(tag, registries);
@@ -166,6 +171,19 @@ public class CuttingBoardBlockEntity extends BlockEntity {
         super.loadAdditional(tag, registries);
         storedItem = Nbt.getStack(tag, "StoredItem", registries);
     }
+    //?} else {
+    /*@Override
+    protected void saveAdditional(ValueOutput output) {
+        super.saveAdditional(output);
+        Nbt.putStack(output, "StoredItem", storedItem);
+    }
+
+    @Override
+    protected void loadAdditional(ValueInput input) {
+        super.loadAdditional(input);
+        storedItem = Nbt.getStack(input, "StoredItem");
+    }
+    *///?}
 
     @Nullable
     @Override
@@ -173,6 +191,7 @@ public class CuttingBoardBlockEntity extends BlockEntity {
         return ClientboundBlockEntityDataPacket.create(this);
     }
 
+    //? if <1.21.6 {
     @Override
     public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
         CompoundTag tag = new CompoundTag();
@@ -195,4 +214,21 @@ public class CuttingBoardBlockEntity extends BlockEntity {
             storedItem = ItemStack.EMPTY;
         }
     }
+    //?} else {
+    /*@Override
+    public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
+        return saveCustomOnly(registries);
+    }
+
+    @Override
+    public void handleUpdateTag(ValueInput input) {
+        loadAdditional(input);
+    }
+
+    @Override
+    public void onDataPacket(Connection net, ValueInput input) {
+        // An absent key already reads back as empty, so the old null-tag branch is moot.
+        loadAdditional(input);
+    }
+    *///?}
 }
