@@ -33,7 +33,10 @@ public final class ItemStackRenderHelper {
      */
     public static void render(ItemStack stack, ItemDisplayContext context, PoseStack poseStack,
             MultiBufferSource buffer, Level level, int packedLight, int packedOverlay) {
+        //? if <1.21.9 {
         Minecraft.getInstance().getItemRenderer().renderStatic(
                 stack, context, packedLight, packedOverlay, poseStack, buffer, level, 0);
+        //?} else
+        /*throw new UnsupportedOperationException("Item rendering goes through ItemStackRenderState from 1.21.9");*/
     }
 }

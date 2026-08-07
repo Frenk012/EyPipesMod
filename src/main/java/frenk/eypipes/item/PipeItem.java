@@ -45,6 +45,10 @@ import software.bernie.geckolib.animatable.GeoItem;
 import software.bernie.geckolib.animatable.SingletonGeoAnimatable;
 import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
 import software.bernie.geckolib.animation.*;
+//? if >=1.21.9 {
+/*import software.bernie.geckolib.animatable.manager.AnimatableManager;
+import software.bernie.geckolib.animatable.processing.AnimationController;
+*///?}
 import software.bernie.geckolib.util.GeckoLibUtil;
 import top.theillusivec4.curios.api.type.capability.ICurioItem;
 
@@ -153,6 +157,7 @@ public class PipeItem extends Item implements GeoItem, ICurioItem {
         return -1; // Not a valid herb
     }
 
+    //? if <1.21.9 {
     @Override
     public void onCraftedBy(ItemStack stack, Level level, Player player) {
         if (!level.isClientSide()) {
@@ -160,6 +165,15 @@ public class PipeItem extends Item implements GeoItem, ICurioItem {
             stack.setDamageValue(stack.getMaxDamage() - 1);
         }
     }
+    //?} else {
+    /*@Override
+    public void onCraftedPostProcess(ItemStack stack, Level level) {
+        if (!level.isClientSide()) {
+            // Start with pipe nearly empty (requires refill)
+            stack.setDamageValue(stack.getMaxDamage() - 1);
+        }
+    }
+    *///?}
 
     @Override
     public int getBarColor(ItemStack stack) {
@@ -468,10 +482,14 @@ public class PipeItem extends Item implements GeoItem, ICurioItem {
     }
     *///?}
 
+    // From 1.21.9 repairability is a data component; an item that never sets one
+    // cannot be repaired anyway, which is what this override was for.
+    //? if <1.21.9 {
     @Override
     public boolean isRepairable(ItemStack stack) {
         return false; // Disable anvil repair - use erbapipa_cutted instead
     }
+    //?}
 
     //? if <1.21.5 {
     @Override

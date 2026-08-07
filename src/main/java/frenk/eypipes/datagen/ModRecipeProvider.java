@@ -64,6 +64,11 @@ public class ModRecipeProvider extends RecipeProvider {
         }
 
         @Override
+        public String getName() {
+            return "EyPipes Recipes";
+        }
+
+        @Override
         protected RecipeProvider createRecipeProvider(HolderLookup.Provider registries, RecipeOutput output) {
             return new ModRecipeProvider(registries, output);
         }

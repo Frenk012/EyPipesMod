@@ -37,6 +37,10 @@ import software.bernie.geckolib.animatable.GeoItem;
 import software.bernie.geckolib.animatable.SingletonGeoAnimatable;
 import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
 import software.bernie.geckolib.animation.*;
+//? if >=1.21.9 {
+/*import software.bernie.geckolib.animatable.manager.AnimatableManager;
+import software.bernie.geckolib.animatable.processing.AnimationController;
+*///?}
 import software.bernie.geckolib.util.GeckoLibUtil;
 import top.theillusivec4.curios.api.type.capability.ICurioItem;
 
@@ -89,6 +93,7 @@ public class CigarItem extends Item implements GeoItem, ICurioItem {
                 data -> data.update(tag -> tag.putBoolean(SMOKING_KEY, smoking)));
     }
 
+    //? if <1.21.9 {
     @Override
     public void onCraftedBy(ItemStack stack, Level level, Player player) {
         if (!level.isClientSide()) {
@@ -96,6 +101,15 @@ public class CigarItem extends Item implements GeoItem, ICurioItem {
             stack.setDamageValue(0);
         }
     }
+    //?} else {
+    /*@Override
+    public void onCraftedPostProcess(ItemStack stack, Level level) {
+        if (!level.isClientSide()) {
+            // Start with cigar full (fresh cigar)
+            stack.setDamageValue(0);
+        }
+    }
+    *///?}
 
     @Override
     public int getBarColor(ItemStack stack) {
@@ -310,10 +324,14 @@ public class CigarItem extends Item implements GeoItem, ICurioItem {
     }
     *///?}
 
+    // From 1.21.9 repairability is a data component; an item that never sets one
+    // cannot be repaired anyway, which is what this override was for.
+    //? if <1.21.9 {
     @Override
     public boolean isRepairable(ItemStack stack) {
         return false; // Cigars cannot be repaired - they are consumed
     }
+    //?}
 
     //? if <1.21.5 {
     @Override
