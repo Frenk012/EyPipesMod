@@ -42,4 +42,9 @@ replay_*.log
 
 # datagen output is committed so a clean clone builds a complete jar;
 # only the incremental-hash cache is machine-local
-/src/generated/resources/.cache/
+/src/generated/*/.cache/
+# stonecutter generates one gradle subproject per minecraft version
+/versions/
+
+# tooling
+/.serena/

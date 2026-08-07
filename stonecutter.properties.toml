@@ -1,0 +1,48 @@
+# Per-version properties. See https://stonecutter.kikugie.dev/wiki/config/properties
+#
+# Every dependency version here was checked against the upstream maven-metadata.xml.
+# Do not bump one by guesswork: GeckoLib and JEI put the Minecraft version in the artifact
+# id, and Curios changes its major version on every Minecraft release.
+
+mod.id = "eypipes"
+mod.name = "EyPipes"
+mod.group = "frenk.eypipes"
+mod.version = "2.1.1"
+mod.license = "MIT"
+mod.authors = "Frenk02"
+mod.description = "A smoking pipe mod with custom crops, drying mechanics, and animated items. Grow erbapipa, dry it, and enjoy your pipe with beautiful smoke effects!"
+
+["1.21.1"]
+mod.mc_compat = "[1.21.1]"
+mod.mc_releases = ["1.21.1"]
+deps.neo_loader = "21.1.230"
+deps.neo_range = "[21.1.0,)"
+deps.loader_range = "[4,)"
+deps.parchment = "2024.11.17"
+deps.geckolib = "4.7.1"
+deps.geckolib_range = "[4.7,)"
+deps.curios = "9.5.1+1.21.1"
+deps.curios_range = "[9.0,)"
+deps.rei = "16.0.799"
+deps.rei_range = "[16.0,)"
+deps.jei = "19.21.2.313"
+deps.jei_range = "[19.0,)"
+# EMI and Epic Fight never shipped past 1.21.1, so they are compiled into this jar only.
+deps.emi_curse_file = "6420931"
+
+["1.21.5"]
+mod.mc_compat = "[1.21.5]"
+mod.mc_releases = ["1.21.5"]
+deps.neo_loader = "21.5.98"
+deps.neo_range = "[21.5.0,)"
+deps.loader_range = "[4,)"
+deps.parchment = "2025.06.15"
+# GeckoLib 5.x is the only line published for 1.21.5; 4.x does not exist here.
+deps.geckolib = "5.1.0"
+deps.geckolib_range = "[5.1,)"
+deps.curios = "11.0.1+1.21.5"
+deps.curios_range = "[11.0,)"
+deps.rei = "19.0.809"
+deps.rei_range = "[19.0,)"
+deps.jei = "21.4.0.27"
+deps.jei_range = "[21.0,)"
