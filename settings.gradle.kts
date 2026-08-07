@@ -18,7 +18,11 @@ stonecutter {
     create(rootProject) {
         // Minecraft versions that get their own jar. 1.21.2, 1.21.3 and 1.21.9 are deliberately
         // absent: GeckoLib and/or Curios, both required dependencies, have no build for them.
-        versions("1.21.1", "1.21.5", "1.21.10")
+        //
+        // 1.21.5 is started but not finished, and a declared version that does not compile makes
+        // every unqualified Gradle command fail, so it stays out until its port lands. Its
+        // conditionals are already in the sources; adding it back here is the only step needed.
+        versions("1.21.1", "1.21.10")
         vcsVersion = "1.21.1"
     }
 }
