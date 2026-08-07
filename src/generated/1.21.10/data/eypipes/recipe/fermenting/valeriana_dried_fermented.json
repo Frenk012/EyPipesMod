@@ -1,0 +1,10 @@
+{
+  "type": "eypipes:fermenting",
+  "fermenting_time": 72000,
+  "ingredient": "eypipes:valeriana_dried",
+  "result": {
+    "count": 1,
+    "id": "eypipes:valeriana_dried"
+  },
+  "target_quality": 3
+}

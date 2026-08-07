@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "I": "minecraft:iron_nugget",
+    "S": "minecraft:stick",
+    "W": "minecraft:spruce_planks"
+  },
+  "pattern": [
+    "  S",
+    " I ",
+    "W  "
+  ],
+  "result": {
+    "count": 1,
+    "id": "eypipes:bent_pipe"
+  }
+}

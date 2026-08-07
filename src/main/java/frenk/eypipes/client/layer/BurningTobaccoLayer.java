@@ -140,7 +140,8 @@ public class BurningTobaccoLayer extends GeoRenderLayer<PipeItem> {
                        int packedLight, int packedOverlay) {
         drawBurningTobacco(poseStack,
                 bufferSource.getBuffer(RenderType.entityTranslucentEmissive(WHITE_TEXTURE)),
-                partialTick);
+                partialTick, PipeGeoRenderer.getCurrentRenderingStack(),
+                PipeGeoRenderer.isCurrentStackBeingSmoked());
     }
     //?} else {
     /*@Override
@@ -149,8 +150,14 @@ public class BurningTobaccoLayer extends GeoRenderLayer<PipeItem> {
                                  int packedLight, int packedOverlay, int renderColor, boolean isReRender) {
         // submitCustomGeometry hands back a VertexConsumer, so the hand-built ember quads
         // carry over unchanged; only the way we obtain the consumer differs.
+        // The stack and the lit flag come from the captured state: the renderer statics have
+        // already been overwritten by whatever was captured after this pipe.
+        ItemStack pipeStack = renderState.getOrDefaultGeckolibData(PipeGeoRenderer.PIPE_STACK, ItemStack.EMPTY);
+        boolean lit = renderState.getOrDefaultGeckolibData(PipeGeoRenderer.IS_LIT, false);
+
         collector.submitCustomGeometry(poseStack, RenderType.entityTranslucentEmissive(WHITE_TEXTURE),
-                (pose, consumer) -> drawBurningTobacco(poseStack, consumer, renderState.getPartialTick()));
+                (pose, consumer) -> drawBurningTobacco(poseStack, consumer,
+                        renderState.getPartialTick(), pipeStack, lit));
     }
     *///?}
 
@@ -158,19 +165,18 @@ public class BurningTobaccoLayer extends GeoRenderLayer<PipeItem> {
      * Decide whether this pipe should glow and, if so, draw it. Identical on every version;
      * only how the caller obtains the vertex consumer changes.
      */
-    private void drawBurningTobacco(PoseStack poseStack, VertexConsumer vertexConsumer, float partialTick) {
+    private void drawBurningTobacco(PoseStack poseStack, VertexConsumer vertexConsumer, float partialTick,
+            ItemStack currentStack, boolean isBeingSmoked) {
 
         Player player = Minecraft.getInstance().player;
         if (player == null) return;
 
-        // Get the current ItemStack being rendered from PipeGeoRenderer
-        ItemStack currentStack = PipeGeoRenderer.getCurrentRenderingStack();
+
         if (currentStack == null || currentStack.isEmpty()) return;
 
         long gameTime = player.level().getGameTime();
 
-        // Check if THIS specific pipe is being smoked
-        boolean isBeingSmoked = PipeGeoRenderer.isCurrentStackBeingSmoked();
+
 
         // Check if THIS specific pipe has afterglow
         boolean hasAfterglowEffect = hasAfterglow(currentStack, gameTime);

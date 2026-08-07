@@ -55,7 +55,13 @@ public class PipeGeoRenderer extends GeoItemRenderer<PipeItem> {
     // Captured at render-state time and read back when the pose is adjusted, because the two
     // no longer happen at the same moment.
     //? if >=1.21.9 {
-    /*private static final DataTicket<Float> SMOKING_PROGRESS =
+    /*public static final DataTicket<ItemStack> PIPE_STACK =
+            DataTicket.create("eypipes:pipe_stack", ItemStack.class);
+
+    public static final DataTicket<Boolean> IS_LIT =
+            DataTicket.create("eypipes:is_lit", Boolean.class);
+
+    private static final DataTicket<Float> SMOKING_PROGRESS =
             DataTicket.create("eypipes:smoking_progress", Float.class);
 
     private static final DataTicket<Boolean> LEFT_HAND_TICKET =
@@ -146,6 +152,8 @@ public class PipeGeoRenderer extends GeoItemRenderer<PipeItem> {
         renderState.addGeckolibData(SMOKING_PROGRESS,
                 captureSmokingState(relatedObject.itemStack(), relatedObject.renderPerspective()));
         renderState.addGeckolibData(LEFT_HAND_TICKET, isLeftHand);
+        renderState.addGeckolibData(PIPE_STACK, relatedObject.itemStack());
+        renderState.addGeckolibData(IS_LIT, currentStackIsBeingSmoked);
     }
 
     @Override

@@ -28,6 +28,18 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 public class ModItems {
     public static final DeferredRegister.Items ITEMS = DeferredRegister.createItems(EyPipes.MOD_ID);
 
+    /**
+     * Block items took their name from the block automatically until 1.21.5, where
+     * BlockItem stopped overriding getDescriptionId and the prefix became a property.
+     * Without this they look up item.eypipes.&lt;name&gt; and show the raw key.
+     */
+    private static Item.Properties blockItemProperties(Item.Properties props) {
+        //? if <1.21.5 {
+        return props;
+        //?} else
+        /*return props.useBlockDescriptionPrefix();*/
+    }
+
     private static Item.Properties pipeProperties() {
         return new Item.Properties().stacksTo(1).durability(50);
     }
@@ -126,17 +138,17 @@ public class ModItems {
 
     // Block items
     public static final DeferredItem<Item> DRYING_RACK_ITEM = ITEMS.registerItem("drying_rack_erb",
-            props -> new BlockItem(ModBlocks.DRYING_RACK.get(), props));
+            props -> new BlockItem(ModBlocks.DRYING_RACK.get(), blockItemProperties(props)));
 
     public static final DeferredItem<Item> TOBACCO_JAR_ITEM = ITEMS.registerItem("tobacco_jar",
-            props -> new BlockItem(ModBlocks.TOBACCO_JAR.get(), props));
+            props -> new BlockItem(ModBlocks.TOBACCO_JAR.get(), blockItemProperties(props)));
 
     public static final DeferredItem<Item> PIPE_RACK_ITEM = ITEMS.registerItem("pipe_rack",
-            props -> new BlockItem(ModBlocks.PIPE_RACK.get(), props));
+            props -> new BlockItem(ModBlocks.PIPE_RACK.get(), blockItemProperties(props)));
 
     // Cutting Board block item
     public static final DeferredItem<Item> CUTTING_BOARD_ITEM = ITEMS.registerItem("cutting_board",
-            props -> new BlockItem(ModBlocks.CUTTING_BOARD.get(), props));
+            props -> new BlockItem(ModBlocks.CUTTING_BOARD.get(), blockItemProperties(props)));
 
     // Knife item - used to cut dried herbs on the cutting board
     public static final DeferredItem<Item> KNIFE = ITEMS.registerItem("knife",
@@ -144,16 +156,16 @@ public class ModItems {
 
     // Herb Bundle block items - storage blocks for dried herbs
     public static final DeferredItem<Item> ERBAPIPA_BUNDLE_ITEM = ITEMS.registerItem("erbapipa_bundle",
-            props -> new HerbBundleBlockItem(ModBlocks.ERBAPIPA_BUNDLE.get(), props, ChatFormatting.GREEN));
+            props -> new HerbBundleBlockItem(ModBlocks.ERBAPIPA_BUNDLE.get(), blockItemProperties(props), ChatFormatting.GREEN));
 
     public static final DeferredItem<Item> VALERIANA_BUNDLE_ITEM = ITEMS.registerItem("valeriana_bundle",
-            props -> new HerbBundleBlockItem(ModBlocks.VALERIANA_BUNDLE.get(), props, ChatFormatting.LIGHT_PURPLE));
+            props -> new HerbBundleBlockItem(ModBlocks.VALERIANA_BUNDLE.get(), blockItemProperties(props), ChatFormatting.LIGHT_PURPLE));
 
     public static final DeferredItem<Item> GINSENG_BUNDLE_ITEM = ITEMS.registerItem("ginseng_bundle",
-            props -> new HerbBundleBlockItem(ModBlocks.GINSENG_BUNDLE.get(), props, ChatFormatting.GOLD));
+            props -> new HerbBundleBlockItem(ModBlocks.GINSENG_BUNDLE.get(), blockItemProperties(props), ChatFormatting.GOLD));
 
     public static final DeferredItem<Item> SALVIA_BUNDLE_ITEM = ITEMS.registerItem("salvia_bundle",
-            props -> new HerbBundleBlockItem(ModBlocks.SALVIA_BUNDLE.get(), props, ChatFormatting.DARK_GREEN));
+            props -> new HerbBundleBlockItem(ModBlocks.SALVIA_BUNDLE.get(), blockItemProperties(props), ChatFormatting.DARK_GREEN));
 
     public static void register(IEventBus eventBus) {
         ITEMS.register(eventBus);

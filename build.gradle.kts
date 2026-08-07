@@ -42,12 +42,19 @@ sourceSets.named("main") {
     // cutting board recipes the way it used to. Restoring them needs either RecipeDisplay
     // support on the recipes or a sync packet of our own - a design decision, not a port - so
     // the JEI and REI integrations are left out of this target until that is made.
+    if (mc == "1.21.1" || mc == "1.21.5") {
+        // These carry the smoking flag onto a render state that does not exist before 1.21.9.
+        java.exclude(
+            "frenk/eypipes/mixin/client/HumanoidRenderStateMixin.java",
+            "frenk/eypipes/mixin/client/LivingEntityRendererMixin.java",
+        )
+    }
+
     if (mc != "1.21.1" && mc != "1.21.5") {
         java.exclude(
             "frenk/eypipes/integration/jei/**",
             "frenk/eypipes/integration/rei/**",
         )
-        java.exclude("frenk/eypipes/mixin/client/BipedModelMixin.java")
         // The service file names the REI plugin class, which is no longer compiled here.
         resources.exclude("META-INF/services/me.shedaniel.rei.api.client.plugins.REIClientPlugin")
     } else {
@@ -156,11 +163,9 @@ neoForge {
                 programArguments.addAll(dataArguments)
             }
 
-            register("serverData") {
-                serverData()
-                gameDirectory = runDirectory
-                programArguments.addAll(dataArguments)
-            }
+            // No serverData run: every provider is registered on the client half, because
+            // both halves write to the same directory and each prunes what it did not
+            // generate. A server run here would delete the client run's output.
         }
     }
 }
@@ -216,7 +221,11 @@ tasks {
         // The humanoid mixin targets setupAnim(LivingEntity, ...), which 1.21.9 replaced with
         // a render-state overload carrying no ItemStack. Until the smoking flag is threaded
         // into that state, the mixin is left out of those jars rather than failing to apply.
-        val mixinClients = if (mc == "1.21.1" || mc == "1.21.5") "\"client.BipedModelMixin\"" else ""
+        val mixinClients = if (mc == "1.21.1" || mc == "1.21.5") {
+            "\"client.BipedModelMixin\""
+        } else {
+            "\"client.BipedModelMixin\", \"client.HumanoidRenderStateMixin\", \"client.LivingEntityRendererMixin\""
+        }
         inputs.property("mixinClients", mixinClients)
         filesMatching("eypipes.mixins.json") {
             filter { line -> line.replace("MIXIN_CLIENT_LIST", mixinClients) }

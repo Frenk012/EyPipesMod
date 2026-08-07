@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_ginseng_bundle": {
+      "conditions": {
+        "items": [
+          {
+            "items": "eypipes:ginseng_bundle"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "eypipes:bundle/ginseng_unpacking"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_ginseng_bundle"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "eypipes:bundle/ginseng_unpacking"
+    ]
+  }
+}

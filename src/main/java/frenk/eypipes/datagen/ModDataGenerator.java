@@ -55,23 +55,22 @@ public class ModDataGenerator {
         EyPipes.LOGGER.info("EyPipes data generation registered");
     }
     //?} else {
-    /*@SubscribeEvent
-    public static void gatherClientData(GatherDataEvent.Client event) {
+    /*// Everything is registered on the client half deliberately. Both halves write to the same
+    // output directory and each one prunes whatever it did not generate itself, so splitting the
+    // providers between them makes the second run delete the first run's files. NeoForge's own
+    // providers are registered the same way for the same reason.
+    @SubscribeEvent
+    public static void gatherData(GatherDataEvent.Client event) {
         // One provider now emits blockstates, block models, item models and the
         // assets/<ns>/items/ client-item definitions together.
         event.createProvider(ModModelProvider::new);
 
-        EyPipes.LOGGER.info("EyPipes client data generation registered");
-    }
-
-    @SubscribeEvent
-    public static void gatherServerData(GatherDataEvent.Server event) {
         event.createProvider(ModLootTableProvider::new);
         event.createProvider(ModRecipeProvider.Runner::new);
         event.createProvider(ModBlockTagProvider::new);
         event.createProvider(ModItemTagProvider::new);
 
-        EyPipes.LOGGER.info("EyPipes server data generation registered");
+        EyPipes.LOGGER.info("EyPipes data generation registered");
     }
     *///?}
 }

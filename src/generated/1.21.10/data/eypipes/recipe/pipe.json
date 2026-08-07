@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "B": "minecraft:bowl",
+    "S": "minecraft:stick",
+    "W": "minecraft:oak_planks"
+  },
+  "pattern": [
+    " S ",
+    "WBW",
+    " W "
+  ],
+  "result": {
+    "count": 1,
+    "id": "eypipes:pipe"
+  }
+}

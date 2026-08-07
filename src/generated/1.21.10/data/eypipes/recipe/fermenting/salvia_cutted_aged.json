@@ -1,0 +1,8 @@
+{
+  "type": "eypipes:fermenting",
+  "ingredient": "eypipes:salvia_cutted",
+  "result": {
+    "count": 1,
+    "id": "eypipes:salvia_cutted"
+  }
+}

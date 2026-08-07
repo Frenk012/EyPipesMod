@@ -124,10 +124,12 @@ public class ModModelProvider extends ModelProvider {
 
         blockModels.blockStateOutput.accept(
                 BlockModelGenerators.createSimpleBlock(dryingRack, BlockModelGenerators.plainVariant(model))
+                        // The model is authored facing west, so every variant is a quarter turn
+                        // further round than the compass direction suggests.
                         .with(PropertyDispatch.modify(DryingRackBlock.FACING)
-                                .select(Direction.NORTH, BlockModelGenerators.NOP)
-                                .select(Direction.EAST, BlockModelGenerators.Y_ROT_90)
-                                .select(Direction.SOUTH, BlockModelGenerators.Y_ROT_180)
-                                .select(Direction.WEST, BlockModelGenerators.Y_ROT_270)));
+                                .select(Direction.WEST, BlockModelGenerators.NOP)
+                                .select(Direction.NORTH, BlockModelGenerators.Y_ROT_90)
+                                .select(Direction.EAST, BlockModelGenerators.Y_ROT_180)
+                                .select(Direction.SOUTH, BlockModelGenerators.Y_ROT_270)));
     }
 }

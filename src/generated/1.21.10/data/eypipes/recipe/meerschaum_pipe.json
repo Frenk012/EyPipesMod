@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "Q": "minecraft:quartz",
+    "S": "minecraft:stick"
+  },
+  "pattern": [
+    "  S",
+    " Q ",
+    "Q  "
+  ],
+  "result": {
+    "count": 1,
+    "id": "eypipes:meerschaum_pipe"
+  }
+}
