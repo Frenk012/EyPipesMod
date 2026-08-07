@@ -1,0 +1,5 @@
+{
+  "type": "eypipes:herb_bundle_unpacking",
+  "input": "eypipes:ginseng_bundle",
+  "output": "eypipes:ginseng_dried"
+}

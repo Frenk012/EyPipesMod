@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_erbapipa_cutted": {
+      "conditions": {
+        "items": [
+          {
+            "items": "eypipes:erbapipa_cutted"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "eypipes:fermenting/erbapipa_cutted_fermented"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_erbapipa_cutted"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "eypipes:fermenting/erbapipa_cutted_fermented"
+    ]
+  }
+}

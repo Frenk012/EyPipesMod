@@ -1,0 +1,10 @@
+{
+  "type": "eypipes:fermenting",
+  "ingredient": {
+    "item": "eypipes:erbapipa_dried"
+  },
+  "result": {
+    "count": 1,
+    "id": "eypipes:erbapipa_dried"
+  }
+}

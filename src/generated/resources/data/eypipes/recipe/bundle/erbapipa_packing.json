@@ -1,0 +1,5 @@
+{
+  "type": "eypipes:herb_bundle_packing",
+  "input": "eypipes:erbapipa_dried",
+  "output": "eypipes:erbapipa_bundle"
+}
