@@ -8,7 +8,10 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.Containers;
 import net.minecraft.world.InteractionHand;
+//? if <1.21.2 {
 import net.minecraft.world.ItemInteractionResult;
+//?} else
+/*import net.minecraft.world.InteractionResult;*/
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
@@ -23,7 +26,7 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.minecraft.world.level.block.state.properties.DirectionProperty;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -37,7 +40,7 @@ import org.jetbrains.annotations.Nullable;
 public class DryingRackBlock extends BaseEntityBlock {
 
     public static final MapCodec<DryingRackBlock> CODEC = simpleCodec(DryingRackBlock::new);
-    public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
+    public static final EnumProperty<Direction> FACING = BlockStateProperties.HORIZONTAL_FACING;
 
     // Hitbox shapes matching the model - thin rack structure
     // Based on EAST being correct at X: 0-6, Z: 0-16
@@ -89,8 +92,10 @@ public class DryingRackBlock extends BaseEntityBlock {
     }
 
     @Override
-    protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos,
-                                               Player player, InteractionHand hand, BlockHitResult hitResult) {
+    //? if <1.21.2 {
+    protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
+    //?} else
+    /*protected InteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {*/
         if (level.isClientSide()) {
             return Interactions.itemSuccess();
         }
@@ -134,22 +139,17 @@ public class DryingRackBlock extends BaseEntityBlock {
         return Interactions.itemPassToBlock();
     }
 
+    //? if <1.21.5 {
     @Override
     protected void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
         if (!state.is(newState.getBlock())) {
-            BlockEntity blockEntity = level.getBlockEntity(pos);
-            if (blockEntity instanceof DryingRackBlockEntity dryingRack) {
-                // Drop all items stored in the drying rack
-                ItemStack[] items = dryingRack.getAllItems();
-                for (ItemStack stack : items) {
-                    if (!stack.isEmpty()) {
-                        Containers.dropItemStack(level, pos.getX(), pos.getY(), pos.getZ(), stack);
-                    }
-                }
+            if (level.getBlockEntity(pos) instanceof DryingRackBlockEntity dryingRack) {
+                dryingRack.dropContents(level, pos);
             }
             super.onRemove(state, level, pos, newState, movedByPiston);
         }
     }
+    //?}
 
     @Nullable
     @Override

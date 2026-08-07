@@ -7,7 +7,10 @@ import frenk.eypipes.registries.ModBlockEntities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.Containers;
 import net.minecraft.world.InteractionHand;
+//? if <1.21.2 {
 import net.minecraft.world.ItemInteractionResult;
+//?} else
+/*import net.minecraft.world.InteractionResult;*/
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
@@ -73,8 +76,10 @@ public class TobaccoJarBlock extends BaseEntityBlock {
     }
 
     @Override
-    protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos,
-                                               Player player, InteractionHand hand, BlockHitResult hitResult) {
+    //? if <1.21.2 {
+    protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
+    //?} else
+    /*protected InteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {*/
         if (level.isClientSide()) {
             return Interactions.itemSuccess();
         }
@@ -126,22 +131,17 @@ public class TobaccoJarBlock extends BaseEntityBlock {
         level.sendBlockUpdated(pos, currentState, level.getBlockState(pos), Block.UPDATE_ALL);
     }
 
+    //? if <1.21.5 {
     @Override
     protected void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
         if (!state.is(newState.getBlock())) {
-            BlockEntity blockEntity = level.getBlockEntity(pos);
-            if (blockEntity instanceof TobaccoJarBlockEntity tobaccoJar) {
-                // Drop all items stored in the tobacco jar
-                ItemStack[] items = tobaccoJar.getAllItems();
-                for (ItemStack stack : items) {
-                    if (!stack.isEmpty()) {
-                        Containers.dropItemStack(level, pos.getX(), pos.getY(), pos.getZ(), stack);
-                    }
-                }
+            if (level.getBlockEntity(pos) instanceof TobaccoJarBlockEntity tobaccoJar) {
+                tobaccoJar.dropContents(level, pos);
             }
             super.onRemove(state, level, pos, newState, movedByPiston);
         }
     }
+    //?}
 
     @Nullable
     @Override

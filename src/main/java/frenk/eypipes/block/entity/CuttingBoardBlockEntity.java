@@ -1,6 +1,8 @@
 package frenk.eypipes.block.entity;
 
 import frenk.eypipes.compat.BlockEntityNbt;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.Containers;
 import frenk.eypipes.registries.ModBlockEntities;
 import frenk.eypipes.registries.ModDataComponents;
 import frenk.eypipes.registries.ModItems;
@@ -132,6 +134,26 @@ public class CuttingBoardBlockEntity extends BlockEntity {
             level.sendBlockUpdated(worldPosition, state, state, Block.UPDATE_ALL);
         }
     }
+
+    /**
+     * Drop everything stored here on the ground. Called when the block is removed:
+     * from the block's onRemove hook before 1.21.5, and from preRemoveSideEffects after,
+     * because affectNeighborsAfterRemoval runs once the block entity is already gone.
+     */
+    public void dropContents(Level level, BlockPos pos) {
+        if (!storedItem.isEmpty()) {
+            Containers.dropItemStack(level, pos.getX(), pos.getY(), pos.getZ(), storedItem);
+        }
+    }
+
+    //? if >=1.21.5 {
+    /*@Override
+    public void preRemoveSideEffects(BlockPos pos, BlockState state) {
+        if (this.level != null) {
+            dropContents(this.level, pos);
+        }
+    }
+    *///?}
 
     @Override
     protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {

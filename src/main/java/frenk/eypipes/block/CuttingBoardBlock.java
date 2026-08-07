@@ -13,7 +13,10 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.Containers;
 import net.minecraft.world.InteractionHand;
+//? if <1.21.2 {
 import net.minecraft.world.ItemInteractionResult;
+//?} else
+/*import net.minecraft.world.InteractionResult;*/
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
@@ -26,7 +29,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.minecraft.world.level.block.state.properties.DirectionProperty;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -41,7 +44,7 @@ import org.jetbrains.annotations.Nullable;
 public class CuttingBoardBlock extends BaseEntityBlock {
 
     public static final MapCodec<CuttingBoardBlock> CODEC = simpleCodec(CuttingBoardBlock::new);
-    public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
+    public static final EnumProperty<Direction> FACING = BlockStateProperties.HORIZONTAL_FACING;
 
     // Tall furniture shape - almost a full block (14 pixels tall)
     private static final VoxelShape SHAPE = Block.box(1, 0, 1, 15, 14, 15);
@@ -84,8 +87,10 @@ public class CuttingBoardBlock extends BaseEntityBlock {
     }
 
     @Override
-    protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos,
-                                               Player player, InteractionHand hand, BlockHitResult hitResult) {
+    //? if <1.21.2 {
+    protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
+    //?} else
+    /*protected InteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {*/
         BlockEntity blockEntity = level.getBlockEntity(pos);
         if (!(blockEntity instanceof CuttingBoardBlockEntity cuttingBoard)) {
             return Interactions.itemFail();
@@ -166,17 +171,15 @@ public class CuttingBoardBlock extends BaseEntityBlock {
         }
     }
 
+    //? if <1.21.5 {
     @Override
     protected void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
         if (!state.is(newState.getBlock())) {
-            BlockEntity blockEntity = level.getBlockEntity(pos);
-            if (blockEntity instanceof CuttingBoardBlockEntity cuttingBoard) {
-                ItemStack stored = cuttingBoard.getStoredItem();
-                if (!stored.isEmpty()) {
-                    Containers.dropItemStack(level, pos.getX(), pos.getY(), pos.getZ(), stored);
-                }
+            if (level.getBlockEntity(pos) instanceof CuttingBoardBlockEntity cuttingBoard) {
+                cuttingBoard.dropContents(level, pos);
             }
             super.onRemove(state, level, pos, newState, movedByPiston);
         }
     }
+    //?}
 }
