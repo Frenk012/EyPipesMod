@@ -10,6 +10,7 @@ import frenk.eypipes.item.PipeItem;
 import net.minecraft.ChatFormatting;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
+//? if <1.21.5
 import net.minecraft.world.item.ItemNameBlockItem;
 import net.minecraft.world.level.block.ComposterBlock;
 import net.neoforged.bus.api.IEventBus;
@@ -64,16 +65,28 @@ public class ModItems {
 
     // Seeds items (plants the crops)
     public static final DeferredItem<Item> ERBAPIPA_SEEDS = ITEMS.registerItem("erbapipa_seeds",
+            //? if <1.21.5 {
             props -> new ItemNameBlockItem(ModBlocks.ERBAPIPA_CROP.get(), props));
+            //?} else
+            /*props -> new BlockItem(ModBlocks.ERBAPIPA_CROP.get(), props.useItemDescriptionPrefix()));*/
 
     public static final DeferredItem<Item> VALERIANA_SEEDS = ITEMS.registerItem("valeriana_seeds",
+            //? if <1.21.5 {
             props -> new ItemNameBlockItem(ModBlocks.VALERIANA_CROP.get(), props));
+            //?} else
+            /*props -> new BlockItem(ModBlocks.VALERIANA_CROP.get(), props.useItemDescriptionPrefix()));*/
 
     public static final DeferredItem<Item> GINSENG_SEEDS = ITEMS.registerItem("ginseng_seeds",
+            //? if <1.21.5 {
             props -> new ItemNameBlockItem(ModBlocks.GINSENG_CROP.get(), props));
+            //?} else
+            /*props -> new BlockItem(ModBlocks.GINSENG_CROP.get(), props.useItemDescriptionPrefix()));*/
 
     public static final DeferredItem<Item> SALVIA_SEEDS = ITEMS.registerItem("salvia_seeds",
+            //? if <1.21.5 {
             props -> new ItemNameBlockItem(ModBlocks.SALVIA_CROP.get(), props));
+            //?} else
+            /*props -> new BlockItem(ModBlocks.SALVIA_CROP.get(), props.useItemDescriptionPrefix()));*/
 
     // Pipe item - GeckoLib animated trinket with 50 durability
     public static final DeferredItem<Item> PIPE = ITEMS.registerItem("pipe",

@@ -449,9 +449,22 @@ public class PipeItem extends Item implements GeoItem, ICurioItem {
         return false; // Disable anvil repair - use erbapipa_cutted instead
     }
 
+    //? if <1.21.5 {
     @Override
     public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltipComponents, TooltipFlag tooltipFlag) {
         super.appendHoverText(stack, context, tooltipComponents, tooltipFlag);
+        addEyPipesTooltip(stack, tooltipComponents::add);
+    }
+    //?} else {
+    /*@Override
+    public void appendHoverText(ItemStack stack, TooltipContext context, net.minecraft.world.item.component.TooltipDisplay display, java.util.function.Consumer<Component> tooltipAdder, TooltipFlag flag) {
+        super.appendHoverText(stack, context, display, tooltipAdder, flag);
+        addEyPipesTooltip(stack, tooltipAdder);
+    }
+    *///?}
+
+    /** The mod's own tooltip lines, independent of how the game asks for them. */
+    private void addEyPipesTooltip(ItemStack stack, java.util.function.Consumer<Component> lines) {
 
         // Calculate remaining uses
         int remainingUses = stack.getMaxDamage() - stack.getDamageValue();
@@ -463,7 +476,7 @@ public class PipeItem extends Item implements GeoItem, ICurioItem {
             String herbTranslationKey = getHerbTranslationKey(herbType);
 
             // Show herb name and remaining count
-            tooltipComponents.add(Component.translatable("tooltip.eypipes.loaded_herb",
+            lines.accept(Component.translatable("tooltip.eypipes.loaded_herb",
                     Component.translatable(herbTranslationKey).withStyle(getHerbColor(herbType)),
                     remainingUses)
                     .withStyle(ChatFormatting.GRAY));
@@ -471,17 +484,17 @@ public class PipeItem extends Item implements GeoItem, ICurioItem {
             // Show quality level with color based on fermentation
             String qualityName = frenk.eypipes.registries.ModDataComponents.getQualityName(qualityLevel);
             ChatFormatting qualityColor = getQualityColor(qualityLevel);
-            tooltipComponents.add(Component.translatable("tooltip.eypipes.quality",
+            lines.accept(Component.translatable("tooltip.eypipes.quality",
                     Component.translatable("tooltip.eypipes.quality." + qualityName.toLowerCase()).withStyle(qualityColor))
                     .withStyle(ChatFormatting.GRAY));
         } else {
             // Pipe is empty
-            tooltipComponents.add(Component.translatable("tooltip.eypipes.pipe_empty")
+            lines.accept(Component.translatable("tooltip.eypipes.pipe_empty")
                     .withStyle(ChatFormatting.DARK_GRAY, ChatFormatting.ITALIC));
         }
 
         // Show mod name
-        tooltipComponents.add(Component.translatable("itemGroup.eypipes.eypipes_tab")
+        lines.accept(Component.translatable("itemGroup.eypipes.eypipes_tab")
                 .withStyle(ChatFormatting.BLUE, ChatFormatting.ITALIC));
     }
 

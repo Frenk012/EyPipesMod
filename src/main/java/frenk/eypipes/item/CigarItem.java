@@ -294,24 +294,37 @@ public class CigarItem extends Item implements GeoItem, ICurioItem {
         return false; // Cigars cannot be repaired - they are consumed
     }
 
+    //? if <1.21.5 {
     @Override
     public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltipComponents, TooltipFlag tooltipFlag) {
         super.appendHoverText(stack, context, tooltipComponents, tooltipFlag);
+        addEyPipesTooltip(stack, tooltipComponents::add);
+    }
+    //?} else {
+    /*@Override
+    public void appendHoverText(ItemStack stack, TooltipContext context, net.minecraft.world.item.component.TooltipDisplay display, java.util.function.Consumer<Component> tooltipAdder, TooltipFlag flag) {
+        super.appendHoverText(stack, context, display, tooltipAdder, flag);
+        addEyPipesTooltip(stack, tooltipAdder);
+    }
+    *///?}
+
+    /** The mod's own tooltip lines, independent of how the game asks for them. */
+    private void addEyPipesTooltip(ItemStack stack, java.util.function.Consumer<Component> lines) {
 
         // Calculate remaining uses
         int remainingUses = stack.getMaxDamage() - stack.getDamageValue();
 
         // Show remaining puffs
         if (remainingUses > 0) {
-            tooltipComponents.add(Component.translatable("tooltip.eypipes.cigar_remaining", remainingUses)
+            lines.accept(Component.translatable("tooltip.eypipes.cigar_remaining", remainingUses)
                     .withStyle(ChatFormatting.GRAY));
         } else {
-            tooltipComponents.add(Component.translatable("tooltip.eypipes.cigar_finished")
+            lines.accept(Component.translatable("tooltip.eypipes.cigar_finished")
                     .withStyle(ChatFormatting.DARK_GRAY, ChatFormatting.ITALIC));
         }
 
         // Show mod name
-        tooltipComponents.add(Component.translatable("itemGroup.eypipes.eypipes_tab")
+        lines.accept(Component.translatable("itemGroup.eypipes.eypipes_tab")
                 .withStyle(ChatFormatting.BLUE, ChatFormatting.ITALIC));
     }
 
