@@ -197,6 +197,22 @@ tasks {
 
         filesMatching("META-INF/neoforge.mods.toml") { expand(props) }
 
+        // GeckoLib 4 scans assets/<ns>/geo and assets/<ns>/animations; GeckoLib 5 scans
+        // assets/<ns>/geckolib/models and assets/<ns>/geckolib/animations. The sources keep one
+        // copy in the old layout and the newer jars get them relocated, rather than carrying the
+        // same models twice in the repository.
+        if (mc != "1.21.1" && mc != "1.21.5") {
+            // Held as locals so the copy actions do not capture the build script itself,
+            // which the configuration cache cannot serialize.
+            val modelsFrom = "assets/$modId/geo/"
+            val modelsTo = "assets/$modId/geckolib/models/"
+            val animationsFrom = "assets/$modId/animations/"
+            val animationsTo = "assets/$modId/geckolib/animations/"
+
+            filesMatching("$modelsFrom**") { path = path.replace(modelsFrom, modelsTo) }
+            filesMatching("$animationsFrom**") { path = path.replace(animationsFrom, animationsTo) }
+        }
+
         // The humanoid mixin targets setupAnim(LivingEntity, ...), which 1.21.9 replaced with
         // a render-state overload carrying no ItemStack. Until the smoking flag is threaded
         // into that state, the mixin is left out of those jars rather than failing to apply.

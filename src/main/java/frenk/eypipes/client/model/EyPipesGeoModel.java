@@ -32,9 +32,16 @@ public class EyPipesGeoModel<T extends GeoAnimatable> extends GeoModel<T> {
      * @param name the item's registry name, which is also its asset base name (e.g. {@code bent_pipe})
      */
     public EyPipesGeoModel(String name) {
+        // GeckoLib 5 scans geckolib/models and geckolib/animations instead of geo and
+        // animations. The build relocates the files, so only the paths differ here.
+        //? if <1.21.9 {
         this.model = ResourceLocation.fromNamespaceAndPath(EyPipes.MOD_ID, "geo/" + name + ".geo.json");
-        this.texture = ResourceLocation.fromNamespaceAndPath(EyPipes.MOD_ID, "textures/item/" + name + ".png");
         this.animation = ResourceLocation.fromNamespaceAndPath(EyPipes.MOD_ID, "animations/" + name + ".animation.json");
+        //?} else {
+        /*this.model = ResourceLocation.fromNamespaceAndPath(EyPipes.MOD_ID, "geckolib/models/" + name + ".geo.json");
+        this.animation = ResourceLocation.fromNamespaceAndPath(EyPipes.MOD_ID, "geckolib/animations/" + name + ".animation.json");
+        *///?}
+        this.texture = ResourceLocation.fromNamespaceAndPath(EyPipes.MOD_ID, "textures/item/" + name + ".png");
     }
 
     //? if <1.21.9 {
