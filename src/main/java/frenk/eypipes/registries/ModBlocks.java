@@ -30,7 +30,10 @@ public class ModBlocks {
     private static BlockBehaviour.Properties cropProperties(MapColor color) {
         return BlockBehaviour.Properties.of()
                 .mapColor(color)
+                //? if <1.21.9 {
                 .noCollission()
+                //?} else
+                /*.noCollision()*/
                 .randomTicks()
                 .instabreak()
                 .sound(SoundType.CROP)
@@ -70,7 +73,10 @@ public class ModBlocks {
                     .strength(1.0f)
                     .sound(SoundType.WOOD)
                     .noOcclusion()
-                    .noCollission());
+                    //? if <1.21.9 {
+                    .noCollission()
+                    //?} else
+                    /*.noCollision()*/);
 
     // Tobacco Jar Block - Container for fermenting herbs
     public static final DeferredBlock<TobaccoJarBlock> TOBACCO_JAR = BLOCKS.registerBlock("tobacco_jar",
