@@ -12,7 +12,7 @@ import net.neoforged.neoforge.event.entity.living.LivingEntityUseItemEvent;
  * Server-side game-bus event handlers.
  * Handles Epic Fight animation broadcast so other players see the smoking animation.
  */
-@EventBusSubscriber(modid = EyPipes.MOD_ID, bus = EventBusSubscriber.Bus.GAME)
+@EventBusSubscriber(modid = EyPipes.MOD_ID)
 public class EyPipesServerEvents {
 
     @SubscribeEvent

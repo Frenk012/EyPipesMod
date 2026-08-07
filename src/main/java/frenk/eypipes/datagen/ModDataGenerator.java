@@ -15,7 +15,7 @@ import java.util.concurrent.CompletableFuture;
  * Main data generator entry point for EyPipes mod.
  * Registers all data providers for block states, models, loot tables, recipes, and tags.
  */
-@EventBusSubscriber(modid = EyPipes.MOD_ID, bus = EventBusSubscriber.Bus.MOD)
+@EventBusSubscriber(modid = EyPipes.MOD_ID)
 public class ModDataGenerator {
 
     @SubscribeEvent

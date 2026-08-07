@@ -21,7 +21,7 @@ import net.neoforged.neoforge.event.entity.player.ItemTooltipEvent;
  * Client-side game bus event handlers for EyPipes.
  * These events are on the NeoForge game bus, not the mod bus.
  */
-@EventBusSubscriber(modid = EyPipes.MOD_ID, bus = EventBusSubscriber.Bus.GAME, value = Dist.CLIENT)
+@EventBusSubscriber(modid = EyPipes.MOD_ID, value = Dist.CLIENT)
 public class EyPipesClientEvents {
 
     /** How often the afterglow tracking map is swept, in client ticks. */

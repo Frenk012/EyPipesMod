@@ -39,7 +39,7 @@ import java.util.List;
  * Uses NeoForge event subscribers instead of Fabric's ClientModInitializer.
  * Ported from Fabric 1.19.2 to NeoForge 1.21.1.
  */
-@EventBusSubscriber(modid = EyPipes.MOD_ID, bus = EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
+@EventBusSubscriber(modid = EyPipes.MOD_ID, value = Dist.CLIENT)
 public class EyPipesClient {
 
     /**
