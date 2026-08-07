@@ -19,6 +19,17 @@ public class ModRecipes {
     public static final DeferredRegister<RecipeSerializer<?>> RECIPE_SERIALIZERS =
             DeferredRegister.create(Registries.RECIPE_SERIALIZER, EyPipes.MOD_ID);
 
+    //? if >=1.21.5 {
+    /*// From 1.21.5 Recipe#recipeBookCategory is mandatory. None of these recipes are made in
+    // a vanilla recipe book menu, so they get an inert category of their own rather than
+    // borrowing one that is actually displayed to the player.
+    public static final DeferredRegister<net.minecraft.world.item.crafting.RecipeBookCategory> RECIPE_BOOK_CATEGORIES =
+            DeferredRegister.create(Registries.RECIPE_BOOK_CATEGORY, EyPipes.MOD_ID);
+
+    public static final DeferredHolder<net.minecraft.world.item.crafting.RecipeBookCategory, net.minecraft.world.item.crafting.RecipeBookCategory> PROCESSING_CATEGORY =
+            RECIPE_BOOK_CATEGORIES.register("processing", net.minecraft.world.item.crafting.RecipeBookCategory::new);
+    *///?}
+
     // Drying recipe type - for drying rack block
     public static final DeferredHolder<RecipeType<?>, RecipeType<DryingRecipe>> DRYING_TYPE =
             RECIPE_TYPES.register("drying", () -> new RecipeType<DryingRecipe>() {
@@ -91,5 +102,8 @@ public class ModRecipes {
         EyPipes.LOGGER.info("Registering EyPipes Recipe Types");
         RECIPE_TYPES.register(eventBus);
         RECIPE_SERIALIZERS.register(eventBus);
+        //? if >=1.21.5 {
+        /*RECIPE_BOOK_CATEGORIES.register(eventBus);
+        *///?}
     }
 }

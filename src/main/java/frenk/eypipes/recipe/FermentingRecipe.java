@@ -39,6 +39,7 @@ public class FermentingRecipe implements Recipe<SingleRecipeInput> {
         return this.output.copy();
     }
 
+    //? if <1.21.5 {
     @Override
     public boolean canCraftInDimensions(int width, int height) {
         return true;
@@ -55,14 +56,27 @@ public class FermentingRecipe implements Recipe<SingleRecipeInput> {
         list.add(this.input);
         return list;
     }
+    //?}
+
+    //? if >=1.21.5 {
+    /*@Override
+    public PlacementInfo placementInfo() {
+        return PlacementInfo.create(this.input);
+    }
 
     @Override
-    public RecipeSerializer<?> getSerializer() {
+    public RecipeBookCategory recipeBookCategory() {
+        return ModRecipes.PROCESSING_CATEGORY.get();
+    }
+    *///?}
+
+    @Override
+    public RecipeSerializer<? extends Recipe<SingleRecipeInput>> getSerializer() {
         return ModRecipes.FERMENTING_SERIALIZER.get();
     }
 
     @Override
-    public RecipeType<?> getType() {
+    public RecipeType<? extends Recipe<SingleRecipeInput>> getType() {
         return ModRecipes.FERMENTING_TYPE.get();
     }
 
@@ -89,7 +103,10 @@ public class FermentingRecipe implements Recipe<SingleRecipeInput> {
 
         public static final MapCodec<FermentingRecipe> CODEC = RecordCodecBuilder.mapCodec(instance ->
                 instance.group(
-                        Ingredient.CODEC_NONEMPTY.fieldOf("ingredient").forGetter(FermentingRecipe::getInput),
+                        //? if <1.21.5 {
+                        Ingredient.CODEC_NONEMPTY
+                        //?} else
+                        /*Ingredient.CODEC*/.fieldOf("ingredient").forGetter(FermentingRecipe::getInput),
                         ItemStack.STRICT_CODEC.fieldOf("result").forGetter(FermentingRecipe::getOutput),
                         Codec.INT.optionalFieldOf("fermenting_time", 24000).forGetter(FermentingRecipe::getFermentingTime),
                         Codec.INT.optionalFieldOf("target_quality", 2).forGetter(FermentingRecipe::getTargetQuality)

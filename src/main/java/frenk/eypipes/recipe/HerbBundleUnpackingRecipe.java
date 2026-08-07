@@ -64,6 +64,7 @@ public class HerbBundleUnpackingRecipe implements CraftingRecipe {
         return result;
     }
 
+    //? if <1.21.5 {
     @Override
     public boolean canCraftInDimensions(int width, int height) {
         return width * height >= 1;
@@ -80,15 +81,20 @@ public class HerbBundleUnpackingRecipe implements CraftingRecipe {
         list.add(Ingredient.of(inputBundle));
         return list;
     }
+    //?}
 
+    //? if >=1.21.5 {
+    /*// Not auto-placeable from the recipe book: the nine inputs must all carry the same
+    // fermentation level, which a placement hint cannot express. Crafting by hand still works.
     @Override
-    public RecipeSerializer<?> getSerializer() {
-        return ModRecipes.HERB_BUNDLE_UNPACKING_SERIALIZER.get();
+    public PlacementInfo placementInfo() {
+        return PlacementInfo.NOT_PLACEABLE;
     }
+    *///?}
 
     @Override
-    public RecipeType<?> getType() {
-        return RecipeType.CRAFTING;
+    public RecipeSerializer<? extends CraftingRecipe> getSerializer() {
+        return ModRecipes.HERB_BUNDLE_UNPACKING_SERIALIZER.get();
     }
 
     @Override

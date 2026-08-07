@@ -39,6 +39,7 @@ public class CuttingBoardRecipe implements Recipe<SingleRecipeInput> {
         return result;
     }
 
+    //? if <1.21.5 {
     @Override
     public boolean canCraftInDimensions(int width, int height) {
         return true;
@@ -57,14 +58,27 @@ public class CuttingBoardRecipe implements Recipe<SingleRecipeInput> {
         list.add(this.input);
         return list;
     }
+    //?}
+
+    //? if >=1.21.5 {
+    /*@Override
+    public PlacementInfo placementInfo() {
+        return PlacementInfo.create(this.input);
+    }
 
     @Override
-    public RecipeSerializer<?> getSerializer() {
+    public RecipeBookCategory recipeBookCategory() {
+        return ModRecipes.PROCESSING_CATEGORY.get();
+    }
+    *///?}
+
+    @Override
+    public RecipeSerializer<? extends Recipe<SingleRecipeInput>> getSerializer() {
         return ModRecipes.CUTTING_BOARD_SERIALIZER.get();
     }
 
     @Override
-    public RecipeType<?> getType() {
+    public RecipeType<? extends Recipe<SingleRecipeInput>> getType() {
         return ModRecipes.CUTTING_BOARD_TYPE.get();
     }
 
@@ -87,7 +101,10 @@ public class CuttingBoardRecipe implements Recipe<SingleRecipeInput> {
 
         public static final MapCodec<CuttingBoardRecipe> CODEC = RecordCodecBuilder.mapCodec(instance ->
                 instance.group(
-                        Ingredient.CODEC_NONEMPTY.fieldOf("ingredient").forGetter(CuttingBoardRecipe::getInput),
+                        //? if <1.21.5 {
+                        Ingredient.CODEC_NONEMPTY
+                        //?} else
+                        /*Ingredient.CODEC*/.fieldOf("ingredient").forGetter(CuttingBoardRecipe::getInput),
                         ItemStack.STRICT_CODEC.fieldOf("result").forGetter(CuttingBoardRecipe::getOutput),
                         Codec.INT.optionalFieldOf("count", 4).forGetter(CuttingBoardRecipe::getOutputCount)
                 ).apply(instance, CuttingBoardRecipe::new)

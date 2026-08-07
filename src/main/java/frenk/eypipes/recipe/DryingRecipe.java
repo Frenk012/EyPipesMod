@@ -37,6 +37,7 @@ public class DryingRecipe implements Recipe<SingleRecipeInput> {
         return this.output.copy();
     }
 
+    //? if <1.21.5 {
     @Override
     public boolean canCraftInDimensions(int width, int height) {
         return true;
@@ -53,14 +54,27 @@ public class DryingRecipe implements Recipe<SingleRecipeInput> {
         list.add(this.input);
         return list;
     }
+    //?}
+
+    //? if >=1.21.5 {
+    /*@Override
+    public PlacementInfo placementInfo() {
+        return PlacementInfo.create(this.input);
+    }
 
     @Override
-    public RecipeSerializer<?> getSerializer() {
+    public RecipeBookCategory recipeBookCategory() {
+        return ModRecipes.PROCESSING_CATEGORY.get();
+    }
+    *///?}
+
+    @Override
+    public RecipeSerializer<? extends Recipe<SingleRecipeInput>> getSerializer() {
         return ModRecipes.DRYING_SERIALIZER.get();
     }
 
     @Override
-    public RecipeType<?> getType() {
+    public RecipeType<? extends Recipe<SingleRecipeInput>> getType() {
         return ModRecipes.DRYING_TYPE.get();
     }
 
@@ -83,7 +97,10 @@ public class DryingRecipe implements Recipe<SingleRecipeInput> {
 
         public static final MapCodec<DryingRecipe> CODEC = RecordCodecBuilder.mapCodec(instance ->
                 instance.group(
-                        Ingredient.CODEC_NONEMPTY.fieldOf("ingredient").forGetter(DryingRecipe::getInput),
+                        //? if <1.21.5 {
+                        Ingredient.CODEC_NONEMPTY
+                        //?} else
+                        /*Ingredient.CODEC*/.fieldOf("ingredient").forGetter(DryingRecipe::getInput),
                         ItemStack.STRICT_CODEC.fieldOf("result").forGetter(DryingRecipe::getOutput),
                         Codec.INT.optionalFieldOf("drying_time", 6000).forGetter(DryingRecipe::getDryingTime)
                 ).apply(instance, DryingRecipe::new)
