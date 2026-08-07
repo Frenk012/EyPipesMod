@@ -14,8 +14,17 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import org.joml.Matrix4f;
 import software.bernie.geckolib.cache.object.BakedGeoModel;
+//? if <1.21.9 {
 import software.bernie.geckolib.renderer.GeoRenderer;
 import software.bernie.geckolib.renderer.layer.GeoRenderLayer;
+//?} else {
+/*import net.minecraft.client.renderer.SubmitNodeCollector;
+import net.minecraft.client.renderer.state.CameraRenderState;
+import software.bernie.geckolib.renderer.GeoItemRenderer;
+import software.bernie.geckolib.renderer.base.GeoRenderer;
+import software.bernie.geckolib.renderer.base.GeoRenderState;
+import software.bernie.geckolib.renderer.layer.GeoRenderLayer;
+*///?}
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -26,7 +35,10 @@ import java.util.concurrent.ConcurrentHashMap;
  * Renders animated glowing embers in the pipe bowl area.
  * Only renders on the specific pipe being smoked, not all pipes.
  */
+//? if <1.21.9 {
 public class BurningTobaccoLayer extends GeoRenderLayer<PipeItem> {
+//?} else
+/*public class BurningTobaccoLayer extends GeoRenderLayer<PipeItem, GeoItemRenderer.RenderData, GeoRenderState> {*/
 
     // White texture for solid color rendering
     private static final ResourceLocation WHITE_TEXTURE = ResourceLocation.withDefaultNamespace("textures/misc/white.png");
@@ -52,9 +64,15 @@ public class BurningTobaccoLayer extends GeoRenderLayer<PipeItem> {
         }
     }
 
+    //? if <1.21.9 {
     public BurningTobaccoLayer(GeoRenderer<PipeItem> renderer) {
         super(renderer);
     }
+    //?} else {
+    /*public BurningTobaccoLayer(GeoRenderer<PipeItem, GeoItemRenderer.RenderData, GeoRenderState> renderer) {
+        super(renderer);
+    }
+    *///?}
 
     /**
      * Called when a player starts smoking a specific pipe.
@@ -114,11 +132,33 @@ public class BurningTobaccoLayer extends GeoRenderLayer<PipeItem> {
         return 1.0f - ((float) elapsed / AFTERGLOW_TICKS);
     }
 
+    //? if <1.21.9 {
     @Override
     public void render(PoseStack poseStack, PipeItem animatable, BakedGeoModel bakedModel,
                        RenderType renderType, MultiBufferSource bufferSource,
                        VertexConsumer buffer, float partialTick,
                        int packedLight, int packedOverlay) {
+        drawBurningTobacco(poseStack,
+                bufferSource.getBuffer(RenderType.entityTranslucentEmissive(WHITE_TEXTURE)),
+                partialTick);
+    }
+    //?} else {
+    /*@Override
+    public void submitRenderTask(GeoRenderState renderState, PoseStack poseStack, BakedGeoModel bakedModel,
+                                 SubmitNodeCollector collector, CameraRenderState cameraState,
+                                 int packedLight, int packedOverlay, int renderColor, boolean isReRender) {
+        // submitCustomGeometry hands back a VertexConsumer, so the hand-built ember quads
+        // carry over unchanged; only the way we obtain the consumer differs.
+        collector.submitCustomGeometry(poseStack, RenderType.entityTranslucentEmissive(WHITE_TEXTURE),
+                (pose, consumer) -> drawBurningTobacco(poseStack, consumer, renderState.getPartialTick()));
+    }
+    *///?}
+
+    /**
+     * Decide whether this pipe should glow and, if so, draw it. Identical on every version;
+     * only how the caller obtains the vertex consumer changes.
+     */
+    private void drawBurningTobacco(PoseStack poseStack, VertexConsumer vertexConsumer, float partialTick) {
 
         Player player = Minecraft.getInstance().player;
         if (player == null) return;
@@ -176,11 +216,11 @@ public class BurningTobaccoLayer extends GeoRenderLayer<PipeItem> {
         }
 
         // Render glowing embers in the bowl area
-        renderBowlEmbers(poseStack, bufferSource, intensity, partialTick, bowlY, bowlZ, bowlRadius);
+        renderBowlEmbers(poseStack, vertexConsumer, intensity, partialTick, bowlY, bowlZ, bowlRadius);
 
         // Render glowing skull eyes for meerschaum pipe
         if (isMeerschaum) {
-            renderSkullEyes(poseStack, bufferSource, intensity, partialTick);
+            renderSkullEyes(poseStack, vertexConsumer, intensity, partialTick);
         }
     }
 
@@ -191,7 +231,7 @@ public class BurningTobaccoLayer extends GeoRenderLayer<PipeItem> {
      * @param bowlZ Z position of the bowl
      * @param bowlRadiusUnits Radius of the bowl in model units
      */
-    private void renderBowlEmbers(PoseStack poseStack, MultiBufferSource bufferSource,
+    private void renderBowlEmbers(PoseStack poseStack, VertexConsumer vertexConsumer,
                                    float intensity, float partialTick, float bowlY, float bowlZ,
                                    float bowlRadiusUnits) {
         poseStack.pushPose();
@@ -206,9 +246,6 @@ public class BurningTobaccoLayer extends GeoRenderLayer<PipeItem> {
         PoseStack.Pose pose = poseStack.last();
         Matrix4f posMatrix = pose.pose();
 
-        // Use emissive render type for maximum brightness glow effect
-        VertexConsumer vertexConsumer = bufferSource.getBuffer(
-                RenderType.entityTranslucentEmissive(WHITE_TEXTURE));
 
         // Calculate ember animation
         float time = animationTicker;
@@ -260,7 +297,7 @@ public class BurningTobaccoLayer extends GeoRenderLayer<PipeItem> {
      * Render glowing red/orange eyes on the meerschaum pipe skull.
      * Eyes flicker with ember-like glow without rotation.
      */
-    private void renderSkullEyes(PoseStack poseStack, MultiBufferSource bufferSource,
+    private void renderSkullEyes(PoseStack poseStack, VertexConsumer vertexConsumer,
                                   float intensity, float partialTick) {
         poseStack.pushPose();
 
@@ -280,9 +317,6 @@ public class BurningTobaccoLayer extends GeoRenderLayer<PipeItem> {
         PoseStack.Pose pose = poseStack.last();
         Matrix4f posMatrix = pose.pose();
 
-        // Use emissive render type for bright glow
-        VertexConsumer vertexConsumer = bufferSource.getBuffer(
-                RenderType.entityTranslucentEmissive(WHITE_TEXTURE));
 
         // Calculate flicker animation (different frequency than bowl embers)
         float time = animationTicker;

@@ -7,12 +7,19 @@ import frenk.eypipes.client.model.EyPipesGeoModel;
 import frenk.eypipes.config.EyPipesConfig;
 import frenk.eypipes.item.PipeItem;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 import software.bernie.geckolib.renderer.GeoItemRenderer;
+//? if <1.21.9 {
+import net.minecraft.client.renderer.MultiBufferSource;
+//?} else {
+/*import net.minecraft.client.renderer.state.CameraRenderState;
+import software.bernie.geckolib.cache.object.BakedGeoModel;
+import software.bernie.geckolib.constant.dataticket.DataTicket;
+import software.bernie.geckolib.renderer.base.GeoRenderState;
+*///?}
 
 /**
  * Renderer shared by every pipe variant.
@@ -21,6 +28,11 @@ import software.bernie.geckolib.renderer.GeoItemRenderer;
  *
  * <p>All pipe variants differ only by their asset name, so one instance per variant
  * replaces the ten identical renderer subclasses this mod used to have.
+ *
+ * <p>Minecraft 1.21.9 split rendering into a capture phase and a submit phase, which are not
+ * the same tick moment. Whether this pipe is lit, held in the left hand and seen in first person
+ * can no longer be read while drawing, so it is captured into the render state and read back when
+ * the pose is adjusted. The pose maths itself is identical on both paths.
  */
 public class PipeGeoRenderer extends GeoItemRenderer<PipeItem> {
 
@@ -40,20 +52,33 @@ public class PipeGeoRenderer extends GeoItemRenderer<PipeItem> {
     private static final float SMOKING_ROTATE_X = 10.0f;
     private static final float TRANSITION_TICKS = 10.0f;
 
+    // Captured at render-state time and read back when the pose is adjusted, because the two
+    // no longer happen at the same moment.
+    //? if >=1.21.9 {
+    /*private static final DataTicket<Float> SMOKING_PROGRESS =
+            DataTicket.create("eypipes:smoking_progress", Float.class);
+
+    private static final DataTicket<Boolean> LEFT_HAND_TICKET =
+            DataTicket.create("eypipes:left_hand", Boolean.class);
+    *///?}
+
     /**
      * @param name the pipe's registry name, which is also its asset base name (e.g. {@code bent_pipe})
      */
     public PipeGeoRenderer(String name) {
         super(new EyPipesGeoModel<>(name));
         // Add burning tobacco effect layer (glowing embers when smoking)
+        //? if <1.21.9 {
         addRenderLayer(new BurningTobaccoLayer(this));
+        //?} else
+        /*withRenderLayer(new BurningTobaccoLayer(this));*/
     }
 
-    @Override
-    public void renderByItem(ItemStack stack, ItemDisplayContext transformType,
-            PoseStack poseStack, MultiBufferSource bufferSource,
-            int packedLight, int packedOverlay) {
-
+    /**
+     * How far the pipe has been raised, 0 to 1, or 0 when it is not being smoked in first person.
+     * Also refreshes the locator position the particle code reads.
+     */
+    private float captureSmokingState(ItemStack stack, ItemDisplayContext transformType) {
         boolean isFirstPerson = transformType == ItemDisplayContext.FIRST_PERSON_RIGHT_HAND ||
                                 transformType == ItemDisplayContext.FIRST_PERSON_LEFT_HAND;
 
@@ -67,39 +92,73 @@ public class PipeGeoRenderer extends GeoItemRenderer<PipeItem> {
         isSmokingFirstPerson = isFirstPerson && isSmoking;
         isLeftHand = transformType == ItemDisplayContext.FIRST_PERSON_LEFT_HAND;
 
-        if (isFirstPerson && isSmoking) {
+        if (!isSmokingFirstPerson) {
+            lastLocatorWorldPos = Vec3.ZERO;
+            return 0.0f;
+        }
+
+        //? if <1.21.9 {
+        float partialTick = Minecraft.getInstance().getTimer().getGameTimeDeltaPartialTick(false);
+        //?} else
+        /*float partialTick = Minecraft.getInstance().getDeltaTracker().getGameTimeDeltaPartialTick(false);*/
+        float smoothTicks = player.getTicksUsingItem() + partialTick;
+        updateLocatorPosition(player, isLeftHand, partialTick);
+
+        return Math.min(smoothTicks / TRANSITION_TICKS, 1.0f);
+    }
+
+    /** Lift and tilt the pipe towards the mouth. Shared by both render paths. */
+    private static void applySmokingPose(PoseStack poseStack, float progress, boolean leftHand) {
+        poseStack.translate(SMOKING_TRANSLATE_X * progress,
+                SMOKING_TRANSLATE_Y * progress,
+                SMOKING_TRANSLATE_Z * progress);
+        poseStack.mulPose(Axis.XP.rotationDegrees(SMOKING_ROTATE_X * progress));
+
+        if (leftHand) {
+            poseStack.scale(-1.0f, 1.0f, 1.0f);
+        }
+    }
+
+    //? if <1.21.9 {
+    @Override
+    public void renderByItem(ItemStack stack, ItemDisplayContext transformType,
+            PoseStack poseStack, MultiBufferSource bufferSource,
+            int packedLight, int packedOverlay) {
+
+        float progress = captureSmokingState(stack, transformType);
+
+        if (progress > 0.0f) {
             poseStack.pushPose();
-
-            // Use partialTick for smooth interpolation
-            float partialTick = Minecraft.getInstance().getTimer().getGameTimeDeltaPartialTick(false);
-            float smoothTicks = player.getTicksUsingItem() + partialTick;
-            float progress = Math.min(smoothTicks / TRANSITION_TICKS, 1.0f);
-
-            float translateX = SMOKING_TRANSLATE_X * progress;
-            float translateY = SMOKING_TRANSLATE_Y * progress;
-            float translateZ = SMOKING_TRANSLATE_Z * progress;
-            float rotateX = SMOKING_ROTATE_X * progress;
-
-            poseStack.translate(translateX, translateY, translateZ);
-            poseStack.mulPose(Axis.XP.rotationDegrees(rotateX));
-
-            if (isLeftHand) {
-                poseStack.scale(-1.0f, 1.0f, 1.0f);
-            }
-
-            updateLocatorPosition(player, isLeftHand, partialTick);
-
+            applySmokingPose(poseStack, progress, isLeftHand);
             super.renderByItem(stack, transformType, poseStack, bufferSource, packedLight, packedOverlay);
             poseStack.popPose();
             return;
         }
 
-        if (!isSmokingFirstPerson) {
-            lastLocatorWorldPos = Vec3.ZERO;
-        }
-
         super.renderByItem(stack, transformType, poseStack, bufferSource, packedLight, packedOverlay);
     }
+    //?} else {
+    /*@Override
+    public void addRenderData(PipeItem animatable, RenderData relatedObject, GeoRenderState renderState,
+            float partialTick) {
+        super.addRenderData(animatable, relatedObject, renderState, partialTick);
+
+        renderState.addGeckolibData(SMOKING_PROGRESS,
+                captureSmokingState(relatedObject.itemStack(), relatedObject.renderPerspective()));
+        renderState.addGeckolibData(LEFT_HAND_TICKET, isLeftHand);
+    }
+
+    @Override
+    public void adjustRenderPose(GeoRenderState renderState, PoseStack poseStack, BakedGeoModel model,
+            CameraRenderState cameraState) {
+        super.adjustRenderPose(renderState, poseStack, model, cameraState);
+
+        float progress = renderState.getOrDefaultGeckolibData(SMOKING_PROGRESS, 0.0f);
+        if (progress > 0.0f) {
+            applySmokingPose(poseStack, progress, renderState.getOrDefaultGeckolibData(LEFT_HAND_TICKET, false));
+        }
+    }
+    *///?}
 
     private void updateLocatorPosition(Player player, boolean leftHand, float partialTick) {
         if (player == null) return;
