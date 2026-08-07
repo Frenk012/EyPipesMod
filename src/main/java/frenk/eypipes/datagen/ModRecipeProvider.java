@@ -3,6 +3,10 @@ package frenk.eypipes.datagen;
 import frenk.eypipes.EyPipes;
 import frenk.eypipes.registries.ModItems;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.level.ItemLike;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.data.PackOutput;
 import net.minecraft.data.recipes.*;
@@ -16,14 +20,60 @@ import java.util.concurrent.CompletableFuture;
  */
 public class ModRecipeProvider extends RecipeProvider {
 
+    //? if <1.21.2 {
     public ModRecipeProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> lookupProvider) {
         super(output, lookupProvider);
     }
 
     @Override
     protected void buildRecipes(RecipeOutput recipeOutput) {
+        buildAll(recipeOutput);
+    }
+
+    private ShapedRecipeBuilder shapedRecipe(RecipeCategory category, ItemLike result) {
+        return ShapedRecipeBuilder.shaped(category, result);
+    }
+
+    private static ResourceLocation id(String path) {
+        return ResourceLocation.fromNamespaceAndPath(EyPipes.MOD_ID, path);
+    }
+    //?} else {
+    /*protected ModRecipeProvider(HolderLookup.Provider registries, RecipeOutput output) {
+        super(registries, output);
+    }
+
+    @Override
+    protected void buildRecipes() {
+        buildAll(this.output);
+    }
+
+    // The shaped builder needs a HolderGetter<Item>; RecipeProvider supplies one.
+    private ShapedRecipeBuilder shapedRecipe(RecipeCategory category, ItemLike result) {
+        return this.shaped(category, result);
+    }
+
+    private static ResourceKey<Recipe<?>> id(String path) {
+        return ResourceKey.create(Registries.RECIPE,
+                ResourceLocation.fromNamespaceAndPath(EyPipes.MOD_ID, path));
+    }
+
+    // RecipeProvider is no longer a DataProvider itself; this is what datagen registers.
+    public static class Runner extends RecipeProvider.Runner {
+        public Runner(PackOutput output, CompletableFuture<HolderLookup.Provider> registries) {
+            super(output, registries);
+        }
+
+        @Override
+        protected RecipeProvider createRecipeProvider(HolderLookup.Provider registries, RecipeOutput output) {
+            return new ModRecipeProvider(registries, output);
+        }
+    }
+    *///?}
+
+    /** Every recipe this mod generates. Identical on all versions. */
+    private void buildAll(RecipeOutput recipeOutput) {
         // Pipe recipe - wooden bowl shape with stick
-        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModItems.PIPE.get())
+        shapedRecipe(RecipeCategory.MISC, ModItems.PIPE.get())
                 .pattern(" S ")
                 .pattern("WBW")
                 .pattern(" W ")
@@ -34,7 +84,7 @@ public class ModRecipeProvider extends RecipeProvider {
                 .save(recipeOutput);
 
         // Cigar recipe - erbapipa dried wrapped in paper
-        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModItems.CIGAR.get())
+        shapedRecipe(RecipeCategory.MISC, ModItems.CIGAR.get())
                 .pattern("DDD")
                 .pattern("PPP")
                 .define('D', ModItems.ERBAPIPA_DRIED.get())
@@ -43,7 +93,7 @@ public class ModRecipeProvider extends RecipeProvider {
                 .save(recipeOutput);
 
         // Drying rack recipe - wooden frame
-        ShapedRecipeBuilder.shaped(RecipeCategory.DECORATIONS, ModItems.DRYING_RACK_ITEM.get())
+        shapedRecipe(RecipeCategory.DECORATIONS, ModItems.DRYING_RACK_ITEM.get())
                 .pattern("SSS")
                 .pattern("W W")
                 .pattern("WWW")
@@ -58,7 +108,7 @@ public class ModRecipeProvider extends RecipeProvider {
         // - Preserves fermentation level from input to output
 
         // Tobacco Jar recipe - clay pot style
-        ShapedRecipeBuilder.shaped(RecipeCategory.DECORATIONS, ModItems.TOBACCO_JAR_ITEM.get())
+        shapedRecipe(RecipeCategory.DECORATIONS, ModItems.TOBACCO_JAR_ITEM.get())
                 .pattern("WLW")
                 .pattern("B B")
                 .pattern("BBB")
@@ -69,7 +119,7 @@ public class ModRecipeProvider extends RecipeProvider {
                 .save(recipeOutput);
 
         // Pipe Rack recipe - wooden wall mount
-        ShapedRecipeBuilder.shaped(RecipeCategory.DECORATIONS, ModItems.PIPE_RACK_ITEM.get())
+        shapedRecipe(RecipeCategory.DECORATIONS, ModItems.PIPE_RACK_ITEM.get())
                 .pattern("WWW")
                 .pattern("S S")
                 .define('W', Items.OAK_PLANKS)
@@ -80,7 +130,7 @@ public class ModRecipeProvider extends RecipeProvider {
         // === PIPE RECIPES ===
 
         // Wooden Pipe - basic oak pipe
-        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModItems.WOODEN_PIPE.get())
+        shapedRecipe(RecipeCategory.MISC, ModItems.WOODEN_PIPE.get())
                 .pattern("  S")
                 .pattern(" W ")
                 .pattern("W  ")
@@ -90,7 +140,7 @@ public class ModRecipeProvider extends RecipeProvider {
                 .save(recipeOutput);
 
         // Clay Pipe - terracotta pipe
-        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModItems.CLAY_PIPE.get())
+        shapedRecipe(RecipeCategory.MISC, ModItems.CLAY_PIPE.get())
                 .pattern("  S")
                 .pattern(" C ")
                 .pattern("C  ")
@@ -100,7 +150,7 @@ public class ModRecipeProvider extends RecipeProvider {
                 .save(recipeOutput);
 
         // Corn Cob Pipe - made with dried kelp (representing corn cob)
-        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModItems.CORN_COB_PIPE.get())
+        shapedRecipe(RecipeCategory.MISC, ModItems.CORN_COB_PIPE.get())
                 .pattern("  S")
                 .pattern(" K ")
                 .pattern("W  ")
@@ -111,7 +161,7 @@ public class ModRecipeProvider extends RecipeProvider {
                 .save(recipeOutput);
 
         // Meerschaum Pipe - white mineral pipe (quartz)
-        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModItems.MEERSCHAUM_PIPE.get())
+        shapedRecipe(RecipeCategory.MISC, ModItems.MEERSCHAUM_PIPE.get())
                 .pattern("  S")
                 .pattern(" Q ")
                 .pattern("Q  ")
@@ -121,7 +171,7 @@ public class ModRecipeProvider extends RecipeProvider {
                 .save(recipeOutput);
 
         // Briar Pipe - dark hardwood pipe
-        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModItems.BRIAR_PIPE.get())
+        shapedRecipe(RecipeCategory.MISC, ModItems.BRIAR_PIPE.get())
                 .pattern("  S")
                 .pattern(" D ")
                 .pattern("D  ")
@@ -131,7 +181,7 @@ public class ModRecipeProvider extends RecipeProvider {
                 .save(recipeOutput);
 
         // Cherry Pipe - cherry wood pipe
-        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModItems.CHERRY_PIPE.get())
+        shapedRecipe(RecipeCategory.MISC, ModItems.CHERRY_PIPE.get())
                 .pattern("  S")
                 .pattern(" C ")
                 .pattern("C  ")
@@ -141,7 +191,7 @@ public class ModRecipeProvider extends RecipeProvider {
                 .save(recipeOutput);
 
         // Calabash Pipe - gourd/pumpkin pipe
-        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModItems.CALABASH_PIPE.get())
+        shapedRecipe(RecipeCategory.MISC, ModItems.CALABASH_PIPE.get())
                 .pattern("  S")
                 .pattern(" P ")
                 .pattern("W  ")
@@ -152,7 +202,7 @@ public class ModRecipeProvider extends RecipeProvider {
                 .save(recipeOutput);
 
         // Churchward Pipe - long elegant pipe
-        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModItems.CHURCHWARD_PIPE.get())
+        shapedRecipe(RecipeCategory.MISC, ModItems.CHURCHWARD_PIPE.get())
                 .pattern("  S")
                 .pattern(" SS")
                 .pattern("W  ")
@@ -162,7 +212,7 @@ public class ModRecipeProvider extends RecipeProvider {
                 .save(recipeOutput);
 
         // Bent Pipe - curved pipe with iron fitting
-        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModItems.BENT_PIPE.get())
+        shapedRecipe(RecipeCategory.MISC, ModItems.BENT_PIPE.get())
                 .pattern("  S")
                 .pattern(" I ")
                 .pattern("W  ")
@@ -173,7 +223,7 @@ public class ModRecipeProvider extends RecipeProvider {
                 .save(recipeOutput);
 
         // Knife - herb cutting tool
-        ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, ModItems.KNIFE.get())
+        shapedRecipe(RecipeCategory.TOOLS, ModItems.KNIFE.get())
                 .pattern("I")
                 .pattern("S")
                 .define('I', Items.IRON_INGOT)
@@ -182,7 +232,7 @@ public class ModRecipeProvider extends RecipeProvider {
                 .save(recipeOutput);
 
         // Cutting Board - for cutting herbs
-        ShapedRecipeBuilder.shaped(RecipeCategory.DECORATIONS, ModItems.CUTTING_BOARD_ITEM.get())
+        shapedRecipe(RecipeCategory.DECORATIONS, ModItems.CUTTING_BOARD_ITEM.get())
                 .pattern("WWW")
                 .define('W', Items.OAK_PLANKS)
                 .unlockedBy("has_erbapipa_dried", has(ModItems.ERBAPIPA_DRIED.get()))
@@ -193,19 +243,19 @@ public class ModRecipeProvider extends RecipeProvider {
 
         DryingRecipeBuilder.drying(ModItems.ERBAPIPA.get(), ModItems.ERBAPIPA_DRIED.get(), 6000)
                 .unlockedBy("has_erbapipa", has(ModItems.ERBAPIPA.get()))
-                .save(recipeOutput, ResourceLocation.fromNamespaceAndPath(EyPipes.MOD_ID,"drying/erbapipa"));
+                .save(recipeOutput, id("drying/erbapipa"));
 
         DryingRecipeBuilder.drying(ModItems.VALERIANA.get(), ModItems.VALERIANA_DRIED.get(), 6000)
                 .unlockedBy("has_valeriana", has(ModItems.VALERIANA.get()))
-                .save(recipeOutput, ResourceLocation.fromNamespaceAndPath(EyPipes.MOD_ID,"drying/valeriana"));
+                .save(recipeOutput, id("drying/valeriana"));
 
         DryingRecipeBuilder.drying(ModItems.GINSENG.get(), ModItems.GINSENG_DRIED.get(), 6000)
                 .unlockedBy("has_ginseng", has(ModItems.GINSENG.get()))
-                .save(recipeOutput, ResourceLocation.fromNamespaceAndPath(EyPipes.MOD_ID,"drying/ginseng"));
+                .save(recipeOutput, id("drying/ginseng"));
 
         DryingRecipeBuilder.drying(ModItems.SALVIA.get(), ModItems.SALVIA_DRIED.get(), 6000)
                 .unlockedBy("has_salvia", has(ModItems.SALVIA.get()))
-                .save(recipeOutput, ResourceLocation.fromNamespaceAndPath(EyPipes.MOD_ID,"drying/salvia"));
+                .save(recipeOutput, id("drying/salvia"));
 
         // === FERMENTING RECIPES (TOBACCO JAR) ===
         // Aged quality (1 MC day = 24000 ticks)
@@ -214,101 +264,101 @@ public class ModRecipeProvider extends RecipeProvider {
         // Erbapipa dried - aged
         FermentingRecipeBuilder.aged(ModItems.ERBAPIPA_DRIED.get(), ModItems.ERBAPIPA_DRIED.get())
                 .unlockedBy("has_erbapipa_dried", has(ModItems.ERBAPIPA_DRIED.get()))
-                .save(recipeOutput, ResourceLocation.fromNamespaceAndPath(EyPipes.MOD_ID,"fermenting/erbapipa_dried_aged"));
+                .save(recipeOutput, id("fermenting/erbapipa_dried_aged"));
 
         // Erbapipa dried - fermented
         FermentingRecipeBuilder.fermented(ModItems.ERBAPIPA_DRIED.get(), ModItems.ERBAPIPA_DRIED.get())
                 .unlockedBy("has_erbapipa_dried", has(ModItems.ERBAPIPA_DRIED.get()))
-                .save(recipeOutput, ResourceLocation.fromNamespaceAndPath(EyPipes.MOD_ID,"fermenting/erbapipa_dried_fermented"));
+                .save(recipeOutput, id("fermenting/erbapipa_dried_fermented"));
 
         // Erbapipa cutted - aged
         FermentingRecipeBuilder.aged(ModItems.ERBAPIPA_CUTTED.get(), ModItems.ERBAPIPA_CUTTED.get())
                 .unlockedBy("has_erbapipa_cutted", has(ModItems.ERBAPIPA_CUTTED.get()))
-                .save(recipeOutput, ResourceLocation.fromNamespaceAndPath(EyPipes.MOD_ID,"fermenting/erbapipa_cutted_aged"));
+                .save(recipeOutput, id("fermenting/erbapipa_cutted_aged"));
 
         // Erbapipa cutted - fermented
         FermentingRecipeBuilder.fermented(ModItems.ERBAPIPA_CUTTED.get(), ModItems.ERBAPIPA_CUTTED.get())
                 .unlockedBy("has_erbapipa_cutted", has(ModItems.ERBAPIPA_CUTTED.get()))
-                .save(recipeOutput, ResourceLocation.fromNamespaceAndPath(EyPipes.MOD_ID,"fermenting/erbapipa_cutted_fermented"));
+                .save(recipeOutput, id("fermenting/erbapipa_cutted_fermented"));
 
         // Valeriana dried - aged
         FermentingRecipeBuilder.aged(ModItems.VALERIANA_DRIED.get(), ModItems.VALERIANA_DRIED.get())
                 .unlockedBy("has_valeriana_dried", has(ModItems.VALERIANA_DRIED.get()))
-                .save(recipeOutput, ResourceLocation.fromNamespaceAndPath(EyPipes.MOD_ID,"fermenting/valeriana_dried_aged"));
+                .save(recipeOutput, id("fermenting/valeriana_dried_aged"));
 
         // Valeriana dried - fermented
         FermentingRecipeBuilder.fermented(ModItems.VALERIANA_DRIED.get(), ModItems.VALERIANA_DRIED.get())
                 .unlockedBy("has_valeriana_dried", has(ModItems.VALERIANA_DRIED.get()))
-                .save(recipeOutput, ResourceLocation.fromNamespaceAndPath(EyPipes.MOD_ID,"fermenting/valeriana_dried_fermented"));
+                .save(recipeOutput, id("fermenting/valeriana_dried_fermented"));
 
         // Valeriana cutted - aged
         FermentingRecipeBuilder.aged(ModItems.VALERIANA_CUTTED.get(), ModItems.VALERIANA_CUTTED.get())
                 .unlockedBy("has_valeriana_cutted", has(ModItems.VALERIANA_CUTTED.get()))
-                .save(recipeOutput, ResourceLocation.fromNamespaceAndPath(EyPipes.MOD_ID,"fermenting/valeriana_cutted_aged"));
+                .save(recipeOutput, id("fermenting/valeriana_cutted_aged"));
 
         // Valeriana cutted - fermented
         FermentingRecipeBuilder.fermented(ModItems.VALERIANA_CUTTED.get(), ModItems.VALERIANA_CUTTED.get())
                 .unlockedBy("has_valeriana_cutted", has(ModItems.VALERIANA_CUTTED.get()))
-                .save(recipeOutput, ResourceLocation.fromNamespaceAndPath(EyPipes.MOD_ID,"fermenting/valeriana_cutted_fermented"));
+                .save(recipeOutput, id("fermenting/valeriana_cutted_fermented"));
 
         // Ginseng dried - aged
         FermentingRecipeBuilder.aged(ModItems.GINSENG_DRIED.get(), ModItems.GINSENG_DRIED.get())
                 .unlockedBy("has_ginseng_dried", has(ModItems.GINSENG_DRIED.get()))
-                .save(recipeOutput, ResourceLocation.fromNamespaceAndPath(EyPipes.MOD_ID,"fermenting/ginseng_dried_aged"));
+                .save(recipeOutput, id("fermenting/ginseng_dried_aged"));
 
         // Ginseng dried - fermented
         FermentingRecipeBuilder.fermented(ModItems.GINSENG_DRIED.get(), ModItems.GINSENG_DRIED.get())
                 .unlockedBy("has_ginseng_dried", has(ModItems.GINSENG_DRIED.get()))
-                .save(recipeOutput, ResourceLocation.fromNamespaceAndPath(EyPipes.MOD_ID,"fermenting/ginseng_dried_fermented"));
+                .save(recipeOutput, id("fermenting/ginseng_dried_fermented"));
 
         // Ginseng cutted - aged
         FermentingRecipeBuilder.aged(ModItems.GINSENG_CUTTED.get(), ModItems.GINSENG_CUTTED.get())
                 .unlockedBy("has_ginseng_cutted", has(ModItems.GINSENG_CUTTED.get()))
-                .save(recipeOutput, ResourceLocation.fromNamespaceAndPath(EyPipes.MOD_ID,"fermenting/ginseng_cutted_aged"));
+                .save(recipeOutput, id("fermenting/ginseng_cutted_aged"));
 
         // Ginseng cutted - fermented
         FermentingRecipeBuilder.fermented(ModItems.GINSENG_CUTTED.get(), ModItems.GINSENG_CUTTED.get())
                 .unlockedBy("has_ginseng_cutted", has(ModItems.GINSENG_CUTTED.get()))
-                .save(recipeOutput, ResourceLocation.fromNamespaceAndPath(EyPipes.MOD_ID,"fermenting/ginseng_cutted_fermented"));
+                .save(recipeOutput, id("fermenting/ginseng_cutted_fermented"));
 
         // Salvia dried - aged
         FermentingRecipeBuilder.aged(ModItems.SALVIA_DRIED.get(), ModItems.SALVIA_DRIED.get())
                 .unlockedBy("has_salvia_dried", has(ModItems.SALVIA_DRIED.get()))
-                .save(recipeOutput, ResourceLocation.fromNamespaceAndPath(EyPipes.MOD_ID,"fermenting/salvia_dried_aged"));
+                .save(recipeOutput, id("fermenting/salvia_dried_aged"));
 
         // Salvia dried - fermented
         FermentingRecipeBuilder.fermented(ModItems.SALVIA_DRIED.get(), ModItems.SALVIA_DRIED.get())
                 .unlockedBy("has_salvia_dried", has(ModItems.SALVIA_DRIED.get()))
-                .save(recipeOutput, ResourceLocation.fromNamespaceAndPath(EyPipes.MOD_ID,"fermenting/salvia_dried_fermented"));
+                .save(recipeOutput, id("fermenting/salvia_dried_fermented"));
 
         // Salvia cutted - aged
         FermentingRecipeBuilder.aged(ModItems.SALVIA_CUTTED.get(), ModItems.SALVIA_CUTTED.get())
                 .unlockedBy("has_salvia_cutted", has(ModItems.SALVIA_CUTTED.get()))
-                .save(recipeOutput, ResourceLocation.fromNamespaceAndPath(EyPipes.MOD_ID,"fermenting/salvia_cutted_aged"));
+                .save(recipeOutput, id("fermenting/salvia_cutted_aged"));
 
         // Salvia cutted - fermented
         FermentingRecipeBuilder.fermented(ModItems.SALVIA_CUTTED.get(), ModItems.SALVIA_CUTTED.get())
                 .unlockedBy("has_salvia_cutted", has(ModItems.SALVIA_CUTTED.get()))
-                .save(recipeOutput, ResourceLocation.fromNamespaceAndPath(EyPipes.MOD_ID,"fermenting/salvia_cutted_fermented"));
+                .save(recipeOutput, id("fermenting/salvia_cutted_fermented"));
 
         // === CUTTING BOARD BLOCK RECIPES ===
         // These are for the cutting board block (different from crafting table cutting)
 
         CuttingBoardRecipeBuilder.cuttingBoard(ModItems.ERBAPIPA_DRIED.get(), ModItems.ERBAPIPA_CUTTED.get(), 4)
                 .unlockedBy("has_erbapipa_dried", has(ModItems.ERBAPIPA_DRIED.get()))
-                .save(recipeOutput, ResourceLocation.fromNamespaceAndPath(EyPipes.MOD_ID,"cutting_board/erbapipa"));
+                .save(recipeOutput, id("cutting_board/erbapipa"));
 
         CuttingBoardRecipeBuilder.cuttingBoard(ModItems.VALERIANA_DRIED.get(), ModItems.VALERIANA_CUTTED.get(), 4)
                 .unlockedBy("has_valeriana_dried", has(ModItems.VALERIANA_DRIED.get()))
-                .save(recipeOutput, ResourceLocation.fromNamespaceAndPath(EyPipes.MOD_ID,"cutting_board/valeriana"));
+                .save(recipeOutput, id("cutting_board/valeriana"));
 
         CuttingBoardRecipeBuilder.cuttingBoard(ModItems.GINSENG_DRIED.get(), ModItems.GINSENG_CUTTED.get(), 4)
                 .unlockedBy("has_ginseng_dried", has(ModItems.GINSENG_DRIED.get()))
-                .save(recipeOutput, ResourceLocation.fromNamespaceAndPath(EyPipes.MOD_ID,"cutting_board/ginseng"));
+                .save(recipeOutput, id("cutting_board/ginseng"));
 
         CuttingBoardRecipeBuilder.cuttingBoard(ModItems.SALVIA_DRIED.get(), ModItems.SALVIA_CUTTED.get(), 4)
                 .unlockedBy("has_salvia_dried", has(ModItems.SALVIA_DRIED.get()))
-                .save(recipeOutput, ResourceLocation.fromNamespaceAndPath(EyPipes.MOD_ID,"cutting_board/salvia"));
+                .save(recipeOutput, id("cutting_board/salvia"));
 
         // === HERB BUNDLE RECIPES ===
         // Packing: 9 dried herbs -> 1 bundle (preserves fermentation level)
@@ -317,37 +367,37 @@ public class ModRecipeProvider extends RecipeProvider {
         // Erbapipa bundle
         HerbBundleRecipeBuilder.packing(ModItems.ERBAPIPA_DRIED.get(), ModItems.ERBAPIPA_BUNDLE_ITEM.get())
                 .unlockedBy("has_erbapipa_dried", has(ModItems.ERBAPIPA_DRIED.get()))
-                .save(recipeOutput, ResourceLocation.fromNamespaceAndPath(EyPipes.MOD_ID, "bundle/erbapipa_packing"));
+                .save(recipeOutput, id("bundle/erbapipa_packing"));
 
         HerbBundleRecipeBuilder.unpacking(ModItems.ERBAPIPA_BUNDLE_ITEM.get(), ModItems.ERBAPIPA_DRIED.get())
                 .unlockedBy("has_erbapipa_bundle", has(ModItems.ERBAPIPA_BUNDLE_ITEM.get()))
-                .save(recipeOutput, ResourceLocation.fromNamespaceAndPath(EyPipes.MOD_ID, "bundle/erbapipa_unpacking"));
+                .save(recipeOutput, id("bundle/erbapipa_unpacking"));
 
         // Valeriana bundle
         HerbBundleRecipeBuilder.packing(ModItems.VALERIANA_DRIED.get(), ModItems.VALERIANA_BUNDLE_ITEM.get())
                 .unlockedBy("has_valeriana_dried", has(ModItems.VALERIANA_DRIED.get()))
-                .save(recipeOutput, ResourceLocation.fromNamespaceAndPath(EyPipes.MOD_ID, "bundle/valeriana_packing"));
+                .save(recipeOutput, id("bundle/valeriana_packing"));
 
         HerbBundleRecipeBuilder.unpacking(ModItems.VALERIANA_BUNDLE_ITEM.get(), ModItems.VALERIANA_DRIED.get())
                 .unlockedBy("has_valeriana_bundle", has(ModItems.VALERIANA_BUNDLE_ITEM.get()))
-                .save(recipeOutput, ResourceLocation.fromNamespaceAndPath(EyPipes.MOD_ID, "bundle/valeriana_unpacking"));
+                .save(recipeOutput, id("bundle/valeriana_unpacking"));
 
         // Ginseng bundle
         HerbBundleRecipeBuilder.packing(ModItems.GINSENG_DRIED.get(), ModItems.GINSENG_BUNDLE_ITEM.get())
                 .unlockedBy("has_ginseng_dried", has(ModItems.GINSENG_DRIED.get()))
-                .save(recipeOutput, ResourceLocation.fromNamespaceAndPath(EyPipes.MOD_ID, "bundle/ginseng_packing"));
+                .save(recipeOutput, id("bundle/ginseng_packing"));
 
         HerbBundleRecipeBuilder.unpacking(ModItems.GINSENG_BUNDLE_ITEM.get(), ModItems.GINSENG_DRIED.get())
                 .unlockedBy("has_ginseng_bundle", has(ModItems.GINSENG_BUNDLE_ITEM.get()))
-                .save(recipeOutput, ResourceLocation.fromNamespaceAndPath(EyPipes.MOD_ID, "bundle/ginseng_unpacking"));
+                .save(recipeOutput, id("bundle/ginseng_unpacking"));
 
         // Salvia bundle
         HerbBundleRecipeBuilder.packing(ModItems.SALVIA_DRIED.get(), ModItems.SALVIA_BUNDLE_ITEM.get())
                 .unlockedBy("has_salvia_dried", has(ModItems.SALVIA_DRIED.get()))
-                .save(recipeOutput, ResourceLocation.fromNamespaceAndPath(EyPipes.MOD_ID, "bundle/salvia_packing"));
+                .save(recipeOutput, id("bundle/salvia_packing"));
 
         HerbBundleRecipeBuilder.unpacking(ModItems.SALVIA_BUNDLE_ITEM.get(), ModItems.SALVIA_DRIED.get())
                 .unlockedBy("has_salvia_bundle", has(ModItems.SALVIA_BUNDLE_ITEM.get()))
-                .save(recipeOutput, ResourceLocation.fromNamespaceAndPath(EyPipes.MOD_ID, "bundle/salvia_unpacking"));
+                .save(recipeOutput, id("bundle/salvia_unpacking"));
     }
 }
