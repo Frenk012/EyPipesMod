@@ -26,7 +26,13 @@ sourceSets.named("main") {
             // EpicFightCompat itself stays: common code calls it, and Stonecutter empties
             // its bodies here. Only the class that touches the Epic Fight API is dropped.
             "frenk/eypipes/integration/epicfight/EpicFightAnimations.java",
+            // NeoForge deleted BlockStateProvider and ItemModelProvider; ModModelProvider
+            // replaces both against Minecraft's own model generators.
+            "frenk/eypipes/datagen/ModBlockStateProvider.java",
+            "frenk/eypipes/datagen/ModItemModelProvider.java",
         )
+    } else {
+        java.exclude("frenk/eypipes/datagen/ModModelProvider.java")
     }
 }
 
