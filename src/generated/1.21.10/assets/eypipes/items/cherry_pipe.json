@@ -1,0 +1,9 @@
+{
+  "model": {
+    "type": "minecraft:special",
+    "base": "eypipes:item/cherry_pipe",
+    "model": {
+      "type": "geckolib:geckolib"
+    }
+  }
+}

@@ -2,9 +2,11 @@ package frenk.eypipes;
 
 import frenk.eypipes.client.curios.CigarCuriosRenderer;
 import frenk.eypipes.client.curios.PipeCuriosRenderer;
+//? if <1.21.9
 import frenk.eypipes.client.renderer.CigarItemRenderer;
 import frenk.eypipes.client.renderer.CuttingBoardRenderer;
 import frenk.eypipes.client.renderer.DryingRackRenderer;
+//? if <1.21.9
 import frenk.eypipes.client.renderer.PipeGeoRenderer;
 import frenk.eypipes.client.renderer.PipeRackRenderer;
 import frenk.eypipes.particle.RingOfSmokeParticle;
@@ -18,6 +20,7 @@ import frenk.eypipes.registries.ModBlocks;
 import frenk.eypipes.registries.ModItems;
 import frenk.eypipes.registries.ModParticles;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
+//? if <1.21.9
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.world.item.Item;
 import net.neoforged.api.distmarker.Dist;
@@ -26,9 +29,12 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.neoforged.neoforge.client.event.RegisterParticleProvidersEvent;
+//? if <1.21.9
 import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
+//? if <1.21.9
 import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent;
 import net.neoforged.neoforge.registries.DeferredItem;
+//? if <1.21.9
 import software.bernie.geckolib.renderer.GeoItemRenderer;
 import top.theillusivec4.curios.api.client.CuriosRendererRegistry;
 
@@ -65,7 +71,10 @@ public class EyPipesClient {
     public static void onClientSetup(FMLClientSetupEvent event) {
         event.enqueueWork(() -> {
             // Set crop block to use cutout render layer (for transparency)
+            //? if <1.21.9 {
             ItemBlockRenderTypes.setRenderLayer(ModBlocks.ERBAPIPA_CROP.get(), RenderType.cutout());
+            //?} else
+            /*ItemBlockRenderTypes.setRenderLayer(ModBlocks.ERBAPIPA_CROP.get(), net.minecraft.client.renderer.chunk.ChunkSectionLayer.CUTOUT);*/
 
             // Register Curios renderers
             CuriosRendererRegistry.register(ModItems.PIPE.get(), PipeCuriosRenderer::new);
@@ -106,6 +115,7 @@ public class EyPipesClient {
     /**
      * Register client extensions for GeckoLib item renderers.
      */
+    //? if <1.21.9 {
     @SubscribeEvent
     public static void onRegisterClientExtensions(RegisterClientExtensionsEvent event) {
         // Every pipe variant shares one data-driven renderer; the asset name is the registry name
@@ -129,22 +139,6 @@ public class EyPipesClient {
     }
 
     /**
-     * Register particle providers/factories.
-     */
-    @SubscribeEvent
-    public static void onRegisterParticles(RegisterParticleProvidersEvent event) {
-        // Register particle factories
-        event.registerSpriteSet(ModParticles.RING_OF_SMOKE.get(), RingOfSmokeParticle.Provider::new);
-        event.registerSpriteSet(ModParticles.EMBER.get(), EmberParticle.Provider::new);
-        event.registerSpriteSet(ModParticles.SPIRAL_SMOKE.get(), SpiralSmokeParticle.Provider::new);
-        event.registerSpriteSet(ModParticles.SPARK.get(), SparkParticle.Provider::new);
-        event.registerSpriteSet(ModParticles.SMOKE_STREAM.get(), SmokeStreamParticle.Provider::new);
-        event.registerSpriteSet(ModParticles.STEAM.get(), SteamParticle.Provider::new);
-
-        EyPipes.LOGGER.debug("Registered EyPipes particle providers (6 types)");
-    }
-
-    /**
      * Helper method to create IClientItemExtensions for a pipe variant.
      *
      * @param name the pipe's registry name, also its GeckoLib asset base name
@@ -161,5 +155,22 @@ public class EyPipesClient {
                 return renderer;
             }
         };
+    }
+    //?}
+
+    /**
+     * Register particle providers/factories.
+     */
+    @SubscribeEvent
+    public static void onRegisterParticles(RegisterParticleProvidersEvent event) {
+        // Register particle factories
+        event.registerSpriteSet(ModParticles.RING_OF_SMOKE.get(), RingOfSmokeParticle.Provider::new);
+        event.registerSpriteSet(ModParticles.EMBER.get(), EmberParticle.Provider::new);
+        event.registerSpriteSet(ModParticles.SPIRAL_SMOKE.get(), SpiralSmokeParticle.Provider::new);
+        event.registerSpriteSet(ModParticles.SPARK.get(), SparkParticle.Provider::new);
+        event.registerSpriteSet(ModParticles.SMOKE_STREAM.get(), SmokeStreamParticle.Provider::new);
+        event.registerSpriteSet(ModParticles.STEAM.get(), SteamParticle.Provider::new);
+
+        EyPipes.LOGGER.debug("Registered EyPipes particle providers (6 types)");
     }
 }

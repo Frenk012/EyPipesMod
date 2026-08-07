@@ -14,6 +14,10 @@ base.archivesName = modId
 // so each Minecraft version keeps its own generated tree, committed alongside the sources.
 val generatedResources: File = rootProject.file("src/generated/$mc")
 
+// Each version needs its own game directory: the dev mods folder holds builds of Curios,
+// JEI and the rest that only load on one Minecraft version.
+val runDirectory: File = rootProject.file("run/$mc")
+
 sourceSets.named("main") {
     resources.srcDir(generatedResources)
 
@@ -31,6 +35,20 @@ sourceSets.named("main") {
             "frenk/eypipes/datagen/ModBlockStateProvider.java",
             "frenk/eypipes/datagen/ModItemModelProvider.java",
         )
+    }
+
+    // From 1.21.2 the client is no longer sent whole recipes, only RecipePropertySet and the
+    // stonecutter list, so a recipe viewer cannot enumerate this mod's drying, fermenting and
+    // cutting board recipes the way it used to. Restoring them needs either RecipeDisplay
+    // support on the recipes or a sync packet of our own - a design decision, not a port - so
+    // the JEI and REI integrations are left out of this target until that is made.
+    if (mc != "1.21.1" && mc != "1.21.5") {
+        java.exclude(
+            "frenk/eypipes/integration/jei/**",
+            "frenk/eypipes/integration/rei/**",
+        )
+        // The service file names the REI plugin class, which is no longer compiled here.
+        resources.exclude("META-INF/services/me.shedaniel.rei.api.client.plugins.REIClientPlugin")
     } else {
         java.exclude("frenk/eypipes/datagen/ModModelProvider.java")
     }
@@ -105,26 +123,43 @@ neoForge {
     runs {
         register("client") {
             client()
-            gameDirectory = file("../../run/")
+            gameDirectory = runDirectory
             systemProperty("neoforge.enabledGameTestNamespaces", modId)
         }
 
         register("server") {
             server()
-            gameDirectory = file("../../run/")
+            gameDirectory = runDirectory
             programArgument("--nogui")
             systemProperty("neoforge.enabledGameTestNamespaces", modId)
         }
 
-        register("data") {
-            data()
-            gameDirectory = file("../../run/")
-            programArguments.addAll(
-                "--mod", modId,
-                "--all",
-                "--output", generatedResources.absolutePath,
-                "--existing", rootProject.file("src/main/resources").absolutePath,
-            )
+        // GatherDataEvent was split in two at 1.21.2 and so was the run that fires it.
+        val dataArguments = listOf(
+            "--mod", modId,
+            "--all",
+            "--output", generatedResources.absolutePath,
+            "--existing", rootProject.file("src/main/resources").absolutePath,
+        )
+
+        if (mc == "1.21.1") {
+            register("data") {
+                data()
+                gameDirectory = runDirectory
+                programArguments.addAll(dataArguments)
+            }
+        } else {
+            register("clientData") {
+                clientData()
+                gameDirectory = runDirectory
+                programArguments.addAll(dataArguments)
+            }
+
+            register("serverData") {
+                serverData()
+                gameDirectory = runDirectory
+                programArguments.addAll(dataArguments)
+            }
         }
     }
 }

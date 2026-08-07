@@ -42,7 +42,10 @@ public class EmberParticle extends EyPipesParticle {
 
         this.gravity = -0.01F; // Slight upward float
 
+        //? if <1.21.9 {
         this.pickSprite(spriteSet);
+        //?} else
+        /*this.setSpriteFromAge(spriteSet);*/
     }
 
     @Override

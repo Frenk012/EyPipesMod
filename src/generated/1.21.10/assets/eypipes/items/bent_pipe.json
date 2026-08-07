@@ -1,0 +1,9 @@
+{
+  "model": {
+    "type": "minecraft:special",
+    "base": "eypipes:item/bent_pipe",
+    "model": {
+      "type": "geckolib:geckolib"
+    }
+  }
+}

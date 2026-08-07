@@ -56,7 +56,10 @@ public class SparkParticle extends EyPipesParticle {
 
         this.hasPhysics = true;
 
+        //? if <1.21.9 {
         this.pickSprite(spriteSet);
+        //?} else
+        /*this.setSpriteFromAge(spriteSet);*/
     }
 
     @Override

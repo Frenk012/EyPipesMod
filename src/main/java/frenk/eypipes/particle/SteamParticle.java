@@ -45,7 +45,10 @@ public class SteamParticle extends EyPipesParticle {
         this.gravity = 0;
         this.hasPhysics = false;
 
+        //? if <1.21.9 {
         this.pickSprite(spriteSet);
+        //?} else
+        /*this.setSpriteFromAge(spriteSet);*/
     }
 
     @Override

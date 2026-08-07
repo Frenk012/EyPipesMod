@@ -370,11 +370,33 @@ public class CigarItem extends Item implements GeoItem, ICurioItem {
     // GeckoLib 4 methods
     @Override
     public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
+        //? if <1.21.9 {
         controllers.add(new AnimationController<>(this, "smokeController", 0, state -> {
+        //?} else
+        /*controllers.add(new AnimationController<>("smokeController", 0, state -> {*/
             // Only play animation when smoking
             return PlayState.STOP;
         }).triggerableAnim("smoke", SMOKE_ANIM));
     }
+
+    // From GeckoLib 5 the item supplies its own renderer instead of it being registered
+    // through NeoForge client extensions, which no longer have a BEWLR to hand back.
+    //? if >=1.21.9 {
+    /*@Override
+    public void createGeoRenderer(java.util.function.Consumer<software.bernie.geckolib.animatable.client.GeoRenderProvider> consumer) {
+        consumer.accept(new software.bernie.geckolib.animatable.client.GeoRenderProvider() {
+            private software.bernie.geckolib.renderer.GeoItemRenderer<?> renderer;
+
+            @Override
+            public software.bernie.geckolib.renderer.GeoItemRenderer<?> getGeoItemRenderer() {
+                if (this.renderer == null) {
+                    this.renderer = new frenk.eypipes.client.renderer.CigarItemRenderer();
+                }
+                return this.renderer;
+            }
+        });
+    }
+    *///?}
 
     @Override
     public AnimatableInstanceCache getAnimatableInstanceCache() {
