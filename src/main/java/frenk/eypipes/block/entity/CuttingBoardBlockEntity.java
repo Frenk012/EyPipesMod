@@ -1,6 +1,6 @@
 package frenk.eypipes.block.entity;
 
-import frenk.eypipes.compat.BlockEntityNbt;
+import frenk.eypipes.compat.Nbt;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.Containers;
 import frenk.eypipes.registries.ModBlockEntities;
@@ -158,13 +158,13 @@ public class CuttingBoardBlockEntity extends BlockEntity {
     @Override
     protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.saveAdditional(tag, registries);
-        BlockEntityNbt.putStack(tag, "StoredItem", storedItem, registries);
+        Nbt.putStack(tag, "StoredItem", storedItem, registries);
     }
 
     @Override
     protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.loadAdditional(tag, registries);
-        storedItem = BlockEntityNbt.getStack(tag, "StoredItem", registries);
+        storedItem = Nbt.getStack(tag, "StoredItem", registries);
     }
 
     @Nullable

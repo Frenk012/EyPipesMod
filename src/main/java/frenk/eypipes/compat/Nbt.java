@@ -5,11 +5,11 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;
 
 /**
- * Version seam for block entity persistence.
+ * Version seam for reading and writing CompoundTag.
  *
  * <p>Minecraft 1.21.5 turned {@code CompoundTag}'s getters into {@code Optional}-returning ones
  * with {@code ...Or(key, default)} companions, and 1.21.6 moves block entity serialization off
- * {@code CompoundTag} onto {@code ValueInput}/{@code ValueOutput} entirely. EyPipes' five block
+ * {@code CompoundTag} onto {@code ValueInput}/{@code ValueOutput} entirely. EyPipes's block
  * entities only ever do three things - store a stack under a key, read it back, and read a
  * primitive with a fallback - so they express that intent here and stay unchanged across both
  * breaks.
@@ -17,9 +17,9 @@ import net.minecraft.world.item.ItemStack;
  * <p>An absent key and an empty stack are the same state: {@link #putStack} writes nothing for an
  * empty stack, and {@link #getStack} returns {@link ItemStack#EMPTY} for a missing key.
  */
-public final class BlockEntityNbt {
+public final class Nbt {
 
-    private BlockEntityNbt() {}
+    private Nbt() {}
 
     /** Store a stack under {@code key}, writing nothing if the stack is empty. */
     public static void putStack(CompoundTag tag, String key, ItemStack stack,
@@ -46,6 +46,14 @@ public final class BlockEntityNbt {
         return tag.contains(key) ? tag.getLong(key) : fallback;
         //?} else
         /*return tag.getLongOr(key, fallback);*/
+    }
+
+    /** Read a boolean, falling back to {@code fallback} when the key is absent. */
+    public static boolean getBoolean(CompoundTag tag, String key, boolean fallback) {
+        //? if <1.21.5 {
+        return tag.contains(key) ? tag.getBoolean(key) : fallback;
+        //?} else
+        /*return tag.getBooleanOr(key, fallback);*/
     }
 
     /** Read an int, falling back to {@code fallback} when the key is absent. */

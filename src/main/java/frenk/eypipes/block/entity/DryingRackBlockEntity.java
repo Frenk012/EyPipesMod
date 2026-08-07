@@ -1,6 +1,6 @@
 package frenk.eypipes.block.entity;
 
-import frenk.eypipes.compat.BlockEntityNbt;
+import frenk.eypipes.compat.Nbt;
 import net.minecraft.world.Containers;
 import frenk.eypipes.config.EyPipesConfig;
 import frenk.eypipes.registries.ModBlockEntities;
@@ -251,9 +251,9 @@ public class DryingRackBlockEntity extends BlockEntity {
         super.saveAdditional(tag, registries);
 
         for (int i = 0; i < SLOT_COUNT; i++) {
-            BlockEntityNbt.putStack(tag, "Item" + i, items[i], registries);
+            Nbt.putStack(tag, "Item" + i, items[i], registries);
             // Save start time instead of elapsed time
-            BlockEntityNbt.putLong(tag, "DryingStart" + i, dryingStartTimes[i]);
+            Nbt.putLong(tag, "DryingStart" + i, dryingStartTimes[i]);
         }
     }
 
@@ -262,11 +262,11 @@ public class DryingRackBlockEntity extends BlockEntity {
         super.loadAdditional(tag, registries);
 
         for (int i = 0; i < SLOT_COUNT; i++) {
-            items[i] = BlockEntityNbt.getStack(tag, "Item" + i, registries);
+            items[i] = Nbt.getStack(tag, "Item" + i, registries);
 
             // Load start time. Racks saved in the old format stored elapsed ticks under
             // "DryingTime<i>"; those fall back to 0 here and the tick method fixes them up.
-            dryingStartTimes[i] = BlockEntityNbt.getLong(tag, "DryingStart" + i, 0);
+            dryingStartTimes[i] = Nbt.getLong(tag, "DryingStart" + i, 0);
         }
     }
 

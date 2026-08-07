@@ -1,6 +1,6 @@
 package frenk.eypipes.block.entity;
 
-import frenk.eypipes.compat.BlockEntityNbt;
+import frenk.eypipes.compat.Nbt;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.Containers;
 import frenk.eypipes.registries.ModBlockEntities;
@@ -150,7 +150,7 @@ public class PipeRackBlockEntity extends BlockEntity {
         super.saveAdditional(tag, registries);
 
         for (int i = 0; i < SLOT_COUNT; i++) {
-            BlockEntityNbt.putStack(tag, "Pipe" + i, items[i], registries);
+            Nbt.putStack(tag, "Pipe" + i, items[i], registries);
         }
     }
 
@@ -159,7 +159,7 @@ public class PipeRackBlockEntity extends BlockEntity {
         super.loadAdditional(tag, registries);
 
         for (int i = 0; i < SLOT_COUNT; i++) {
-            items[i] = BlockEntityNbt.getStack(tag, "Pipe" + i, registries);
+            items[i] = Nbt.getStack(tag, "Pipe" + i, registries);
         }
     }
 

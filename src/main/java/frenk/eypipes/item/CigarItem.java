@@ -2,6 +2,9 @@ package frenk.eypipes.item;
 
 import frenk.eypipes.compat.Interactions;
 import frenk.eypipes.client.SmokeClientEffects;
+import frenk.eypipes.compat.Cooldowns;
+import frenk.eypipes.compat.Nbt;
+import frenk.eypipes.compat.ServerParticles;
 import frenk.eypipes.config.EyPipesConfig;
 import frenk.eypipes.registries.ModParticles;
 import frenk.eypipes.registries.ModSounds;
@@ -10,13 +13,19 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionHand;
+//? if <1.21.5 {
 import net.minecraft.world.InteractionResultHolder;
+//?} else
+/*import net.minecraft.world.InteractionResult;*/
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
+//? if <1.21.5 {
 import net.minecraft.world.item.UseAnim;
+//?} else
+/*import net.minecraft.world.item.ItemUseAnimation;*/
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.network.chat.Component;
@@ -71,8 +80,7 @@ public class CigarItem extends Item implements GeoItem, ICurioItem {
         if (!stack.has(net.minecraft.core.component.DataComponents.CUSTOM_DATA)) {
             return false;
         }
-        return stack.get(net.minecraft.core.component.DataComponents.CUSTOM_DATA)
-                .copyTag().getBoolean(SMOKING_KEY);
+        return Nbt.getBoolean(stack.get(net.minecraft.core.component.DataComponents.CUSTOM_DATA).copyTag(), SMOKING_KEY, false);
     }
 
     private void setSmoking(ItemStack stack, boolean smoking) {
@@ -103,7 +111,10 @@ public class CigarItem extends Item implements GeoItem, ICurioItem {
     }
 
     @Override
+    //? if <1.21.5 {
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
+    //?} else
+    /*public InteractionResult use(Level level, Player player, InteractionHand hand) {*/
         ItemStack itemStack = player.getItemInHand(hand);
 
         // Check if cigar is depleted (destroyed when empty, no refilling)
@@ -138,7 +149,10 @@ public class CigarItem extends Item implements GeoItem, ICurioItem {
     }
 
     @Override
+    //? if <1.21.5 {
     public void releaseUsing(ItemStack stack, Level level, LivingEntity entity, int timeCharged) {
+    //?} else
+    /*public boolean releaseUsing(ItemStack stack, Level level, LivingEntity entity, int timeCharged) {*/
         if (isSmoking(stack)) {
             finishUsing(stack, level, entity);
         }
@@ -150,8 +164,11 @@ public class CigarItem extends Item implements GeoItem, ICurioItem {
         }
 
         if (entity instanceof Player player) {
-            player.getCooldowns().addCooldown(this, 20);
+            Cooldowns.add(player, stack, 20);
         }
+        //? if >=1.21.5 {
+        /*return false;
+        *///?}
     }
 
     @Override
@@ -187,8 +204,7 @@ public class CigarItem extends Item implements GeoItem, ICurioItem {
                 Vec3 thirdPersonPos = positions[1];
                 for (ServerPlayer player : serverLevel.players()) {
                     if (player != entity && player.distanceTo(entity) <= 32.0) {
-                        serverLevel.sendParticles(player, ModParticles.SMOKE_STREAM.get(),
-                                false,
+                        ServerParticles.sendTo(serverLevel, player, ModParticles.SMOKE_STREAM.get(),
                                 thirdPersonPos.x + (level.random.nextGaussian() * 0.02),
                                 thirdPersonPos.y + (level.random.nextGaussian() * 0.02),
                                 thirdPersonPos.z + (level.random.nextGaussian() * 0.02),
@@ -226,7 +242,7 @@ public class CigarItem extends Item implements GeoItem, ICurioItem {
         setSmoking(item, false);
 
         if (entity instanceof Player player) {
-            player.getCooldowns().addCooldown(this, 20);
+            Cooldowns.add(player, item, 20);
         }
 
         return item;
@@ -266,8 +282,7 @@ public class CigarItem extends Item implements GeoItem, ICurioItem {
                             Vec3 vec = entity.getViewVector(1.0F);
                             for (ServerPlayer player : serverLevel.players()) {
                                 if (player != entity) {
-                                    serverLevel.sendParticles(player, ModParticles.RING_OF_SMOKE.get(),
-                                            false,
+                                    ServerParticles.sendTo(serverLevel, player, ModParticles.RING_OF_SMOKE.get(),
                                             entity.getX() + vec.x * offsetMultiplier,
                                             entity.getY() + entity.getEyeHeight() + vec.y * offsetMultiplier,
                                             entity.getZ() + vec.z * offsetMultiplier,
@@ -285,9 +300,15 @@ public class CigarItem extends Item implements GeoItem, ICurioItem {
     }
 
     @Override
+    //? if <1.21.5 {
     public UseAnim getUseAnimation(ItemStack stack) {
         return UseAnim.NONE;
     }
+    //?} else {
+    /*public ItemUseAnimation getUseAnimation(ItemStack stack) {
+        return ItemUseAnimation.NONE;
+    }
+    *///?}
 
     @Override
     public boolean isRepairable(ItemStack stack) {

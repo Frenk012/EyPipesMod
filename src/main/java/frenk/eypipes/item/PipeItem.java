@@ -2,6 +2,9 @@ package frenk.eypipes.item;
 
 import frenk.eypipes.compat.Interactions;
 import frenk.eypipes.client.SmokeClientEffects;
+import frenk.eypipes.compat.Cooldowns;
+import frenk.eypipes.compat.Nbt;
+import frenk.eypipes.compat.ServerParticles;
 import frenk.eypipes.config.EyPipesConfig;
 import frenk.eypipes.registries.ModItems;
 import frenk.eypipes.registries.ModParticles;
@@ -12,13 +15,19 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionHand;
+//? if <1.21.5 {
 import net.minecraft.world.InteractionResultHolder;
+//?} else
+/*import net.minecraft.world.InteractionResult;*/
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
+//? if <1.21.5 {
 import net.minecraft.world.item.UseAnim;
+//?} else
+/*import net.minecraft.world.item.ItemUseAnimation;*/
 import net.minecraft.world.level.Level;
 import net.minecraft.network.chat.Component;
 import net.minecraft.ChatFormatting;
@@ -83,8 +92,7 @@ public class PipeItem extends Item implements GeoItem, ICurioItem {
         if (!stack.has(net.minecraft.core.component.DataComponents.CUSTOM_DATA)) {
             return false;
         }
-        return stack.get(net.minecraft.core.component.DataComponents.CUSTOM_DATA)
-                .copyTag().getBoolean(SMOKING_KEY);
+        return Nbt.getBoolean(stack.get(net.minecraft.core.component.DataComponents.CUSTOM_DATA).copyTag(), SMOKING_KEY, false);
     }
 
     private void setSmoking(ItemStack stack, boolean smoking) {
@@ -98,8 +106,7 @@ public class PipeItem extends Item implements GeoItem, ICurioItem {
         if (!stack.has(net.minecraft.core.component.DataComponents.CUSTOM_DATA)) {
             return HERB_ERBAPIPA;
         }
-        return stack.get(net.minecraft.core.component.DataComponents.CUSTOM_DATA)
-                .copyTag().getInt(HERB_TYPE_KEY);
+        return Nbt.getInt(stack.get(net.minecraft.core.component.DataComponents.CUSTOM_DATA).copyTag(), HERB_TYPE_KEY, HERB_ERBAPIPA);
     }
 
     private void setHerbType(ItemStack stack, int herbType) {
@@ -113,13 +120,8 @@ public class PipeItem extends Item implements GeoItem, ICurioItem {
         if (!stack.has(net.minecraft.core.component.DataComponents.CUSTOM_DATA)) {
             return 1; // Default: dried quality
         }
-        net.minecraft.nbt.CompoundTag tag = stack.get(net.minecraft.core.component.DataComponents.CUSTOM_DATA).copyTag();
-        // If QUALITY_KEY doesn't exist, NBT returns 0 which would be FRESH (0.5x multiplier)
-        // We want to default to DRIED (1.0x multiplier) instead
-        if (!tag.contains(QUALITY_KEY)) {
-            return 1; // Default: dried quality
-        }
-        return tag.getInt(QUALITY_KEY);
+        // Absent means dried (1.0x), not fresh (0.5x), so the fallback is spelled out
+        return Nbt.getInt(stack.get(net.minecraft.core.component.DataComponents.CUSTOM_DATA).copyTag(), QUALITY_KEY, 1);
     }
 
     private void setQualityLevel(ItemStack stack, int qualityLevel) {
@@ -173,7 +175,10 @@ public class PipeItem extends Item implements GeoItem, ICurioItem {
     }
 
     @Override
+    //? if <1.21.5 {
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
+    //?} else
+    /*public InteractionResult use(Level level, Player player, InteractionHand hand) {*/
         ItemStack itemStack = player.getItemInHand(hand);
 
         // Check for shift+right-click with any cutted herb in off-hand for refill
@@ -220,7 +225,7 @@ public class PipeItem extends Item implements GeoItem, ICurioItem {
                 // Play refill sound and set cooldown
                 level.playSound(null, player.getX(), player.getY(), player.getZ(),
                         ModSounds.PIPE_REFILL.get(), SoundSource.PLAYERS, 1.0F, 1.2F);
-                player.getCooldowns().addCooldown(this, 20);
+                Cooldowns.add(player, itemStack, 20);
 
                 return Interactions.useSuccess(itemStack);
             }
@@ -251,7 +256,10 @@ public class PipeItem extends Item implements GeoItem, ICurioItem {
     }
 
     @Override
+    //? if <1.21.5 {
     public void releaseUsing(ItemStack stack, Level level, LivingEntity entity, int timeCharged) {
+    //?} else
+    /*public boolean releaseUsing(ItemStack stack, Level level, LivingEntity entity, int timeCharged) {*/
         if (isSmoking(stack)) {
             finishUsing(stack, level, entity);
         }
@@ -265,8 +273,11 @@ public class PipeItem extends Item implements GeoItem, ICurioItem {
         // Animation handled by PipeGeoRenderer - no GeckoLib animation stop needed
 
         if (entity instanceof Player player) {
-            player.getCooldowns().addCooldown(this, 20);
+            Cooldowns.add(player, stack, 20);
         }
+        //? if >=1.21.5 {
+        /*return false;
+        *///?}
     }
 
     @Override
@@ -303,8 +314,7 @@ public class PipeItem extends Item implements GeoItem, ICurioItem {
                 Vec3 thirdPersonPos = positions[1];
                 for (ServerPlayer player : serverLevel.players()) {
                     if (player != entity && player.distanceTo(entity) <= 32.0) {
-                        serverLevel.sendParticles(player, ModParticles.SMOKE_STREAM.get(),
-                                false,
+                        ServerParticles.sendTo(serverLevel, player, ModParticles.SMOKE_STREAM.get(),
                                 thirdPersonPos.x + (level.random.nextGaussian() * 0.02),
                                 thirdPersonPos.y + (level.random.nextGaussian() * 0.02),
                                 thirdPersonPos.z + (level.random.nextGaussian() * 0.02),
@@ -335,7 +345,7 @@ public class PipeItem extends Item implements GeoItem, ICurioItem {
         }
 
         if (entity instanceof Player player) {
-            player.getCooldowns().addCooldown(this, 20);
+            Cooldowns.add(player, item, 20);
         }
 
         return item;
@@ -362,14 +372,23 @@ public class PipeItem extends Item implements GeoItem, ICurioItem {
             case HERB_VALERIANA -> {
                 // Calming effect: slower movement but better night vision
                 int duration = (int) (600 * multiplier); // base 30 seconds
+                //? if <1.21.5 {
                 entity.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, duration, 0));
+                //?} else
+                /*entity.addEffect(new MobEffectInstance(MobEffects.SLOWNESS, duration, 0));*/
                 entity.addEffect(new MobEffectInstance(MobEffects.NIGHT_VISION, duration, 0));
             }
             case HERB_GINSENG -> {
                 // Energizing effect: faster movement and mining
                 int duration = (int) (600 * multiplier); // base 30 seconds
+                //? if <1.21.5 {
                 entity.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SPEED, duration, 0));
+                //?} else
+                /*entity.addEffect(new MobEffectInstance(MobEffects.SPEED, duration, 0));*/
+                //? if <1.21.5 {
                 entity.addEffect(new MobEffectInstance(MobEffects.DIG_SPEED, duration, 0));
+                //?} else
+                /*entity.addEffect(new MobEffectInstance(MobEffects.HASTE, duration, 0));*/
             }
             case HERB_SALVIA -> {
                 // Vision effect: enhanced sight but you glow
@@ -421,8 +440,7 @@ public class PipeItem extends Item implements GeoItem, ICurioItem {
                             Vec3 vec = entity.getViewVector(1.0F);
                             for (ServerPlayer player : serverLevel.players()) {
                                 if (player != entity) {
-                                    serverLevel.sendParticles(player, ModParticles.RING_OF_SMOKE.get(),
-                                            false,
+                                    ServerParticles.sendTo(serverLevel, player, ModParticles.RING_OF_SMOKE.get(),
                                             entity.getX() + vec.x * offsetMultiplier,
                                             entity.getY() + entity.getEyeHeight() + vec.y * offsetMultiplier,
                                             entity.getZ() + vec.z * offsetMultiplier,
@@ -440,9 +458,15 @@ public class PipeItem extends Item implements GeoItem, ICurioItem {
     }
 
     @Override
+    //? if <1.21.5 {
     public UseAnim getUseAnimation(ItemStack stack) {
         return UseAnim.NONE;
     }
+    //?} else {
+    /*public ItemUseAnimation getUseAnimation(ItemStack stack) {
+        return ItemUseAnimation.NONE;
+    }
+    *///?}
 
     @Override
     public boolean isRepairable(ItemStack stack) {
