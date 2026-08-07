@@ -4,9 +4,7 @@
   "package": "frenk.eypipes.mixin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [],
-  "client": [
-    "client.BipedModelMixin"
-  ],
+  "client": [MIXIN_CLIENT_LIST],
   "injectors": {
     "defaultRequire": 1
   }

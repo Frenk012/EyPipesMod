@@ -21,10 +21,10 @@ jobs:
           distribution: 'microsoft'
       - name: make gradle wrapper executable
         run: chmod +x ./gradlew
-      # Running plain `./gradlew build` builds every Minecraft version. Only the versions
-      # listed here are ported so far; add each new one as its port lands.
+      # Running plain `./gradlew build` builds every Minecraft version. Only the ported ones
+      # listed here build; add each new one as its port lands.
       - name: build
-        run: ./gradlew :1.21.1:build
+        run: ./gradlew :1.21.1:build :1.21.10:build
       - name: capture build artifacts
         uses: actions/upload-artifact@v4
         with:

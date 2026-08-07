@@ -50,7 +50,7 @@ public class ModModelProvider extends ModelProvider {
 
     /** Items whose model is hand-authored; they only need the client-item definition. */
     private static final List<DeferredItem<Item>> HAND_AUTHORED_ITEMS = List.of(
-            ModItems.DRYING_RACK_ITEM, ModItems.TOBACCO_JAR_ITEM, ModItems.PIPE_RACK_ITEM,
+            ModItems.TOBACCO_JAR_ITEM, ModItems.PIPE_RACK_ITEM,
             ModItems.CUTTING_BOARD_ITEM, ModItems.KNIFE,
             ModItems.ERBAPIPA_BUNDLE_ITEM, ModItems.VALERIANA_BUNDLE_ITEM,
             ModItems.GINSENG_BUNDLE_ITEM, ModItems.SALVIA_BUNDLE_ITEM);
@@ -86,6 +86,12 @@ public class ModModelProvider extends ModelProvider {
         for (DeferredItem<Item> item : HAND_AUTHORED_ITEMS) {
             itemModels.declareCustomModelItem(item.get());
         }
+
+        // The drying rack's item model is named after the block rather than the item, so the
+        // default "item/<registry name>" lookup would miss it.
+        itemModels.itemModelOutput.accept(ModItems.DRYING_RACK_ITEM.get(),
+                ItemModelUtils.plainModel(
+                        ResourceLocation.fromNamespaceAndPath(EyPipes.MOD_ID, "item/drying_rack")));
 
         // GeckoLib draws these through its own special renderer, which it registers itself;
         // the client item just has to point at that renderer rather than at a baked model.

@@ -1,6 +1,6 @@
 {
   "model": {
     "type": "minecraft:model",
-    "model": "eypipes:item/drying_rack_erb"
+    "model": "eypipes:item/drying_rack"
   }
 }

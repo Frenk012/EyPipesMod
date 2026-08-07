@@ -47,6 +47,7 @@ sourceSets.named("main") {
             "frenk/eypipes/integration/jei/**",
             "frenk/eypipes/integration/rei/**",
         )
+        java.exclude("frenk/eypipes/mixin/client/BipedModelMixin.java")
         // The service file names the REI plugin class, which is no longer compiled here.
         resources.exclude("META-INF/services/me.shedaniel.rei.api.client.plugins.REIClientPlugin")
     } else {
@@ -195,6 +196,15 @@ tasks {
         }
 
         filesMatching("META-INF/neoforge.mods.toml") { expand(props) }
+
+        // The humanoid mixin targets setupAnim(LivingEntity, ...), which 1.21.9 replaced with
+        // a render-state overload carrying no ItemStack. Until the smoking flag is threaded
+        // into that state, the mixin is left out of those jars rather than failing to apply.
+        val mixinClients = if (mc == "1.21.1" || mc == "1.21.5") "\"client.BipedModelMixin\"" else ""
+        inputs.property("mixinClients", mixinClients)
+        filesMatching("eypipes.mixins.json") {
+            filter { line -> line.replace("MIXIN_CLIENT_LIST", mixinClients) }
+        }
     }
 
     // ModDevGradle's task graph does not know about Stonecutter, so without this it can

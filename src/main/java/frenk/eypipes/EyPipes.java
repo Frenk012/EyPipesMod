@@ -25,7 +25,7 @@ public class EyPipes {
     public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
 
     public EyPipes(IEventBus modEventBus, ModContainer modContainer) {
-        LOGGER.info("EyPipes initializing for NeoForge 1.21.1!");
+        LOGGER.info("EyPipes initializing");
 
         // Register all deferred registers to the mod event bus
         ModBlocks.register(modEventBus);
