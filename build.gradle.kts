@@ -200,7 +200,34 @@ tasks {
             register("jei_version_range", "deps.jei_range")
         }
 
-        filesMatching("META-INF/neoforge.mods.toml") { expand(props) }
+        // Only declare the recipe viewers where their integrations are actually compiled in.
+        // An optional dependency still carries its version range, so leaving them in would
+        // block a player running an older JEI for an integration this jar does not have.
+        val recipeViewerDependencies = if (mc == "1.21.1" || mc == "1.21.5") {
+            listOf(
+                "[[dependencies.$modId]]",
+                "modId = \"roughlyenoughitems\"",
+                "type = \"optional\"",
+                "versionRange = \"" + sc.properties.get<String>("deps.rei_range") + "\"",
+                "ordering = \"AFTER\"",
+                "side = \"CLIENT\"",
+                "",
+                "[[dependencies.$modId]]",
+                "modId = \"jei\"",
+                "type = \"optional\"",
+                "versionRange = \"" + sc.properties.get<String>("deps.jei_range") + "\"",
+                "ordering = \"AFTER\"",
+                "side = \"CLIENT\"",
+            ).joinToString(System.lineSeparator())
+        } else {
+            ""
+        }
+        inputs.property("recipeViewerDependencies", recipeViewerDependencies)
+
+        filesMatching("META-INF/neoforge.mods.toml") {
+            filter { line -> line.replace("RECIPE_VIEWER_DEPENDENCIES", recipeViewerDependencies) }
+            expand(props)
+        }
 
         // GeckoLib 4 scans assets/<ns>/geo and assets/<ns>/animations; GeckoLib 5 scans
         // assets/<ns>/geckolib/models and assets/<ns>/geckolib/animations. The sources keep one
