@@ -1,5 +1,6 @@
 package frenk.eypipes.block.entity;
 
+import frenk.eypipes.compat.BlockEntityNbt;
 import frenk.eypipes.registries.ModBlockEntities;
 import frenk.eypipes.registries.ModDataComponents;
 import net.minecraft.core.BlockPos;
@@ -33,14 +34,12 @@ public class HerbBundleBlockEntity extends BlockEntity {
     @Override
     protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.saveAdditional(tag, registries);
-        tag.putInt(FERMENTATION_KEY, fermentationLevel);
+        BlockEntityNbt.putInt(tag, FERMENTATION_KEY, fermentationLevel);
     }
 
     @Override
     protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.loadAdditional(tag, registries);
-        if (tag.contains(FERMENTATION_KEY)) {
-            fermentationLevel = tag.getInt(FERMENTATION_KEY);
-        }
+        fermentationLevel = BlockEntityNbt.getInt(tag, FERMENTATION_KEY, fermentationLevel);
     }
 }

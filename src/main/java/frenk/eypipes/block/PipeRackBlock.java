@@ -1,5 +1,6 @@
 package frenk.eypipes.block;
 
+import frenk.eypipes.compat.Interactions;
 import com.mojang.serialization.MapCodec;
 import frenk.eypipes.block.entity.PipeRackBlockEntity;
 import frenk.eypipes.registries.ModBlockEntities;
@@ -87,12 +88,12 @@ public class PipeRackBlock extends BaseEntityBlock {
     protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos,
                                                Player player, InteractionHand hand, BlockHitResult hitResult) {
         if (level.isClientSide()) {
-            return ItemInteractionResult.SUCCESS;
+            return Interactions.itemSuccess();
         }
 
         BlockEntity blockEntity = level.getBlockEntity(pos);
         if (!(blockEntity instanceof PipeRackBlockEntity pipeRack)) {
-            return ItemInteractionResult.FAIL;
+            return Interactions.itemFail();
         }
 
         ItemStack heldItem = player.getItemInHand(hand);
@@ -107,7 +108,7 @@ public class PipeRackBlock extends BaseEntityBlock {
                 level.sendBlockUpdated(pos, state, state, Block.UPDATE_ALL);
                 pipeRack.setChanged();
 
-                return ItemInteractionResult.CONSUME;
+                return Interactions.itemConsume();
             }
         }
         // If player's hand is empty, try to remove an item
@@ -122,11 +123,11 @@ public class PipeRackBlock extends BaseEntityBlock {
                 level.sendBlockUpdated(pos, state, state, Block.UPDATE_ALL);
                 pipeRack.setChanged();
 
-                return ItemInteractionResult.SUCCESS;
+                return Interactions.itemSuccess();
             }
         }
 
-        return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+        return Interactions.itemPassToBlock();
     }
 
     @Override

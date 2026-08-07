@@ -2,7 +2,6 @@ package frenk.eypipes.mixin.client;
 
 import frenk.eypipes.item.PipeItem;
 import frenk.eypipes.item.CigarItem;
-import frenk.eypipes.util.ArmAnimationTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.geom.ModelPart;
@@ -49,7 +48,6 @@ public abstract class BipedModelMixin<T extends LivingEntity> {
             // Skip first-person animation for local player
             Minecraft mc = Minecraft.getInstance();
             if (mc.options.getCameraType().isFirstPerson() && entity == mc.player) {
-                ArmAnimationTracker.removeArmPosition(entity);
                 return;
             }
 
@@ -65,12 +63,6 @@ public abstract class BipedModelMixin<T extends LivingEntity> {
 
             this.rightArm.xRot = currentPitch;
             this.rightArm.yRot = currentYaw;
-
-            // Track the arm position for particle synchronization
-            ArmAnimationTracker.setArmPosition(entity, currentPitch, currentYaw);
-        } else {
-            // Clean up arm position tracking when not using smoking items
-            ArmAnimationTracker.removeArmPosition(entity);
         }
     }
 }

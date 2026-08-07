@@ -1,10 +1,9 @@
 package frenk.eypipes.item;
 
-import frenk.eypipes.client.renderer.BasePipeRenderer;
+import frenk.eypipes.compat.Interactions;
+import frenk.eypipes.client.SmokeClientEffects;
 import frenk.eypipes.config.EyPipesConfig;
-import frenk.eypipes.particle.EnhancedParticleHelper;
 import frenk.eypipes.registries.ModItems;
-import net.minecraft.client.Minecraft;
 import frenk.eypipes.registries.ModParticles;
 import frenk.eypipes.registries.ModSounds;
 import net.minecraft.core.particles.ParticleTypes;
@@ -185,7 +184,7 @@ public class PipeItem extends Item implements GeoItem, ICurioItem {
             if (herbType >= 0 && itemStack.isDamageableItem()) {
                 // Check if pipe is already at maximum durability
                 if (itemStack.getDamageValue() <= 1) {
-                    return InteractionResultHolder.fail(itemStack);
+                    return Interactions.useFail(itemStack);
                 }
 
                 int currentDamage = itemStack.getDamageValue();
@@ -196,14 +195,14 @@ public class PipeItem extends Item implements GeoItem, ICurioItem {
                     int currentHerbType = getHerbType(itemStack);
                     if (currentHerbType != herbType) {
                         // Different herb type - cannot mix, pipe must be empty first
-                        return InteractionResultHolder.fail(itemStack);
+                        return Interactions.useFail(itemStack);
                     }
                 }
 
                 int maxInsertable = currentDamage - 1;
                 int insertCount = player.isCreative() ? maxInsertable : Math.min(maxInsertable, offHandStack.getCount());
                 if (insertCount <= 0) {
-                    return InteractionResultHolder.fail(itemStack);
+                    return Interactions.useFail(itemStack);
                 }
 
                 itemStack.setDamageValue(currentDamage - insertCount);
@@ -223,14 +222,14 @@ public class PipeItem extends Item implements GeoItem, ICurioItem {
                         ModSounds.PIPE_REFILL.get(), SoundSource.PLAYERS, 1.0F, 1.2F);
                 player.getCooldowns().addCooldown(this, 20);
 
-                return InteractionResultHolder.success(itemStack);
+                return Interactions.useSuccess(itemStack);
             }
         }
 
         // Check if pipe is empty (no tobacco left) - cannot smoke
         if (itemStack.isDamageableItem() && itemStack.getDamageValue() >= itemStack.getMaxDamage()) {
             // Pipe is empty - need to refill using shift+right-click with erbapipa_cutted
-            return InteractionResultHolder.fail(itemStack);
+            return Interactions.useFail(itemStack);
         }
 
         // Start smoking
@@ -240,15 +239,15 @@ public class PipeItem extends Item implements GeoItem, ICurioItem {
 
         // Notify burning tobacco layer (client-side only)
         if (level.isClientSide()) {
-            frenk.eypipes.client.layer.BurningTobaccoLayer.onStartSmoking(player, itemStack);
+            SmokeClientEffects.onStartSmoking(player, itemStack);
         }
 
-        // Animation is handled by BasePipeRenderer's custom transformation
+        // Animation is handled by PipeGeoRenderer's custom transformation
         // GeckoLib animation disabled due to inconsistent behavior between dev/production
 
         player.awardStat(Stats.ITEM_USED.get(this));
 
-        return InteractionResultHolder.consume(itemStack);
+        return Interactions.useConsume(itemStack);
     }
 
     @Override
@@ -260,10 +259,10 @@ public class PipeItem extends Item implements GeoItem, ICurioItem {
 
         // Notify burning tobacco layer to start afterglow (client-side only)
         if (level.isClientSide() && entity instanceof Player player) {
-            frenk.eypipes.client.layer.BurningTobaccoLayer.onStopSmoking(player, stack, level.getGameTime());
+            SmokeClientEffects.onStopSmoking(player, stack, level.getGameTime());
         }
 
-        // Animation handled by BasePipeRenderer - no GeckoLib animation stop needed
+        // Animation handled by PipeGeoRenderer - no GeckoLib animation stop needed
 
         if (entity instanceof Player player) {
             player.getCooldowns().addCooldown(this, 20);
@@ -288,33 +287,14 @@ public class PipeItem extends Item implements GeoItem, ICurioItem {
             float intensity = 1.0f - ((float) remainingUseTicks / USAGE_TIME);
 
             if (level.isClientSide()) {
-                // Client-side particles - check if first-person with locator position
-                boolean isLocalPlayer = entity == Minecraft.getInstance().player;
-                boolean isFirstPerson = Minecraft.getInstance().options.getCameraType().isFirstPerson();
-
-                if (isLocalPlayer && isFirstPerson && BasePipeRenderer.isCurrentlySmokingFirstPerson()) {
+                if (SmokeClientEffects.isFirstPersonPipeView(entity)) {
                     // FIRST-PERSON: Use locator-based position for discrete particles
-                    Vec3 locatorPos = BasePipeRenderer.getLastLocatorWorldPos();
-                    if (locatorPos != Vec3.ZERO) {
-                        // Spawn smaller, discrete first-person particles at bowl locator
-                        EnhancedParticleHelper.spawnFirstPersonBowlSmoke(level, locatorPos, intensity);
-                        EnhancedParticleHelper.spawnFirstPersonBowlEmbers(level, locatorPos, intensity);
-                    }
+                    SmokeClientEffects.spawnFirstPersonBowl(level, intensity);
                 } else {
                     // THIRD-PERSON or not local player: Use original eye-based position
                     boolean isLeftHand = entity.getUsedItemHand() == InteractionHand.OFF_HAND;
                     Vec3[] positions = calculateParticlePosition(entity, isLeftHand);
-                    Vec3 thirdPersonPos = positions[1];
-
-                    for (int i = 0; i < 10; i++) {
-                        level.addParticle(ModParticles.SMOKE_STREAM.get(),
-                                thirdPersonPos.x + (level.random.nextGaussian() * 0.02),
-                                thirdPersonPos.y + (level.random.nextGaussian() * 0.02),
-                                thirdPersonPos.z + (level.random.nextGaussian() * 0.02),
-                                0.001, 0.01, 0.001);
-                    }
-
-                    EnhancedParticleHelper.spawnBowlEmbers(level, thirdPersonPos, intensity);
+                    SmokeClientEffects.spawnThirdPersonBowl(level, positions[1], intensity);
                 }
             } else if (level instanceof ServerLevel serverLevel) {
                 // Server-side particles for other players (always third-person)
@@ -351,7 +331,7 @@ public class PipeItem extends Item implements GeoItem, ICurioItem {
 
         // Notify burning tobacco layer to start afterglow (client-side only)
         if (level.isClientSide() && entity instanceof Player player) {
-            frenk.eypipes.client.layer.BurningTobaccoLayer.onStopSmoking(player, item, level.getGameTime());
+            SmokeClientEffects.onStopSmoking(player, item, level.getGameTime());
         }
 
         if (entity instanceof Player player) {
@@ -421,16 +401,9 @@ public class PipeItem extends Item implements GeoItem, ICurioItem {
 
                 PARTICLE_EXECUTOR.schedule(() ->
                     // Dispatch back to render thread - addParticle is not thread-safe
-                    Minecraft.getInstance().execute(() -> {
+                    SmokeClientEffects.runOnRenderThread(() -> {
                         if (entity.isAlive()) {
-                            Vec3 vec = entity.getViewVector(1.0F);
-                            level.addParticle(ModParticles.RING_OF_SMOKE.get(),
-                                    entity.getX() + vec.x * offsetMultiplier,
-                                    entity.getY() + entity.getEyeHeight() + vec.y * offsetMultiplier,
-                                    entity.getZ() + vec.z * offsetMultiplier,
-                                    vec.x * velScale,
-                                    vec.y * velScale,
-                                    vec.z * velScale);
+                            SmokeClientEffects.spawnSmokeRing(entity, level, offsetMultiplier, velScale);
                         }
                     }), particleIndex * RING_DELAY_MS, TimeUnit.MILLISECONDS);
             }

@@ -1,6 +1,6 @@
 package frenk.eypipes.client.renderer;
 
-import frenk.eypipes.client.model.CigarModel;
+import frenk.eypipes.client.model.EyPipesGeoModel;
 import frenk.eypipes.item.CigarItem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.entity.player.Player;
@@ -16,7 +16,7 @@ import software.bernie.geckolib.renderer.GeoItemRenderer;
 public class CigarItemRenderer extends GeoItemRenderer<CigarItem> {
 
     public CigarItemRenderer() {
-        super(new CigarModel());
+        super(new EyPipesGeoModel<>("cigar"));
     }
 
     @Override

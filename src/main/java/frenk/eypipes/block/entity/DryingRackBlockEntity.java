@@ -1,5 +1,6 @@
 package frenk.eypipes.block.entity;
 
+import frenk.eypipes.compat.BlockEntityNbt;
 import frenk.eypipes.config.EyPipesConfig;
 import frenk.eypipes.registries.ModBlockEntities;
 import frenk.eypipes.registries.ModItems;
@@ -227,11 +228,9 @@ public class DryingRackBlockEntity extends BlockEntity {
         super.saveAdditional(tag, registries);
 
         for (int i = 0; i < SLOT_COUNT; i++) {
-            if (!items[i].isEmpty()) {
-                tag.put("Item" + i, items[i].save(registries));
-            }
+            BlockEntityNbt.putStack(tag, "Item" + i, items[i], registries);
             // Save start time instead of elapsed time
-            tag.putLong("DryingStart" + i, dryingStartTimes[i]);
+            BlockEntityNbt.putLong(tag, "DryingStart" + i, dryingStartTimes[i]);
         }
     }
 
@@ -240,22 +239,11 @@ public class DryingRackBlockEntity extends BlockEntity {
         super.loadAdditional(tag, registries);
 
         for (int i = 0; i < SLOT_COUNT; i++) {
-            if (tag.contains("Item" + i)) {
-                items[i] = ItemStack.parse(registries, tag.getCompound("Item" + i)).orElse(ItemStack.EMPTY);
-            } else {
-                items[i] = ItemStack.EMPTY;
-            }
+            items[i] = BlockEntityNbt.getStack(tag, "Item" + i, registries);
 
-            // Load start time (handle migration from old format)
-            if (tag.contains("DryingStart" + i)) {
-                dryingStartTimes[i] = tag.getLong("DryingStart" + i);
-            } else if (tag.contains("DryingTime" + i)) {
-                // Migration: old format stored elapsed ticks, convert to start time
-                // We'll set start time to 0 and let the tick method fix it
-                dryingStartTimes[i] = 0;
-            } else {
-                dryingStartTimes[i] = 0;
-            }
+            // Load start time. Racks saved in the old format stored elapsed ticks under
+            // "DryingTime<i>"; those fall back to 0 here and the tick method fixes them up.
+            dryingStartTimes[i] = BlockEntityNbt.getLong(tag, "DryingStart" + i, 0);
         }
     }
 

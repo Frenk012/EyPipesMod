@@ -17,130 +17,130 @@ import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
 /**
- * Registry for all EyPipes items using NeoForge DeferredRegister
+ * Registry for all EyPipes items using NeoForge DeferredRegister.
+ *
+ * <p>Items are registered through {@code registerItem}/{@code registerSimpleItem} rather than the
+ * raw {@code register} overload so that {@link Item.Properties} is supplied by the registry itself.
+ * From Minecraft 1.21.2 onwards the properties must carry the item's registry id, which only these
+ * overloads can inject; on 1.21.1 the two forms behave identically.
  */
 public class ModItems {
     public static final DeferredRegister.Items ITEMS = DeferredRegister.createItems(EyPipes.MOD_ID);
 
+    private static Item.Properties pipeProperties() {
+        return new Item.Properties().stacksTo(1).durability(50);
+    }
+
     // Basic crop items
-    public static final DeferredItem<Item> ERBAPIPA = ITEMS.register("erbapipa",
-            () -> new Item(new Item.Properties()));
+    public static final DeferredItem<Item> ERBAPIPA = ITEMS.registerSimpleItem("erbapipa");
 
-    public static final DeferredItem<Item> ERBAPIPA_DRIED = ITEMS.register("erbapipa_dried",
-            () -> new Item(new Item.Properties()));
+    public static final DeferredItem<Item> ERBAPIPA_DRIED = ITEMS.registerSimpleItem("erbapipa_dried");
 
-    public static final DeferredItem<Item> ERBAPIPA_CUTTED = ITEMS.register("erbapipa_cutted",
-            () -> new Item(new Item.Properties()));
+    public static final DeferredItem<Item> ERBAPIPA_CUTTED = ITEMS.registerSimpleItem("erbapipa_cutted");
 
     // Valeriana - calming effect (Slowness + Night Vision)
-    public static final DeferredItem<Item> VALERIANA = ITEMS.register("valeriana",
-            () -> new HerbItem(new Item.Properties(), "item.eypipes.valeriana.hint", ChatFormatting.LIGHT_PURPLE));
+    public static final DeferredItem<Item> VALERIANA = ITEMS.registerItem("valeriana",
+            props -> new HerbItem(props, "item.eypipes.valeriana.hint", ChatFormatting.LIGHT_PURPLE));
 
-    public static final DeferredItem<Item> VALERIANA_DRIED = ITEMS.register("valeriana_dried",
-            () -> new Item(new Item.Properties()));
+    public static final DeferredItem<Item> VALERIANA_DRIED = ITEMS.registerSimpleItem("valeriana_dried");
 
-    public static final DeferredItem<Item> VALERIANA_CUTTED = ITEMS.register("valeriana_cutted",
-            () -> new Item(new Item.Properties()));
+    public static final DeferredItem<Item> VALERIANA_CUTTED = ITEMS.registerSimpleItem("valeriana_cutted");
 
     // Ginseng - energizing effect (Speed + Haste)
-    public static final DeferredItem<Item> GINSENG = ITEMS.register("ginseng",
-            () -> new HerbItem(new Item.Properties(), "item.eypipes.ginseng.hint", ChatFormatting.GOLD));
+    public static final DeferredItem<Item> GINSENG = ITEMS.registerItem("ginseng",
+            props -> new HerbItem(props, "item.eypipes.ginseng.hint", ChatFormatting.GOLD));
 
-    public static final DeferredItem<Item> GINSENG_DRIED = ITEMS.register("ginseng_dried",
-            () -> new Item(new Item.Properties()));
+    public static final DeferredItem<Item> GINSENG_DRIED = ITEMS.registerSimpleItem("ginseng_dried");
 
-    public static final DeferredItem<Item> GINSENG_CUTTED = ITEMS.register("ginseng_cutted",
-            () -> new Item(new Item.Properties()));
+    public static final DeferredItem<Item> GINSENG_CUTTED = ITEMS.registerSimpleItem("ginseng_cutted");
 
     // Salvia - vision effect (Night Vision II + Glowing)
-    public static final DeferredItem<Item> SALVIA = ITEMS.register("salvia",
-            () -> new HerbItem(new Item.Properties(), "item.eypipes.salvia.hint", ChatFormatting.DARK_GREEN));
+    public static final DeferredItem<Item> SALVIA = ITEMS.registerItem("salvia",
+            props -> new HerbItem(props, "item.eypipes.salvia.hint", ChatFormatting.DARK_GREEN));
 
-    public static final DeferredItem<Item> SALVIA_DRIED = ITEMS.register("salvia_dried",
-            () -> new Item(new Item.Properties()));
+    public static final DeferredItem<Item> SALVIA_DRIED = ITEMS.registerSimpleItem("salvia_dried");
 
-    public static final DeferredItem<Item> SALVIA_CUTTED = ITEMS.register("salvia_cutted",
-            () -> new Item(new Item.Properties()));
+    public static final DeferredItem<Item> SALVIA_CUTTED = ITEMS.registerSimpleItem("salvia_cutted");
 
     // Seeds items (plants the crops)
-    public static final DeferredItem<Item> ERBAPIPA_SEEDS = ITEMS.register("erbapipa_seeds",
-            () -> new ItemNameBlockItem(ModBlocks.ERBAPIPA_CROP.get(), new Item.Properties()));
+    public static final DeferredItem<Item> ERBAPIPA_SEEDS = ITEMS.registerItem("erbapipa_seeds",
+            props -> new ItemNameBlockItem(ModBlocks.ERBAPIPA_CROP.get(), props));
 
-    public static final DeferredItem<Item> VALERIANA_SEEDS = ITEMS.register("valeriana_seeds",
-            () -> new ItemNameBlockItem(ModBlocks.VALERIANA_CROP.get(), new Item.Properties()));
+    public static final DeferredItem<Item> VALERIANA_SEEDS = ITEMS.registerItem("valeriana_seeds",
+            props -> new ItemNameBlockItem(ModBlocks.VALERIANA_CROP.get(), props));
 
-    public static final DeferredItem<Item> GINSENG_SEEDS = ITEMS.register("ginseng_seeds",
-            () -> new ItemNameBlockItem(ModBlocks.GINSENG_CROP.get(), new Item.Properties()));
+    public static final DeferredItem<Item> GINSENG_SEEDS = ITEMS.registerItem("ginseng_seeds",
+            props -> new ItemNameBlockItem(ModBlocks.GINSENG_CROP.get(), props));
 
-    public static final DeferredItem<Item> SALVIA_SEEDS = ITEMS.register("salvia_seeds",
-            () -> new ItemNameBlockItem(ModBlocks.SALVIA_CROP.get(), new Item.Properties()));
+    public static final DeferredItem<Item> SALVIA_SEEDS = ITEMS.registerItem("salvia_seeds",
+            props -> new ItemNameBlockItem(ModBlocks.SALVIA_CROP.get(), props));
 
     // Pipe item - GeckoLib animated trinket with 50 durability
-    public static final DeferredItem<Item> PIPE = ITEMS.register("pipe",
-            () -> new PipeItem(new Item.Properties().stacksTo(1).durability(50)));
+    public static final DeferredItem<Item> PIPE = ITEMS.registerItem("pipe",
+            PipeItem::new, pipeProperties());
 
     // Cigar item - GeckoLib animated trinket with 10 durability
-    public static final DeferredItem<Item> CIGAR = ITEMS.register("cigar",
-            () -> new CigarItem(new Item.Properties().stacksTo(1).durability(10)));
+    public static final DeferredItem<Item> CIGAR = ITEMS.registerItem("cigar",
+            CigarItem::new, new Item.Properties().stacksTo(1).durability(10));
 
     // Pipe variants - same mechanics, different models/textures
-    public static final DeferredItem<Item> WOODEN_PIPE = ITEMS.register("wooden_pipe",
-            () -> new PipeItem(new Item.Properties().stacksTo(1).durability(50)));
+    public static final DeferredItem<Item> WOODEN_PIPE = ITEMS.registerItem("wooden_pipe",
+            PipeItem::new, pipeProperties());
 
-    public static final DeferredItem<Item> CLAY_PIPE = ITEMS.register("clay_pipe",
-            () -> new PipeItem(new Item.Properties().stacksTo(1).durability(50)));
+    public static final DeferredItem<Item> CLAY_PIPE = ITEMS.registerItem("clay_pipe",
+            PipeItem::new, pipeProperties());
 
-    public static final DeferredItem<Item> CORN_COB_PIPE = ITEMS.register("corn_cob_pipe",
-            () -> new PipeItem(new Item.Properties().stacksTo(1).durability(50)));
+    public static final DeferredItem<Item> CORN_COB_PIPE = ITEMS.registerItem("corn_cob_pipe",
+            PipeItem::new, pipeProperties());
 
-    public static final DeferredItem<Item> MEERSCHAUM_PIPE = ITEMS.register("meerschaum_pipe",
-            () -> new PipeItem(new Item.Properties().stacksTo(1).durability(50)));
+    public static final DeferredItem<Item> MEERSCHAUM_PIPE = ITEMS.registerItem("meerschaum_pipe",
+            PipeItem::new, pipeProperties());
 
-    public static final DeferredItem<Item> BRIAR_PIPE = ITEMS.register("briar_pipe",
-            () -> new PipeItem(new Item.Properties().stacksTo(1).durability(50)));
+    public static final DeferredItem<Item> BRIAR_PIPE = ITEMS.registerItem("briar_pipe",
+            PipeItem::new, pipeProperties());
 
-    public static final DeferredItem<Item> CHERRY_PIPE = ITEMS.register("cherry_pipe",
-            () -> new PipeItem(new Item.Properties().stacksTo(1).durability(50)));
+    public static final DeferredItem<Item> CHERRY_PIPE = ITEMS.registerItem("cherry_pipe",
+            PipeItem::new, pipeProperties());
 
-    public static final DeferredItem<Item> CALABASH_PIPE = ITEMS.register("calabash_pipe",
-            () -> new PipeItem(new Item.Properties().stacksTo(1).durability(50)));
+    public static final DeferredItem<Item> CALABASH_PIPE = ITEMS.registerItem("calabash_pipe",
+            PipeItem::new, pipeProperties());
 
-    public static final DeferredItem<Item> CHURCHWARD_PIPE = ITEMS.register("churchward_pipe",
-            () -> new PipeItem(new Item.Properties().stacksTo(1).durability(50)));
+    public static final DeferredItem<Item> CHURCHWARD_PIPE = ITEMS.registerItem("churchward_pipe",
+            PipeItem::new, pipeProperties());
 
-    public static final DeferredItem<Item> BENT_PIPE = ITEMS.register("bent_pipe",
-            () -> new PipeItem(new Item.Properties().stacksTo(1).durability(50)));
+    public static final DeferredItem<Item> BENT_PIPE = ITEMS.registerItem("bent_pipe",
+            PipeItem::new, pipeProperties());
 
     // Block items
-    public static final DeferredItem<Item> DRYING_RACK_ITEM = ITEMS.register("drying_rack_erb",
-            () -> new BlockItem(ModBlocks.DRYING_RACK.get(), new Item.Properties()));
+    public static final DeferredItem<Item> DRYING_RACK_ITEM = ITEMS.registerItem("drying_rack_erb",
+            props -> new BlockItem(ModBlocks.DRYING_RACK.get(), props));
 
-    public static final DeferredItem<Item> TOBACCO_JAR_ITEM = ITEMS.register("tobacco_jar",
-            () -> new BlockItem(ModBlocks.TOBACCO_JAR.get(), new Item.Properties()));
+    public static final DeferredItem<Item> TOBACCO_JAR_ITEM = ITEMS.registerItem("tobacco_jar",
+            props -> new BlockItem(ModBlocks.TOBACCO_JAR.get(), props));
 
-    public static final DeferredItem<Item> PIPE_RACK_ITEM = ITEMS.register("pipe_rack",
-            () -> new BlockItem(ModBlocks.PIPE_RACK.get(), new Item.Properties()));
+    public static final DeferredItem<Item> PIPE_RACK_ITEM = ITEMS.registerItem("pipe_rack",
+            props -> new BlockItem(ModBlocks.PIPE_RACK.get(), props));
 
     // Cutting Board block item
-    public static final DeferredItem<Item> CUTTING_BOARD_ITEM = ITEMS.register("cutting_board",
-            () -> new BlockItem(ModBlocks.CUTTING_BOARD.get(), new Item.Properties()));
+    public static final DeferredItem<Item> CUTTING_BOARD_ITEM = ITEMS.registerItem("cutting_board",
+            props -> new BlockItem(ModBlocks.CUTTING_BOARD.get(), props));
 
     // Knife item - used to cut dried herbs on the cutting board
-    public static final DeferredItem<Item> KNIFE = ITEMS.register("knife",
-            () -> new KnifeItem(new Item.Properties().stacksTo(1).durability(64)));
+    public static final DeferredItem<Item> KNIFE = ITEMS.registerItem("knife",
+            KnifeItem::new, new Item.Properties().stacksTo(1).durability(64));
 
     // Herb Bundle block items - storage blocks for dried herbs
-    public static final DeferredItem<Item> ERBAPIPA_BUNDLE_ITEM = ITEMS.register("erbapipa_bundle",
-            () -> new HerbBundleBlockItem(ModBlocks.ERBAPIPA_BUNDLE.get(), new Item.Properties(), ChatFormatting.GREEN));
+    public static final DeferredItem<Item> ERBAPIPA_BUNDLE_ITEM = ITEMS.registerItem("erbapipa_bundle",
+            props -> new HerbBundleBlockItem(ModBlocks.ERBAPIPA_BUNDLE.get(), props, ChatFormatting.GREEN));
 
-    public static final DeferredItem<Item> VALERIANA_BUNDLE_ITEM = ITEMS.register("valeriana_bundle",
-            () -> new HerbBundleBlockItem(ModBlocks.VALERIANA_BUNDLE.get(), new Item.Properties(), ChatFormatting.LIGHT_PURPLE));
+    public static final DeferredItem<Item> VALERIANA_BUNDLE_ITEM = ITEMS.registerItem("valeriana_bundle",
+            props -> new HerbBundleBlockItem(ModBlocks.VALERIANA_BUNDLE.get(), props, ChatFormatting.LIGHT_PURPLE));
 
-    public static final DeferredItem<Item> GINSENG_BUNDLE_ITEM = ITEMS.register("ginseng_bundle",
-            () -> new HerbBundleBlockItem(ModBlocks.GINSENG_BUNDLE.get(), new Item.Properties(), ChatFormatting.GOLD));
+    public static final DeferredItem<Item> GINSENG_BUNDLE_ITEM = ITEMS.registerItem("ginseng_bundle",
+            props -> new HerbBundleBlockItem(ModBlocks.GINSENG_BUNDLE.get(), props, ChatFormatting.GOLD));
 
-    public static final DeferredItem<Item> SALVIA_BUNDLE_ITEM = ITEMS.register("salvia_bundle",
-            () -> new HerbBundleBlockItem(ModBlocks.SALVIA_BUNDLE.get(), new Item.Properties(), ChatFormatting.DARK_GREEN));
+    public static final DeferredItem<Item> SALVIA_BUNDLE_ITEM = ITEMS.registerItem("salvia_bundle",
+            props -> new HerbBundleBlockItem(ModBlocks.SALVIA_BUNDLE.get(), props, ChatFormatting.DARK_GREEN));
 
     public static void register(IEventBus eventBus) {
         ITEMS.register(eventBus);

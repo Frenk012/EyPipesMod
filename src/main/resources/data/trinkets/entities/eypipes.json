@@ -1,9 +1,0 @@
-{
-  "entities": [
-    "player"
-  ],
-  "slots": [
-    "chest/pipe_chest",
-    "head/pipe_head"
-  ]
-}

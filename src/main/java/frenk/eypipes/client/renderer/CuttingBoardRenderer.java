@@ -1,14 +1,13 @@
 package frenk.eypipes.client.renderer;
 
+import frenk.eypipes.compat.ItemStackRenderHelper;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import frenk.eypipes.block.CuttingBoardBlock;
 import frenk.eypipes.block.entity.CuttingBoardBlockEntity;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
-import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
@@ -21,10 +20,7 @@ import net.minecraft.world.level.block.state.BlockState;
  */
 public class CuttingBoardRenderer implements BlockEntityRenderer<CuttingBoardBlockEntity> {
 
-    private final ItemRenderer itemRenderer;
-
     public CuttingBoardRenderer(BlockEntityRendererProvider.Context context) {
-        this.itemRenderer = Minecraft.getInstance().getItemRenderer();
     }
 
     @Override
@@ -60,8 +56,8 @@ public class CuttingBoardRenderer implements BlockEntityRenderer<CuttingBoardBlo
         poseStack.scale(0.6f, 0.6f, 0.6f);
 
         // Render the item
-        itemRenderer.renderStatic(storedItem, ItemDisplayContext.FIXED, packedLight, packedOverlay,
-                poseStack, buffer, blockEntity.getLevel(), 0);
+        ItemStackRenderHelper.render(storedItem, ItemDisplayContext.FIXED, poseStack, buffer,
+                blockEntity.getLevel(), packedLight, packedOverlay);
 
         poseStack.popPose();
     }

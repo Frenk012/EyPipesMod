@@ -1,5 +1,6 @@
 package frenk.eypipes.block;
 
+import frenk.eypipes.compat.Interactions;
 import com.mojang.serialization.MapCodec;
 import frenk.eypipes.block.entity.CuttingBoardBlockEntity;
 import frenk.eypipes.item.KnifeItem;
@@ -87,7 +88,7 @@ public class CuttingBoardBlock extends BaseEntityBlock {
                                                Player player, InteractionHand hand, BlockHitResult hitResult) {
         BlockEntity blockEntity = level.getBlockEntity(pos);
         if (!(blockEntity instanceof CuttingBoardBlockEntity cuttingBoard)) {
-            return ItemInteractionResult.FAIL;
+            return Interactions.itemFail();
         }
 
         ItemStack heldItem = player.getItemInHand(hand);
@@ -112,7 +113,7 @@ public class CuttingBoardBlock extends BaseEntityBlock {
                 // Client-side: spawn leaf particles
                 spawnCuttingParticles(level, pos);
             }
-            return ItemInteractionResult.sidedSuccess(level.isClientSide());
+            return Interactions.itemSidedSuccess(level.isClientSide());
         }
 
         // If holding a cuttable item (dried herb) and board is empty, place it
@@ -122,7 +123,7 @@ public class CuttingBoardBlock extends BaseEntityBlock {
                     heldItem.shrink(1);
                 }
             }
-            return ItemInteractionResult.sidedSuccess(level.isClientSide());
+            return Interactions.itemSidedSuccess(level.isClientSide());
         }
 
         // If hand is empty and there's an item, remove it
@@ -135,10 +136,10 @@ public class CuttingBoardBlock extends BaseEntityBlock {
                     }
                 }
             }
-            return ItemInteractionResult.sidedSuccess(level.isClientSide());
+            return Interactions.itemSidedSuccess(level.isClientSide());
         }
 
-        return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+        return Interactions.itemPassToBlock();
     }
 
     /**

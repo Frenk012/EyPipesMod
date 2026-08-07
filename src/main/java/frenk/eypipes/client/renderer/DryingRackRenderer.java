@@ -1,10 +1,10 @@
 package frenk.eypipes.client.renderer;
 
+import frenk.eypipes.compat.ItemStackRenderHelper;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import frenk.eypipes.block.DryingRackBlock;
 import frenk.eypipes.block.entity.DryingRackBlockEntity;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
@@ -67,16 +67,8 @@ public class DryingRackRenderer implements BlockEntityRenderer<DryingRackBlockEn
                 poseStack.mulPose(Axis.XP.rotationDegrees(0));
 
                 // Render the item
-                Minecraft.getInstance().getItemRenderer().renderStatic(
-                        item,
-                        ItemDisplayContext.GROUND,
-                        packedLight,
-                        packedOverlay,
-                        poseStack,
-                        bufferSource,
-                        entity.getLevel(),
-                        0
-                );
+                ItemStackRenderHelper.render(item, ItemDisplayContext.GROUND, poseStack, bufferSource,
+                        entity.getLevel(), packedLight, packedOverlay);
 
                 poseStack.popPose();
             }

@@ -1,9 +1,12 @@
 package frenk.eypipes;
 
+import frenk.eypipes.client.layer.BurningTobaccoLayer;
 import frenk.eypipes.integration.epicfight.EpicFightCompat;
 import frenk.eypipes.registries.ModDataComponents;
 import frenk.eypipes.registries.ModItems;
 import net.minecraft.ChatFormatting;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -21,12 +24,20 @@ import net.neoforged.neoforge.event.entity.player.ItemTooltipEvent;
 @EventBusSubscriber(modid = EyPipes.MOD_ID, bus = EventBusSubscriber.Bus.GAME, value = Dist.CLIENT)
 public class EyPipesClientEvents {
 
+    /** How often the afterglow tracking map is swept, in client ticks. */
+    private static final int AFTERGLOW_SWEEP_INTERVAL = 600;
+
     /**
      * Called every client tick - can be used for client-side processing.
      */
     @SubscribeEvent
     public static void onClientTick(ClientTickEvent.Post event) {
-        // Client tick processing if needed
+        // Afterglow entries are keyed by stack identity, so pipes that are dropped, destroyed or
+        // unloaded never get cleared by the render path. Sweep them periodically.
+        ClientLevel level = Minecraft.getInstance().level;
+        if (level != null && level.getGameTime() % AFTERGLOW_SWEEP_INTERVAL == 0) {
+            BurningTobaccoLayer.cleanupOldEntries(level.getGameTime());
+        }
     }
 
     @SubscribeEvent

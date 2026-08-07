@@ -3,6 +3,7 @@ package frenk.eypipes.client.renderer;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import frenk.eypipes.client.layer.BurningTobaccoLayer;
+import frenk.eypipes.client.model.EyPipesGeoModel;
 import frenk.eypipes.config.EyPipesConfig;
 import frenk.eypipes.item.PipeItem;
 import net.minecraft.client.Minecraft;
@@ -11,15 +12,17 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
-import software.bernie.geckolib.model.GeoModel;
 import software.bernie.geckolib.renderer.GeoItemRenderer;
 
 /**
- * Base renderer for all pipe variants.
+ * Renderer shared by every pipe variant.
  * Handles custom first-person positioning during use.
  * GeckoLib animation is disabled due to inconsistent behavior between dev/production.
+ *
+ * <p>All pipe variants differ only by their asset name, so one instance per variant
+ * replaces the ten identical renderer subclasses this mod used to have.
  */
-public abstract class BasePipeRenderer extends GeoItemRenderer<PipeItem> {
+public class PipeGeoRenderer extends GeoItemRenderer<PipeItem> {
 
     // Shared static state for particle system (same for all pipe variants)
     private static Vec3 lastLocatorWorldPos = Vec3.ZERO;
@@ -37,8 +40,11 @@ public abstract class BasePipeRenderer extends GeoItemRenderer<PipeItem> {
     private static final float SMOKING_ROTATE_X = 10.0f;
     private static final float TRANSITION_TICKS = 10.0f;
 
-    public BasePipeRenderer(GeoModel<PipeItem> model) {
-        super(model);
+    /**
+     * @param name the pipe's registry name, which is also its asset base name (e.g. {@code bent_pipe})
+     */
+    public PipeGeoRenderer(String name) {
+        super(new EyPipesGeoModel<>(name));
         // Add burning tobacco effect layer (glowing embers when smoking)
         addRenderLayer(new BurningTobaccoLayer(this));
     }

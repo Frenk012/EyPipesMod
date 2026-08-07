@@ -1,5 +1,6 @@
 package frenk.eypipes.block.entity;
 
+import frenk.eypipes.compat.BlockEntityNbt;
 import frenk.eypipes.registries.ModBlockEntities;
 import frenk.eypipes.registries.ModDataComponents;
 import frenk.eypipes.registries.ModItems;
@@ -258,10 +259,8 @@ public class TobaccoJarBlockEntity extends BlockEntity {
         super.saveAdditional(tag, registries);
 
         for (int i = 0; i < SLOT_COUNT; i++) {
-            if (!items[i].isEmpty()) {
-                tag.put("Item" + i, items[i].save(registries));
-            }
-            tag.putLong("FermentStart" + i, fermentationStartTimes[i]);
+            BlockEntityNbt.putStack(tag, "Item" + i, items[i], registries);
+            BlockEntityNbt.putLong(tag, "FermentStart" + i, fermentationStartTimes[i]);
         }
     }
 
@@ -270,12 +269,8 @@ public class TobaccoJarBlockEntity extends BlockEntity {
         super.loadAdditional(tag, registries);
 
         for (int i = 0; i < SLOT_COUNT; i++) {
-            if (tag.contains("Item" + i)) {
-                items[i] = ItemStack.parse(registries, tag.getCompound("Item" + i)).orElse(ItemStack.EMPTY);
-            } else {
-                items[i] = ItemStack.EMPTY;
-            }
-            fermentationStartTimes[i] = tag.getLong("FermentStart" + i);
+            items[i] = BlockEntityNbt.getStack(tag, "Item" + i, registries);
+            fermentationStartTimes[i] = BlockEntityNbt.getLong(tag, "FermentStart" + i, 0);
         }
     }
 

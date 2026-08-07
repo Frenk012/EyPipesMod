@@ -5,17 +5,8 @@ import frenk.eypipes.client.curios.PipeCuriosRenderer;
 import frenk.eypipes.client.renderer.CigarItemRenderer;
 import frenk.eypipes.client.renderer.CuttingBoardRenderer;
 import frenk.eypipes.client.renderer.DryingRackRenderer;
-import frenk.eypipes.client.renderer.PipeItemRenderer;
+import frenk.eypipes.client.renderer.PipeGeoRenderer;
 import frenk.eypipes.client.renderer.PipeRackRenderer;
-import frenk.eypipes.client.renderer.WoodenPipeRenderer;
-import frenk.eypipes.client.renderer.ClayPipeRenderer;
-import frenk.eypipes.client.renderer.CornCobPipeRenderer;
-import frenk.eypipes.client.renderer.MeerschaumPipeRenderer;
-import frenk.eypipes.client.renderer.BriarPipeRenderer;
-import frenk.eypipes.client.renderer.CherryPipeRenderer;
-import frenk.eypipes.client.renderer.CalabashPipeRenderer;
-import frenk.eypipes.client.renderer.ChurchwardPipeRenderer;
-import frenk.eypipes.client.renderer.BentPipeRenderer;
 import frenk.eypipes.particle.RingOfSmokeParticle;
 import frenk.eypipes.particle.EmberParticle;
 import frenk.eypipes.particle.SpiralSmokeParticle;
@@ -28,6 +19,7 @@ import frenk.eypipes.registries.ModItems;
 import frenk.eypipes.registries.ModParticles;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.world.item.Item;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -36,10 +28,11 @@ import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.neoforged.neoforge.client.event.RegisterParticleProvidersEvent;
 import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
 import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent;
+import net.neoforged.neoforge.registries.DeferredItem;
 import software.bernie.geckolib.renderer.GeoItemRenderer;
 import top.theillusivec4.curios.api.client.CuriosRendererRegistry;
 
-import java.util.function.Supplier;
+import java.util.List;
 
 /**
  * Client-side initialization and event handling for EyPipes mod.
@@ -48,6 +41,22 @@ import java.util.function.Supplier;
  */
 @EventBusSubscriber(modid = EyPipes.MOD_ID, bus = EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
 public class EyPipesClient {
+
+    /**
+     * Every item rendered by {@link PipeGeoRenderer}. Each entry's registry name doubles as its
+     * GeckoLib asset base name, so adding a pipe variant only means adding it here plus its assets.
+     */
+    private static final List<DeferredItem<Item>> PIPE_ITEMS = List.of(
+            ModItems.PIPE,
+            ModItems.WOODEN_PIPE,
+            ModItems.CLAY_PIPE,
+            ModItems.CORN_COB_PIPE,
+            ModItems.MEERSCHAUM_PIPE,
+            ModItems.BRIAR_PIPE,
+            ModItems.CHERRY_PIPE,
+            ModItems.CALABASH_PIPE,
+            ModItems.CHURCHWARD_PIPE,
+            ModItems.BENT_PIPE);
 
     /**
      * Client setup event - runs after registries are complete.
@@ -99,18 +108,10 @@ public class EyPipesClient {
      */
     @SubscribeEvent
     public static void onRegisterClientExtensions(RegisterClientExtensionsEvent event) {
-        // Register GeckoLib renderers for pipe and cigar
-        event.registerItem(new IClientItemExtensions() {
-            private GeoItemRenderer<?> renderer;
-
-            @Override
-            public net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer getCustomRenderer() {
-                if (renderer == null) {
-                    renderer = new PipeItemRenderer();
-                }
-                return renderer;
-            }
-        }, ModItems.PIPE.get());
+        // Every pipe variant shares one data-driven renderer; the asset name is the registry name
+        for (DeferredItem<Item> pipe : PIPE_ITEMS) {
+            event.registerItem(createPipeExtension(pipe.getId().getPath()), pipe.get());
+        }
 
         event.registerItem(new IClientItemExtensions() {
             private GeoItemRenderer<?> renderer;
@@ -124,18 +125,7 @@ public class EyPipesClient {
             }
         }, ModItems.CIGAR.get());
 
-        // Register 9 pipe variant renderers
-        event.registerItem(createPipeExtension(WoodenPipeRenderer::new), ModItems.WOODEN_PIPE.get());
-        event.registerItem(createPipeExtension(ClayPipeRenderer::new), ModItems.CLAY_PIPE.get());
-        event.registerItem(createPipeExtension(CornCobPipeRenderer::new), ModItems.CORN_COB_PIPE.get());
-        event.registerItem(createPipeExtension(MeerschaumPipeRenderer::new), ModItems.MEERSCHAUM_PIPE.get());
-        event.registerItem(createPipeExtension(BriarPipeRenderer::new), ModItems.BRIAR_PIPE.get());
-        event.registerItem(createPipeExtension(CherryPipeRenderer::new), ModItems.CHERRY_PIPE.get());
-        event.registerItem(createPipeExtension(CalabashPipeRenderer::new), ModItems.CALABASH_PIPE.get());
-        event.registerItem(createPipeExtension(ChurchwardPipeRenderer::new), ModItems.CHURCHWARD_PIPE.get());
-        event.registerItem(createPipeExtension(BentPipeRenderer::new), ModItems.BENT_PIPE.get());
-
-        EyPipes.LOGGER.debug("Registered EyPipes GeckoLib item renderers (12 total)");
+        EyPipes.LOGGER.debug("Registered EyPipes GeckoLib item renderers ({} total)", PIPE_ITEMS.size() + 1);
     }
 
     /**
@@ -155,16 +145,18 @@ public class EyPipesClient {
     }
 
     /**
-     * Helper method to create IClientItemExtensions for pipe variants.
+     * Helper method to create IClientItemExtensions for a pipe variant.
+     *
+     * @param name the pipe's registry name, also its GeckoLib asset base name
      */
-    private static IClientItemExtensions createPipeExtension(Supplier<GeoItemRenderer<?>> rendererSupplier) {
+    private static IClientItemExtensions createPipeExtension(String name) {
         return new IClientItemExtensions() {
             private GeoItemRenderer<?> renderer;
 
             @Override
             public net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer getCustomRenderer() {
                 if (renderer == null) {
-                    renderer = rendererSupplier.get();
+                    renderer = new PipeGeoRenderer(name);
                 }
                 return renderer;
             }

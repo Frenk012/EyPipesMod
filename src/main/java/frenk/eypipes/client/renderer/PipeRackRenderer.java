@@ -1,10 +1,10 @@
 package frenk.eypipes.client.renderer;
 
+import frenk.eypipes.compat.ItemStackRenderHelper;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import frenk.eypipes.block.PipeRackBlock;
 import frenk.eypipes.block.entity.PipeRackBlockEntity;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
@@ -43,16 +43,8 @@ public class PipeRackRenderer implements BlockEntityRenderer<PipeRackBlockEntity
                 poseStack.scale(0.6f, 0.6f, 0.6f);
 
                 // Render the item
-                Minecraft.getInstance().getItemRenderer().renderStatic(
-                        stack,
-                        ItemDisplayContext.FIXED,
-                        packedLight,
-                        packedOverlay,
-                        poseStack,
-                        bufferSource,
-                        blockEntity.getLevel(),
-                        0
-                );
+                ItemStackRenderHelper.render(stack, ItemDisplayContext.FIXED, poseStack, bufferSource,
+                        blockEntity.getLevel(), packedLight, packedOverlay);
 
                 poseStack.popPose();
             }

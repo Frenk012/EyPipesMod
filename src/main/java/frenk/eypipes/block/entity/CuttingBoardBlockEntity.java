@@ -1,5 +1,6 @@
 package frenk.eypipes.block.entity;
 
+import frenk.eypipes.compat.BlockEntityNbt;
 import frenk.eypipes.registries.ModBlockEntities;
 import frenk.eypipes.registries.ModDataComponents;
 import frenk.eypipes.registries.ModItems;
@@ -135,19 +136,13 @@ public class CuttingBoardBlockEntity extends BlockEntity {
     @Override
     protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.saveAdditional(tag, registries);
-        if (!storedItem.isEmpty()) {
-            tag.put("StoredItem", storedItem.save(registries));
-        }
+        BlockEntityNbt.putStack(tag, "StoredItem", storedItem, registries);
     }
 
     @Override
     protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.loadAdditional(tag, registries);
-        if (tag.contains("StoredItem")) {
-            storedItem = ItemStack.parse(registries, tag.getCompound("StoredItem")).orElse(ItemStack.EMPTY);
-        } else {
-            storedItem = ItemStack.EMPTY;
-        }
+        storedItem = BlockEntityNbt.getStack(tag, "StoredItem", registries);
     }
 
     @Nullable

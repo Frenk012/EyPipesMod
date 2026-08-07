@@ -2,7 +2,7 @@ package frenk.eypipes.client.layer;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import frenk.eypipes.client.renderer.BasePipeRenderer;
+import frenk.eypipes.client.renderer.PipeGeoRenderer;
 import frenk.eypipes.item.PipeItem;
 import frenk.eypipes.registries.ModItems;
 import net.minecraft.client.Minecraft;
@@ -123,14 +123,14 @@ public class BurningTobaccoLayer extends GeoRenderLayer<PipeItem> {
         Player player = Minecraft.getInstance().player;
         if (player == null) return;
 
-        // Get the current ItemStack being rendered from BasePipeRenderer
-        ItemStack currentStack = BasePipeRenderer.getCurrentRenderingStack();
+        // Get the current ItemStack being rendered from PipeGeoRenderer
+        ItemStack currentStack = PipeGeoRenderer.getCurrentRenderingStack();
         if (currentStack == null || currentStack.isEmpty()) return;
 
         long gameTime = player.level().getGameTime();
 
         // Check if THIS specific pipe is being smoked
-        boolean isBeingSmoked = BasePipeRenderer.isCurrentStackBeingSmoked();
+        boolean isBeingSmoked = PipeGeoRenderer.isCurrentStackBeingSmoked();
 
         // Check if THIS specific pipe has afterglow
         boolean hasAfterglowEffect = hasAfterglow(currentStack, gameTime);

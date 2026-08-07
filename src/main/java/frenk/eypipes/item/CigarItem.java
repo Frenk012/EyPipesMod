@@ -1,5 +1,7 @@
 package frenk.eypipes.item;
 
+import frenk.eypipes.compat.Interactions;
+import frenk.eypipes.client.SmokeClientEffects;
 import frenk.eypipes.config.EyPipesConfig;
 import frenk.eypipes.registries.ModParticles;
 import frenk.eypipes.registries.ModSounds;
@@ -112,12 +114,12 @@ public class CigarItem extends Item implements GeoItem, ICurioItem {
                 level.playSound(null, player.getX(), player.getY(), player.getZ(),
                         ModSounds.PIPE_EXHALE.get(), SoundSource.PLAYERS, 0.5F, 0.8F);
             }
-            return InteractionResultHolder.fail(itemStack);
+            return Interactions.useFail(itemStack);
         }
 
         // Double-check cigar has durability before smoking
         if (itemStack.isDamageableItem() && itemStack.getDamageValue() >= itemStack.getMaxDamage()) {
-            return InteractionResultHolder.fail(itemStack);
+            return Interactions.useFail(itemStack);
         }
 
         // Start smoking
@@ -132,7 +134,7 @@ public class CigarItem extends Item implements GeoItem, ICurioItem {
 
         player.awardStat(Stats.ITEM_USED.get(this));
 
-        return InteractionResultHolder.consume(itemStack);
+        return Interactions.useConsume(itemStack);
     }
 
     @Override
@@ -245,16 +247,10 @@ public class CigarItem extends Item implements GeoItem, ICurioItem {
                 final double offsetMultiplier = 0.3 + (particleIndex * 0.15);
 
                 PARTICLE_EXECUTOR.schedule(() ->
-                    net.minecraft.client.Minecraft.getInstance().execute(() -> {
+                    // Dispatch back to render thread - addParticle is not thread-safe
+                    SmokeClientEffects.runOnRenderThread(() -> {
                         if (entity.isAlive()) {
-                            Vec3 vec = entity.getViewVector(1.0F);
-                            level.addParticle(ModParticles.RING_OF_SMOKE.get(),
-                                    entity.getX() + vec.x * offsetMultiplier,
-                                    entity.getY() + entity.getEyeHeight() + vec.y * offsetMultiplier,
-                                    entity.getZ() + vec.z * offsetMultiplier,
-                                    vec.x * velocityMultiplier,
-                                    vec.y * velocityMultiplier,
-                                    vec.z * velocityMultiplier);
+                            SmokeClientEffects.spawnSmokeRing(entity, level, offsetMultiplier, velocityMultiplier);
                         }
                     }), particleIndex * 800L, TimeUnit.MILLISECONDS);
             }
