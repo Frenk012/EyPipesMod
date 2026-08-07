@@ -12,7 +12,7 @@ import net.neoforged.api.distmarker.OnlyIn;
  * Creates a magical, fiery appearance when smoking the pipe.
  */
 @OnlyIn(Dist.CLIENT)
-public class SparkParticle extends TextureSheetParticle {
+public class SparkParticle extends EyPipesParticle {
     private final float baseScale;
     private final float flickerRate;
     private final double initialVelY;
@@ -101,10 +101,6 @@ public class SparkParticle extends TextureSheetParticle {
         return a + (b - a) * Math.max(0, Math.min(1, t));
     }
 
-    @Override
-    public ParticleRenderType getRenderType() {
-        return ParticleRenderType.PARTICLE_SHEET_TRANSLUCENT;
-    }
 
     @Override
     public int getLightColor(float partialTick) {
@@ -113,15 +109,13 @@ public class SparkParticle extends TextureSheetParticle {
     }
 
     @OnlyIn(Dist.CLIENT)
-    public static class Provider implements ParticleProvider<SimpleParticleType> {
-        private final SpriteSet spriteSet;
-
+    public static class Provider extends EyPipesParticleProvider {
         public Provider(SpriteSet spriteSet) {
-            this.spriteSet = spriteSet;
+            super(spriteSet);
         }
 
         @Override
-        public Particle createParticle(SimpleParticleType type, ClientLevel level,
+        protected Particle create(ClientLevel level,
                 double x, double y, double z, double velX, double velY, double velZ) {
             return new SparkParticle(level, x, y, z, velX, velY, velZ, spriteSet);
         }

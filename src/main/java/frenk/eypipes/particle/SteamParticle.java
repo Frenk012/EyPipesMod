@@ -12,7 +12,7 @@ import net.neoforged.api.distmarker.OnlyIn;
  * Spawned during the drying process to show that herbs are being dried.
  */
 @OnlyIn(Dist.CLIENT)
-public class SteamParticle extends TextureSheetParticle {
+public class SteamParticle extends EyPipesParticle {
     private final SpriteSet spriteSet;
     private final float baseAlpha;
 
@@ -87,21 +87,15 @@ public class SteamParticle extends TextureSheetParticle {
         }
     }
 
-    @Override
-    public ParticleRenderType getRenderType() {
-        return ParticleRenderType.PARTICLE_SHEET_TRANSLUCENT;
-    }
 
     @OnlyIn(Dist.CLIENT)
-    public static class Provider implements ParticleProvider<SimpleParticleType> {
-        private final SpriteSet spriteSet;
-
+    public static class Provider extends EyPipesParticleProvider {
         public Provider(SpriteSet spriteSet) {
-            this.spriteSet = spriteSet;
+            super(spriteSet);
         }
 
         @Override
-        public Particle createParticle(SimpleParticleType type, ClientLevel level,
+        protected Particle create(ClientLevel level,
                 double x, double y, double z, double velX, double velY, double velZ) {
             return new SteamParticle(level, x, y, z, velX, velY, velZ, spriteSet);
         }

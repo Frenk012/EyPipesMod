@@ -46,3 +46,20 @@ deps.rei = "19.0.809"
 deps.rei_range = "[19.0,)"
 deps.jei = "21.4.0.27"
 deps.jei_range = "[21.0,)"
+
+["1.21.10"]
+mod.mc_compat = "[1.21.10]"
+mod.mc_releases = ["1.21.10"]
+deps.neo_loader = "21.10.64"
+deps.neo_range = "[21.10.0,)"
+deps.loader_range = "[4,)"
+deps.parchment = "2025.10.12"
+# GeckoLib has no stable release for 1.21.10; 5.3-alpha-3 is all there is.
+deps.geckolib = "5.3-alpha-3"
+deps.geckolib_range = "[5.3,)"
+deps.curios = "13.0.0+1.21.10"
+deps.curios_range = "[13.0,)"
+deps.rei = "21.9.813"
+deps.rei_range = "[21.9,)"
+deps.jei = "26.3.0.31"
+deps.jei_range = "[26.0,)"

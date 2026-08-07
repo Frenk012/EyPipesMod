@@ -12,7 +12,7 @@ import net.neoforged.api.distmarker.OnlyIn;
  * Creates stunning smoke formations that dance and swirl with mystical energy.
  */
 @OnlyIn(Dist.CLIENT)
-public class SpiralSmokeParticle extends TextureSheetParticle {
+public class SpiralSmokeParticle extends EyPipesParticle {
     private final SpriteSet spriteSet;
     private final double startX;
     private final double startY;
@@ -218,21 +218,15 @@ public class SpiralSmokeParticle extends TextureSheetParticle {
         return a + (b - a) * t;
     }
 
-    @Override
-    public ParticleRenderType getRenderType() {
-        return ParticleRenderType.PARTICLE_SHEET_TRANSLUCENT;
-    }
 
     @OnlyIn(Dist.CLIENT)
-    public static class Provider implements ParticleProvider<SimpleParticleType> {
-        private final SpriteSet spriteSet;
-
+    public static class Provider extends EyPipesParticleProvider {
         public Provider(SpriteSet spriteSet) {
-            this.spriteSet = spriteSet;
+            super(spriteSet);
         }
 
         @Override
-        public Particle createParticle(SimpleParticleType type, ClientLevel level,
+        protected Particle create(ClientLevel level,
                 double x, double y, double z, double velX, double velY, double velZ) {
             return new SpiralSmokeParticle(level, x, y, z, velX, velY, velZ, spriteSet);
         }

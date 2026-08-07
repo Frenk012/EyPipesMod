@@ -12,7 +12,7 @@ import net.neoforged.api.distmarker.OnlyIn;
  * The smoke appears alive, breathing and swirling with subtle magic.
  */
 @OnlyIn(Dist.CLIENT)
-public class SmokeStreamParticle extends TextureSheetParticle {
+public class SmokeStreamParticle extends EyPipesParticle {
     private final SpriteSet spriteSet;
 
     // Motion parameters
@@ -227,21 +227,15 @@ public class SmokeStreamParticle extends TextureSheetParticle {
         return a + (b - a) * t;
     }
 
-    @Override
-    public ParticleRenderType getRenderType() {
-        return ParticleRenderType.PARTICLE_SHEET_TRANSLUCENT;
-    }
 
     @OnlyIn(Dist.CLIENT)
-    public static class Provider implements ParticleProvider<SimpleParticleType> {
-        private final SpriteSet spriteSet;
-
+    public static class Provider extends EyPipesParticleProvider {
         public Provider(SpriteSet spriteSet) {
-            this.spriteSet = spriteSet;
+            super(spriteSet);
         }
 
         @Override
-        public Particle createParticle(SimpleParticleType type, ClientLevel level,
+        protected Particle create(ClientLevel level,
                 double x, double y, double z, double velX, double velY, double velZ) {
             return new SmokeStreamParticle(level, x, y, z, velX, velY, velZ, spriteSet);
         }

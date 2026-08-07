@@ -12,7 +12,7 @@ import net.neoforged.api.distmarker.OnlyIn;
  * NEW particle type for enhanced visual effects.
  */
 @OnlyIn(Dist.CLIENT)
-public class EmberParticle extends TextureSheetParticle {
+public class EmberParticle extends EyPipesParticle {
     private final SpriteSet spriteSet;
     private final float baseRed;
     private final float baseGreen;
@@ -67,10 +67,6 @@ public class EmberParticle extends TextureSheetParticle {
         }
     }
 
-    @Override
-    public ParticleRenderType getRenderType() {
-        return ParticleRenderType.PARTICLE_SHEET_TRANSLUCENT;
-    }
 
     @Override
     public int getLightColor(float partialTick) {
@@ -79,15 +75,13 @@ public class EmberParticle extends TextureSheetParticle {
     }
 
     @OnlyIn(Dist.CLIENT)
-    public static class Provider implements ParticleProvider<SimpleParticleType> {
-        private final SpriteSet spriteSet;
-
+    public static class Provider extends EyPipesParticleProvider {
         public Provider(SpriteSet spriteSet) {
-            this.spriteSet = spriteSet;
+            super(spriteSet);
         }
 
         @Override
-        public Particle createParticle(SimpleParticleType type, ClientLevel level,
+        protected Particle create(ClientLevel level,
                 double x, double y, double z, double velX, double velY, double velZ) {
             return new EmberParticle(level, x, y, z, velX, velY, velZ, spriteSet);
         }
