@@ -1,0 +1,5 @@
+// 1.21.1	2026-10-05T19:22:43.645875048	Tags for minecraft:block mod id eypipes
+e611758f096262530e136f056c47b2c9d92f7f2f data/minecraft/tags/block/bee_growables.json
+e611758f096262530e136f056c47b2c9d92f7f2f data/minecraft/tags/block/crops.json
+cbe0e4b9b174d8452361efca24853df814112870 data/minecraft/tags/block/mineable/axe.json
+03a26c7de7d5e49fc5601aa9fe52c8f850283337 data/minecraft/tags/block/mineable/pickaxe.json

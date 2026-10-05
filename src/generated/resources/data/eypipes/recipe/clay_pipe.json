@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "C": {
+      "item": "minecraft:clay_ball"
+    },
+    "S": {
+      "item": "minecraft:stick"
+    }
+  },
+  "pattern": [
+    "  S",
+    " C ",
+    "C  "
+  ],
+  "result": {
+    "count": 1,
+    "id": "eypipes:clay_pipe"
+  }
+}

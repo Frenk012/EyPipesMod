@@ -1,0 +1,10 @@
+{
+  "type": "eypipes:drying",
+  "ingredient": {
+    "item": "eypipes:salvia"
+  },
+  "result": {
+    "count": 1,
+    "id": "eypipes:salvia_dried"
+  }
+}

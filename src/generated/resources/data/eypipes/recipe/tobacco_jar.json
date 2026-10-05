@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "B": {
+      "item": "minecraft:brick"
+    },
+    "L": {
+      "item": "minecraft:oak_slab"
+    },
+    "W": {
+      "item": "minecraft:oak_planks"
+    }
+  },
+  "pattern": [
+    "WLW",
+    "B B",
+    "BBB"
+  ],
+  "result": {
+    "count": 1,
+    "id": "eypipes:tobacco_jar"
+  }
+}

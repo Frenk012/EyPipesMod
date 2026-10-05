@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "P": {
+      "item": "minecraft:pumpkin"
+    },
+    "S": {
+      "item": "minecraft:stick"
+    },
+    "W": {
+      "item": "minecraft:oak_planks"
+    }
+  },
+  "pattern": [
+    "  S",
+    " P ",
+    "W  "
+  ],
+  "result": {
+    "count": 1,
+    "id": "eypipes:calabash_pipe"
+  }
+}

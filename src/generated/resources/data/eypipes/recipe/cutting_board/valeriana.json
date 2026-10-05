@@ -1,0 +1,10 @@
+{
+  "type": "eypipes:cutting_board",
+  "ingredient": {
+    "item": "eypipes:valeriana_dried"
+  },
+  "result": {
+    "count": 1,
+    "id": "eypipes:valeriana_cutted"
+  }
+}
