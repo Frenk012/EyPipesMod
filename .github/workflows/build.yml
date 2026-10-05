@@ -9,6 +9,7 @@ on: [pull_request, push]
 jobs:
   build:
     runs-on: ubuntu-24.04
+    timeout-minutes: 30
     steps:
       - name: checkout repository
         uses: actions/checkout@v4
@@ -19,6 +20,8 @@ jobs:
         with:
           java-version: '21'
           distribution: 'microsoft'
+      - name: setup gradle (caches dependencies between runs)
+        uses: gradle/actions/setup-gradle@v4
       - name: make gradle wrapper executable
         run: chmod +x ./gradlew
       - name: build
