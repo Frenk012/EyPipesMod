@@ -580,17 +580,9 @@ public class PipeItem extends Item implements GeoItem, ICurioItem {
         Vec3 rightVecThird = new Vec3(-horizontalLookVec.z, 0, horizontalLookVec.x).normalize();
         Vec3 upVecThird = new Vec3(0, 1, 0);
 
-        // Use default values on server side (config CLIENT is only available on client)
-        float offsetX = 0.0f;
-        float offsetY = 0.0f;
-        float offsetZ = 0.0f;
-        try {
-            offsetX = EyPipesConfig.CLIENT.particleOffsetThirdViewX.get().floatValue();
-            offsetY = EyPipesConfig.CLIENT.particleOffsetThirdViewY.get().floatValue();
-            offsetZ = EyPipesConfig.CLIENT.particleOffsetThirdViewZ.get().floatValue();
-        } catch (IllegalStateException e) {
-            // Config not loaded (server-side), use default values
-        }
+        // Also called on the server thread, where the CLIENT config is not loaded
+        float offsetX = (float) EyPipesConfig.clientValue(EyPipesConfig.CLIENT.particleOffsetThirdViewX);
+        float offsetY = (float) EyPipesConfig.clientValue(EyPipesConfig.CLIENT.particleOffsetThirdViewY);
 
         // Flip the X offset for left hand
         float handMultiplier = isLeftHand ? -1.0f : 1.0f;

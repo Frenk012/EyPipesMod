@@ -27,6 +27,15 @@ public class EyPipesConfig {
     }
 
     /**
+     * Reads a CLIENT config value from code that also runs on the logical server.
+     * A dedicated server never loads the CLIENT config, so {@code get()} would throw
+     * there; fall back to the spec default so server and client agree on positions.
+     */
+    public static double clientValue(ModConfigSpec.DoubleValue value) {
+        return CLIENT_SPEC.isLoaded() ? value.get() : value.getDefault();
+    }
+
+    /**
      * Common configuration - Server-side settings
      */
     public static class Common {

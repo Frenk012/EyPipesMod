@@ -352,17 +352,9 @@ public class CigarItem extends Item implements GeoItem, ICurioItem {
         Vec3 rightVecThird = new Vec3(horizontalLookVec.z, 0, -horizontalLookVec.x).normalize();
         Vec3 upVecThird = new Vec3(0, 1, 0);
 
-        // Cigar offsets - CLIENT config may be unavailable on server side
-        float offsetX = 0.0f;
-        float offsetY = 0.05f;
-        float offsetZ = 0.0f;
-        try {
-            offsetX = EyPipesConfig.CLIENT.particleOffsetThirdViewX.get().floatValue();
-            offsetY = EyPipesConfig.CLIENT.particleOffsetThirdViewY.get().floatValue() + 0.05f;
-            offsetZ = EyPipesConfig.CLIENT.particleOffsetThirdViewZ.get().floatValue();
-        } catch (IllegalStateException e) {
-            // Config not loaded (server-side), use default values
-        }
+        // Cigar offsets (slightly different from pipe); also called on the server thread
+        float offsetX = (float) EyPipesConfig.clientValue(EyPipesConfig.CLIENT.particleOffsetThirdViewX);
+        float offsetY = (float) EyPipesConfig.clientValue(EyPipesConfig.CLIENT.particleOffsetThirdViewY) + 0.05f;
 
         Vec3 resultThird = basePos
                 .add(horizontalLookVec.scale(0.45))
