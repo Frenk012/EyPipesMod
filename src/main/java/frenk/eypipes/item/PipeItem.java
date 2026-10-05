@@ -1,12 +1,12 @@
 package frenk.eypipes.item;
 
 import frenk.eypipes.client.renderer.BasePipeRenderer;
-import frenk.eypipes.config.EyPipesConfig;
 import frenk.eypipes.particle.EnhancedParticleHelper;
 import frenk.eypipes.registries.ModItems;
 import net.minecraft.client.Minecraft;
 import frenk.eypipes.registries.ModParticles;
 import frenk.eypipes.registries.ModSounds;
+import frenk.eypipes.util.SmokeOrigin;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -301,10 +301,8 @@ public class PipeItem extends Item implements GeoItem, ICurioItem {
                         EnhancedParticleHelper.spawnFirstPersonBowlEmbers(level, locatorPos, intensity);
                     }
                 } else {
-                    // THIRD-PERSON or not local player: Use original eye-based position
-                    boolean isLeftHand = entity.getUsedItemHand() == InteractionHand.OFF_HAND;
-                    Vec3[] positions = calculateParticlePosition(entity, isLeftHand);
-                    Vec3 thirdPersonPos = positions[1];
+                    // THIRD-PERSON or not local player: at the hand holding the pipe
+                    Vec3 thirdPersonPos = SmokeOrigin.handPosition(entity, 1.0F);
 
                     for (int i = 0; i < 10; i++) {
                         level.addParticle(ModParticles.SMOKE_STREAM.get(),
@@ -317,10 +315,8 @@ public class PipeItem extends Item implements GeoItem, ICurioItem {
                     EnhancedParticleHelper.spawnBowlEmbers(level, thirdPersonPos, intensity);
                 }
             } else if (level instanceof ServerLevel serverLevel) {
-                // Server-side particles for other players (always third-person)
-                boolean isLeftHand = entity.getUsedItemHand() == InteractionHand.OFF_HAND;
-                Vec3[] positions = calculateParticlePosition(entity, isLeftHand);
-                Vec3 thirdPersonPos = positions[1];
+                // Server-side particles for other players (always third-person, at the hand)
+                Vec3 thirdPersonPos = SmokeOrigin.handPosition(entity, 1.0F);
                 for (ServerPlayer player : serverLevel.players()) {
                     if (player != entity && player.distanceTo(entity) <= 32.0) {
                         serverLevel.sendParticles(player, ModParticles.SMOKE_STREAM.get(),
@@ -560,47 +556,5 @@ public class PipeItem extends Item implements GeoItem, ICurioItem {
     @Override
     public AnimatableInstanceCache getAnimatableInstanceCache() {
         return this.cache;
-    }
-
-    /**
-     * Calculate smoke particle spawn position for first-person and third-person views.
-     * Returns array: [0] = first person position, [1] = third person position
-     */
-    private Vec3[] calculateParticlePosition(LivingEntity entity, boolean isLeftHand) {
-        Vec3 lookVec = entity.getViewVector(1.0F);
-
-        Vec3 basePos = new Vec3(
-                entity.getX(),
-                entity.getY() + entity.getEyeHeight(),
-                entity.getZ()
-        );
-
-        // Third-person: vectors that follow view direction including pitch
-        Vec3 horizontalLookVec = new Vec3(lookVec.x, 0, lookVec.z).normalize();
-        Vec3 rightVecThird = new Vec3(-horizontalLookVec.z, 0, horizontalLookVec.x).normalize();
-        Vec3 upVecThird = new Vec3(0, 1, 0);
-
-        // Also called on the server thread, where the CLIENT config is not loaded
-        float offsetX = (float) EyPipesConfig.clientValue(EyPipesConfig.CLIENT.particleOffsetThirdViewX);
-        float offsetY = (float) EyPipesConfig.clientValue(EyPipesConfig.CLIENT.particleOffsetThirdViewY);
-
-        // Flip the X offset for left hand
-        float handMultiplier = isLeftHand ? -1.0f : 1.0f;
-
-        Vec3 resultThird = basePos
-                .add(lookVec.scale(0.5))  // Use full lookVec to follow vertical direction
-                .add(rightVecThird.scale((offsetX + 0.2f) * handMultiplier))
-                .add(upVecThird.scale(-offsetY + 0.2f));  // Lowered spawn point
-
-        // First-person: full look direction
-        Vec3 rightVecFirst = lookVec.cross(new Vec3(0, 1, 0)).normalize();
-        Vec3 upVecFirst = rightVecFirst.cross(lookVec).normalize();
-
-        Vec3 resultFirst = basePos
-                .add(lookVec.scale(0.4))
-                .add(rightVecFirst.scale(0.33 * handMultiplier))
-                .add(upVecFirst.scale(0.0));
-
-        return new Vec3[]{resultFirst, resultThird};
     }
 }
