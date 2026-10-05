@@ -1,0 +1,10 @@
+{
+  "type": "eypipes:fermenting",
+  "ingredient": {
+    "item": "eypipes:valeriana_cutted"
+  },
+  "result": {
+    "count": 1,
+    "id": "eypipes:valeriana_cutted"
+  }
+}

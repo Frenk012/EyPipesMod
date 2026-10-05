@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "S": {
+      "item": "minecraft:stick"
+    },
+    "W": {
+      "item": "minecraft:birch_planks"
+    }
+  },
+  "pattern": [
+    "  S",
+    " SS",
+    "W  "
+  ],
+  "result": {
+    "count": 1,
+    "id": "eypipes:churchward_pipe"
+  }
+}

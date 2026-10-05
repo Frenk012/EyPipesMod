@@ -1,0 +1,10 @@
+{
+  "type": "eypipes:cutting_board",
+  "ingredient": {
+    "item": "eypipes:ginseng_dried"
+  },
+  "result": {
+    "count": 1,
+    "id": "eypipes:ginseng_cutted"
+  }
+}

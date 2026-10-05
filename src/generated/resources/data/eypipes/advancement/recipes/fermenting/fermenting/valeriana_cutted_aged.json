@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "eypipes:fermenting/valeriana_cutted_aged"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    },
+    "has_valeriana_cutted": {
+      "conditions": {
+        "items": [
+          {
+            "items": "eypipes:valeriana_cutted"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_valeriana_cutted"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "eypipes:fermenting/valeriana_cutted_aged"
+    ]
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "type": "eypipes:drying",
+  "ingredient": {
+    "item": "eypipes:ginseng"
+  },
+  "result": {
+    "count": 1,
+    "id": "eypipes:ginseng_dried"
+  }
+}
