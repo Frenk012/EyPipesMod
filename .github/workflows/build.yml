@@ -4,7 +4,17 @@
 # against bad commits.
 
 name: build
-on: [pull_request, push]
+on:
+  pull_request:
+  # Branches with an open PR are already built by the pull_request event;
+  # building them on push too queues two identical jobs per commit.
+  push:
+    branches: [main, neo-1.21.1]
+
+# A newer commit on the same branch or PR makes the older run pointless.
+concurrency:
+  group: build-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 jobs:
   build:
