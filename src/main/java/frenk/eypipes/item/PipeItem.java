@@ -2,6 +2,7 @@ package frenk.eypipes.item;
 
 import frenk.eypipes.client.renderer.BasePipeRenderer;
 import frenk.eypipes.particle.EnhancedParticleHelper;
+import frenk.eypipes.particle.FirstPersonSmoke;
 import frenk.eypipes.registries.ModItems;
 import net.minecraft.client.Minecraft;
 import frenk.eypipes.registries.ModParticles;
@@ -297,7 +298,7 @@ public class PipeItem extends Item implements GeoItem, ICurioItem {
                     Vec3 locatorPos = BasePipeRenderer.getLastLocatorWorldPos();
                     if (locatorPos != Vec3.ZERO) {
                         // Spawn smaller, discrete first-person particles at bowl locator
-                        EnhancedParticleHelper.spawnFirstPersonBowlSmoke(level, locatorPos, intensity);
+                        FirstPersonSmoke.run(() -> EnhancedParticleHelper.spawnFirstPersonBowlSmoke(level, locatorPos, intensity));
                         EnhancedParticleHelper.spawnFirstPersonBowlEmbers(level, locatorPos, intensity);
                     }
                 } else {

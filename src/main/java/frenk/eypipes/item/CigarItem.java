@@ -1,6 +1,7 @@
 package frenk.eypipes.item;
 
 import frenk.eypipes.config.EyPipesConfig;
+import frenk.eypipes.particle.FirstPersonSmoke;
 import frenk.eypipes.registries.ModParticles;
 import frenk.eypipes.registries.ModSounds;
 import frenk.eypipes.util.SmokeOrigin;
@@ -169,12 +170,19 @@ public class CigarItem extends Item implements GeoItem, ICurioItem {
                 Vec3 correctPosition = firstPerson
                         ? firstPersonPosition(entity)
                         : SmokeOrigin.handPosition(entity, 1.0F);
-                for (int i = 0; i < 8; i++) {
-                    level.addParticle(ModParticles.SMOKE_STREAM.get(),
-                            correctPosition.x + (level.random.nextGaussian() * 0.02),
-                            correctPosition.y + (level.random.nextGaussian() * 0.02),
-                            correctPosition.z + (level.random.nextGaussian() * 0.02),
-                            0.001, 0.01, 0.001);
+                Runnable spawnSmoke = () -> {
+                    for (int i = 0; i < 8; i++) {
+                        level.addParticle(ModParticles.SMOKE_STREAM.get(),
+                                correctPosition.x + (level.random.nextGaussian() * 0.02),
+                                correctPosition.y + (level.random.nextGaussian() * 0.02),
+                                correctPosition.z + (level.random.nextGaussian() * 0.02),
+                                0.001, 0.01, 0.001);
+                    }
+                };
+                if (firstPerson) {
+                    FirstPersonSmoke.run(spawnSmoke);
+                } else {
+                    spawnSmoke.run();
                 }
 
                 // Spawn ember particles if enabled
