@@ -130,7 +130,7 @@ public class ErbapipaCropBlock extends CropBlock {
         if (!level.isAreaLoaded(pos, 1)) return;
 
         int age = getAge(state);
-        float growthSpeed = getGrowthSpeed(state, level, pos);
+        float growthSpeed = getGrowthSpeed(/*? if <1.20.5 {*//*this*//*?} else {*/state/*?}*/, level, pos);
 
         if (level.getRawBrightness(pos, 0) >= 9) {
             // Growth logic for the current block
@@ -164,6 +164,9 @@ public class ErbapipaCropBlock extends CropBlock {
     }
 
     @Override
+    //? if <1.20.5 {
+    /*public boolean isValidBonemealTarget(LevelReader level, BlockPos pos, BlockState state, boolean isClient) {
+    *///?} else
     public boolean isValidBonemealTarget(LevelReader level, BlockPos pos, BlockState state) {
         BlockState aboveState = level.getBlockState(pos.above());
 
@@ -203,7 +206,7 @@ public class ErbapipaCropBlock extends CropBlock {
             if (aboveState.is(this)) {
                 // Fertilize existing upper part
                 BonemealableBlock growable = (BonemealableBlock) aboveState.getBlock();
-                if (growable.isValidBonemealTarget(level, abovePos, aboveState)) {
+                if (growable.isValidBonemealTarget(level, abovePos, aboveState/*? if <1.20.5 {*//*, false*//*?}*/)) {
                     growable.performBonemeal(level, random, abovePos, aboveState);
                 }
             } else {
@@ -246,7 +249,7 @@ public class ErbapipaCropBlock extends CropBlock {
 
     //? if <1.21.5 {
     @Override
-    protected void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
+    public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
         if (!state.is(newState.getBlock())) {
             breakOtherHalf(state, level, pos);
         }

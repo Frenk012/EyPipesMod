@@ -41,8 +41,8 @@ public class HerbBundleBlockItem extends BlockItem {
     private void addEyPipesTooltip(ItemStack stack, java.util.function.Consumer<Component> lines) {
 
         // Show quality level if present
-        if (stack.has(ModDataComponents.FERMENTATION_LEVEL.get())) {
-            int qualityLevel = stack.get(ModDataComponents.FERMENTATION_LEVEL.get());
+        if (ModDataComponents.FERMENTATION_LEVEL.has(stack)) {
+            int qualityLevel = ModDataComponents.FERMENTATION_LEVEL.get(stack);
             String qualityName = ModDataComponents.getQualityName(qualityLevel);
             ChatFormatting qualityColor = getQualityColor(qualityLevel);
 

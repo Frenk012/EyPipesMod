@@ -25,15 +25,18 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.world.item.Item;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
+//? if forge {
+/*import net.neoforged.fml.common.Mod;
+*///?} else
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.neoforged.neoforge.client.event.RegisterParticleProvidersEvent;
 //? if <1.21.9
 import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
-//? if <1.21.9
+//? if neoforge && <1.21.9
 import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent;
-import net.neoforged.neoforge.registries.DeferredItem;
+import frenk.eypipes.platform.RegistryEntry;
 //? if <1.21.9
 import software.bernie.geckolib.renderer.GeoItemRenderer;
 import top.theillusivec4.curios.api.client.CuriosRendererRegistry;
@@ -45,6 +48,9 @@ import java.util.List;
  * Uses NeoForge event subscribers instead of Fabric's ClientModInitializer.
  * Ported from Fabric 1.19.2 to NeoForge 1.21.1.
  */
+//? if forge {
+/*@Mod.EventBusSubscriber(modid = EyPipes.MOD_ID, value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.MOD)
+*///?} else
 @EventBusSubscriber(modid = EyPipes.MOD_ID, value = Dist.CLIENT)
 public class EyPipesClient {
 
@@ -52,7 +58,7 @@ public class EyPipesClient {
      * Every item rendered by {@link PipeGeoRenderer}. Each entry's registry name doubles as its
      * GeckoLib asset base name, so adding a pipe variant only means adding it here plus its assets.
      */
-    private static final List<DeferredItem<Item>> PIPE_ITEMS = List.of(
+    private static final List<RegistryEntry<Item>> PIPE_ITEMS = List.of(
             ModItems.PIPE,
             ModItems.WOODEN_PIPE,
             ModItems.CLAY_PIPE,
@@ -115,15 +121,28 @@ public class EyPipesClient {
     /**
      * Register client extensions for GeckoLib item renderers.
      */
-    //? if <1.21.9 {
+    //? if neoforge && <1.21.9 {
     @SubscribeEvent
     public static void onRegisterClientExtensions(RegisterClientExtensionsEvent event) {
         // Every pipe variant shares one data-driven renderer; the asset name is the registry name
-        for (DeferredItem<Item> pipe : PIPE_ITEMS) {
-            event.registerItem(createPipeExtension(pipe.getId().getPath()), pipe.get());
+        for (RegistryEntry<Item> pipe : PIPE_ITEMS) {
+            String name = pipe.getId().getPath();
+            event.registerItem(createPipeExtension(() -> name), pipe.get());
         }
 
-        event.registerItem(new IClientItemExtensions() {
+        event.registerItem(createCigarExtension(), ModItems.CIGAR.get());
+
+        EyPipes.LOGGER.debug("Registered EyPipes GeckoLib item renderers ({} total)", PIPE_ITEMS.size() + 1);
+    }
+    //?}
+
+    //? if <1.21.9 {
+    /**
+     * Item extension that renders the cigar through GeckoLib. NeoForge registers it from
+     * {@code RegisterClientExtensionsEvent}; Forge 1.20.1 asks the item for it instead.
+     */
+    public static IClientItemExtensions createCigarExtension() {
+        return new IClientItemExtensions() {
             private GeoItemRenderer<?> renderer;
 
             @Override
@@ -133,24 +152,23 @@ public class EyPipesClient {
                 }
                 return renderer;
             }
-        }, ModItems.CIGAR.get());
-
-        EyPipes.LOGGER.debug("Registered EyPipes GeckoLib item renderers ({} total)", PIPE_ITEMS.size() + 1);
+        };
     }
 
     /**
      * Helper method to create IClientItemExtensions for a pipe variant.
      *
-     * @param name the pipe's registry name, also its GeckoLib asset base name
+     * @param name the pipe's registry name, also its GeckoLib asset base name. Read lazily: on
+     *             Forge the extension is created while the item is constructed, before it has one.
      */
-    private static IClientItemExtensions createPipeExtension(String name) {
+    public static IClientItemExtensions createPipeExtension(java.util.function.Supplier<String> name) {
         return new IClientItemExtensions() {
             private GeoItemRenderer<?> renderer;
 
             @Override
             public net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer getCustomRenderer() {
                 if (renderer == null) {
-                    renderer = new PipeGeoRenderer(name);
+                    renderer = new PipeGeoRenderer(name.get());
                 }
                 return renderer;
             }

@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "S": {
+      "item": "minecraft:stick"
+    },
+    "W": {
+      "item": "minecraft:oak_planks"
+    }
+  },
+  "pattern": [
+    "SSS",
+    "W W",
+    "WWW"
+  ],
+  "result": {
+    "count": 1,
+    "item": "eypipes:drying_rack_erb"
+  }
+}

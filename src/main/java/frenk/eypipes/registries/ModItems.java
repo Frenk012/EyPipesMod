@@ -1,6 +1,7 @@
 package frenk.eypipes.registries;
 
 import frenk.eypipes.EyPipes;
+import java.util.function.Function;
 import frenk.eypipes.config.EyPipesConfig;
 import frenk.eypipes.item.CigarItem;
 import frenk.eypipes.item.HerbBundleBlockItem;
@@ -8,25 +9,23 @@ import frenk.eypipes.item.HerbItem;
 import frenk.eypipes.item.KnifeItem;
 import frenk.eypipes.item.PipeItem;
 import net.minecraft.ChatFormatting;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 //? if <1.21.5
 import net.minecraft.world.item.ItemNameBlockItem;
 import net.minecraft.world.level.block.ComposterBlock;
-import net.neoforged.bus.api.IEventBus;
-import net.neoforged.neoforge.registries.DeferredItem;
-import net.neoforged.neoforge.registries.DeferredRegister;
+import frenk.eypipes.platform.Registrar;
+import frenk.eypipes.platform.RegistryEntry;
 
 /**
- * Registry for all EyPipes items using NeoForge DeferredRegister.
+ * Registry for all EyPipes items.
  *
- * <p>Items are registered through {@code registerItem}/{@code registerSimpleItem} rather than the
- * raw {@code register} overload so that {@link Item.Properties} is supplied by the registry itself.
- * From Minecraft 1.21.2 onwards the properties must carry the item's registry id, which only these
- * overloads can inject; on 1.21.1 the two forms behave identically.
+ * <p>Items are declared through {@code item}/{@code simpleItem}, which build the item only once
+ * its {@link Item.Properties} carry the registry id that Minecraft requires from 1.21.2.
  */
 public class ModItems {
-    public static final DeferredRegister.Items ITEMS = DeferredRegister.createItems(EyPipes.MOD_ID);
+    public static final Registrar<Item> ITEMS = Registrar.create(Registries.ITEM);
 
     /**
      * Block items took their name from the block automatically until 1.21.5, where
@@ -40,135 +39,156 @@ public class ModItems {
         /*return props.useBlockDescriptionPrefix();*/
     }
 
+    private static <I extends Item> RegistryEntry<I> item(String name, Function<Item.Properties, I> factory,
+            Item.Properties props) {
+        return ITEMS.register(name, () -> factory.apply(withId(name, props)));
+    }
+
+    private static <I extends Item> RegistryEntry<I> item(String name, Function<Item.Properties, I> factory) {
+        return item(name, factory, new Item.Properties());
+    }
+
+    private static RegistryEntry<Item> simpleItem(String name) {
+        return item(name, Item::new);
+    }
+
+    /** From 1.21.2 an item's properties must carry its registry id before the item is built. */
+    private static Item.Properties withId(String name, Item.Properties props) {
+        //? if >=1.21.2 {
+        /*return props.setId(net.minecraft.resources.ResourceKey.create(Registries.ITEM, EyPipes.id(name)));
+        *///?} else
+        return props;
+    }
+
     private static Item.Properties pipeProperties() {
         return new Item.Properties().stacksTo(1).durability(50);
     }
 
     // Basic crop items
-    public static final DeferredItem<Item> ERBAPIPA = ITEMS.registerSimpleItem("erbapipa");
+    public static final RegistryEntry<Item> ERBAPIPA = simpleItem("erbapipa");
 
-    public static final DeferredItem<Item> ERBAPIPA_DRIED = ITEMS.registerSimpleItem("erbapipa_dried");
+    public static final RegistryEntry<Item> ERBAPIPA_DRIED = simpleItem("erbapipa_dried");
 
-    public static final DeferredItem<Item> ERBAPIPA_CUTTED = ITEMS.registerSimpleItem("erbapipa_cutted");
+    public static final RegistryEntry<Item> ERBAPIPA_CUTTED = simpleItem("erbapipa_cutted");
 
     // Valeriana - calming effect (Slowness + Night Vision)
-    public static final DeferredItem<Item> VALERIANA = ITEMS.registerItem("valeriana",
+    public static final RegistryEntry<Item> VALERIANA = item("valeriana",
             props -> new HerbItem(props, "item.eypipes.valeriana.hint", ChatFormatting.LIGHT_PURPLE));
 
-    public static final DeferredItem<Item> VALERIANA_DRIED = ITEMS.registerSimpleItem("valeriana_dried");
+    public static final RegistryEntry<Item> VALERIANA_DRIED = simpleItem("valeriana_dried");
 
-    public static final DeferredItem<Item> VALERIANA_CUTTED = ITEMS.registerSimpleItem("valeriana_cutted");
+    public static final RegistryEntry<Item> VALERIANA_CUTTED = simpleItem("valeriana_cutted");
 
     // Ginseng - energizing effect (Speed + Haste)
-    public static final DeferredItem<Item> GINSENG = ITEMS.registerItem("ginseng",
+    public static final RegistryEntry<Item> GINSENG = item("ginseng",
             props -> new HerbItem(props, "item.eypipes.ginseng.hint", ChatFormatting.GOLD));
 
-    public static final DeferredItem<Item> GINSENG_DRIED = ITEMS.registerSimpleItem("ginseng_dried");
+    public static final RegistryEntry<Item> GINSENG_DRIED = simpleItem("ginseng_dried");
 
-    public static final DeferredItem<Item> GINSENG_CUTTED = ITEMS.registerSimpleItem("ginseng_cutted");
+    public static final RegistryEntry<Item> GINSENG_CUTTED = simpleItem("ginseng_cutted");
 
     // Salvia - vision effect (Night Vision II + Glowing)
-    public static final DeferredItem<Item> SALVIA = ITEMS.registerItem("salvia",
+    public static final RegistryEntry<Item> SALVIA = item("salvia",
             props -> new HerbItem(props, "item.eypipes.salvia.hint", ChatFormatting.DARK_GREEN));
 
-    public static final DeferredItem<Item> SALVIA_DRIED = ITEMS.registerSimpleItem("salvia_dried");
+    public static final RegistryEntry<Item> SALVIA_DRIED = simpleItem("salvia_dried");
 
-    public static final DeferredItem<Item> SALVIA_CUTTED = ITEMS.registerSimpleItem("salvia_cutted");
+    public static final RegistryEntry<Item> SALVIA_CUTTED = simpleItem("salvia_cutted");
 
     // Seeds items (plants the crops)
-    public static final DeferredItem<Item> ERBAPIPA_SEEDS = ITEMS.registerItem("erbapipa_seeds",
+    public static final RegistryEntry<Item> ERBAPIPA_SEEDS = item("erbapipa_seeds",
             //? if <1.21.5 {
             props -> new ItemNameBlockItem(ModBlocks.ERBAPIPA_CROP.get(), props));
             //?} else
             /*props -> new BlockItem(ModBlocks.ERBAPIPA_CROP.get(), props.useItemDescriptionPrefix()));*/
 
-    public static final DeferredItem<Item> VALERIANA_SEEDS = ITEMS.registerItem("valeriana_seeds",
+    public static final RegistryEntry<Item> VALERIANA_SEEDS = item("valeriana_seeds",
             //? if <1.21.5 {
             props -> new ItemNameBlockItem(ModBlocks.VALERIANA_CROP.get(), props));
             //?} else
             /*props -> new BlockItem(ModBlocks.VALERIANA_CROP.get(), props.useItemDescriptionPrefix()));*/
 
-    public static final DeferredItem<Item> GINSENG_SEEDS = ITEMS.registerItem("ginseng_seeds",
+    public static final RegistryEntry<Item> GINSENG_SEEDS = item("ginseng_seeds",
             //? if <1.21.5 {
             props -> new ItemNameBlockItem(ModBlocks.GINSENG_CROP.get(), props));
             //?} else
             /*props -> new BlockItem(ModBlocks.GINSENG_CROP.get(), props.useItemDescriptionPrefix()));*/
 
-    public static final DeferredItem<Item> SALVIA_SEEDS = ITEMS.registerItem("salvia_seeds",
+    public static final RegistryEntry<Item> SALVIA_SEEDS = item("salvia_seeds",
             //? if <1.21.5 {
             props -> new ItemNameBlockItem(ModBlocks.SALVIA_CROP.get(), props));
             //?} else
             /*props -> new BlockItem(ModBlocks.SALVIA_CROP.get(), props.useItemDescriptionPrefix()));*/
 
     // Pipe item - GeckoLib animated trinket with 50 durability
-    public static final DeferredItem<Item> PIPE = ITEMS.registerItem("pipe",
+    public static final RegistryEntry<Item> PIPE = item("pipe",
             PipeItem::new, pipeProperties());
 
     // Cigar item - GeckoLib animated trinket with 10 durability
-    public static final DeferredItem<Item> CIGAR = ITEMS.registerItem("cigar",
+    public static final RegistryEntry<Item> CIGAR = item("cigar",
             CigarItem::new, new Item.Properties().stacksTo(1).durability(10));
 
     // Pipe variants - same mechanics, different models/textures
-    public static final DeferredItem<Item> WOODEN_PIPE = ITEMS.registerItem("wooden_pipe",
+    public static final RegistryEntry<Item> WOODEN_PIPE = item("wooden_pipe",
             PipeItem::new, pipeProperties());
 
-    public static final DeferredItem<Item> CLAY_PIPE = ITEMS.registerItem("clay_pipe",
+    public static final RegistryEntry<Item> CLAY_PIPE = item("clay_pipe",
             PipeItem::new, pipeProperties());
 
-    public static final DeferredItem<Item> CORN_COB_PIPE = ITEMS.registerItem("corn_cob_pipe",
+    public static final RegistryEntry<Item> CORN_COB_PIPE = item("corn_cob_pipe",
             PipeItem::new, pipeProperties());
 
-    public static final DeferredItem<Item> MEERSCHAUM_PIPE = ITEMS.registerItem("meerschaum_pipe",
+    public static final RegistryEntry<Item> MEERSCHAUM_PIPE = item("meerschaum_pipe",
             PipeItem::new, pipeProperties());
 
-    public static final DeferredItem<Item> BRIAR_PIPE = ITEMS.registerItem("briar_pipe",
+    public static final RegistryEntry<Item> BRIAR_PIPE = item("briar_pipe",
             PipeItem::new, pipeProperties());
 
-    public static final DeferredItem<Item> CHERRY_PIPE = ITEMS.registerItem("cherry_pipe",
+    public static final RegistryEntry<Item> CHERRY_PIPE = item("cherry_pipe",
             PipeItem::new, pipeProperties());
 
-    public static final DeferredItem<Item> CALABASH_PIPE = ITEMS.registerItem("calabash_pipe",
+    public static final RegistryEntry<Item> CALABASH_PIPE = item("calabash_pipe",
             PipeItem::new, pipeProperties());
 
-    public static final DeferredItem<Item> CHURCHWARD_PIPE = ITEMS.registerItem("churchward_pipe",
+    public static final RegistryEntry<Item> CHURCHWARD_PIPE = item("churchward_pipe",
             PipeItem::new, pipeProperties());
 
-    public static final DeferredItem<Item> BENT_PIPE = ITEMS.registerItem("bent_pipe",
+    public static final RegistryEntry<Item> BENT_PIPE = item("bent_pipe",
             PipeItem::new, pipeProperties());
 
     // Block items
-    public static final DeferredItem<Item> DRYING_RACK_ITEM = ITEMS.registerItem("drying_rack_erb",
+    public static final RegistryEntry<Item> DRYING_RACK_ITEM = item("drying_rack_erb",
             props -> new BlockItem(ModBlocks.DRYING_RACK.get(), blockItemProperties(props)));
 
-    public static final DeferredItem<Item> TOBACCO_JAR_ITEM = ITEMS.registerItem("tobacco_jar",
+    public static final RegistryEntry<Item> TOBACCO_JAR_ITEM = item("tobacco_jar",
             props -> new BlockItem(ModBlocks.TOBACCO_JAR.get(), blockItemProperties(props)));
 
-    public static final DeferredItem<Item> PIPE_RACK_ITEM = ITEMS.registerItem("pipe_rack",
+    public static final RegistryEntry<Item> PIPE_RACK_ITEM = item("pipe_rack",
             props -> new BlockItem(ModBlocks.PIPE_RACK.get(), blockItemProperties(props)));
 
     // Cutting Board block item
-    public static final DeferredItem<Item> CUTTING_BOARD_ITEM = ITEMS.registerItem("cutting_board",
+    public static final RegistryEntry<Item> CUTTING_BOARD_ITEM = item("cutting_board",
             props -> new BlockItem(ModBlocks.CUTTING_BOARD.get(), blockItemProperties(props)));
 
     // Knife item - used to cut dried herbs on the cutting board
-    public static final DeferredItem<Item> KNIFE = ITEMS.registerItem("knife",
+    public static final RegistryEntry<Item> KNIFE = item("knife",
             KnifeItem::new, new Item.Properties().stacksTo(1).durability(64));
 
     // Herb Bundle block items - storage blocks for dried herbs
-    public static final DeferredItem<Item> ERBAPIPA_BUNDLE_ITEM = ITEMS.registerItem("erbapipa_bundle",
+    public static final RegistryEntry<Item> ERBAPIPA_BUNDLE_ITEM = item("erbapipa_bundle",
             props -> new HerbBundleBlockItem(ModBlocks.ERBAPIPA_BUNDLE.get(), blockItemProperties(props), ChatFormatting.GREEN));
 
-    public static final DeferredItem<Item> VALERIANA_BUNDLE_ITEM = ITEMS.registerItem("valeriana_bundle",
+    public static final RegistryEntry<Item> VALERIANA_BUNDLE_ITEM = item("valeriana_bundle",
             props -> new HerbBundleBlockItem(ModBlocks.VALERIANA_BUNDLE.get(), blockItemProperties(props), ChatFormatting.LIGHT_PURPLE));
 
-    public static final DeferredItem<Item> GINSENG_BUNDLE_ITEM = ITEMS.registerItem("ginseng_bundle",
+    public static final RegistryEntry<Item> GINSENG_BUNDLE_ITEM = item("ginseng_bundle",
             props -> new HerbBundleBlockItem(ModBlocks.GINSENG_BUNDLE.get(), blockItemProperties(props), ChatFormatting.GOLD));
 
-    public static final DeferredItem<Item> SALVIA_BUNDLE_ITEM = ITEMS.registerItem("salvia_bundle",
+    public static final RegistryEntry<Item> SALVIA_BUNDLE_ITEM = item("salvia_bundle",
             props -> new HerbBundleBlockItem(ModBlocks.SALVIA_BUNDLE.get(), blockItemProperties(props), ChatFormatting.DARK_GREEN));
 
-    public static void register(IEventBus eventBus) {
-        ITEMS.register(eventBus);
+    /** Loads this class, which declares (and on Fabric registers) its entries. */
+    public static void init() {
         EyPipes.LOGGER.info("Registering EyPipes Items");
     }
 

@@ -54,11 +54,12 @@ public class ModBlockStateProvider extends BlockStateProvider {
         getVariantBuilder(ModBlocks.DRYING_RACK.get()).forAllStates(state -> {
             Direction facing = state.getValue(DryingRackBlock.FACING);
 
+            // The model is authored facing west, so every variant is a quarter turn further
+            // round than the compass direction suggests (same as ModModelProvider on 1.21.4+).
             int yRot = switch (facing) {
-                case NORTH -> 0;
-                case EAST -> 90;
-                case SOUTH -> 180;
-                case WEST -> 270;
+                case NORTH -> 90;
+                case EAST -> 180;
+                case SOUTH -> 270;
                 default -> 0;
             };
 

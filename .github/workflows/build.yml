@@ -18,6 +18,12 @@ concurrency:
 
 jobs:
   build:
+    # One job per Stonecutter node, so a broken port shows up by name and does not hide the others
+    strategy:
+      fail-fast: false
+      matrix:
+        node: [1.20.1-forge, 1.21.1-neoforge, 1.21.10-neoforge]
+    name: build ${{ matrix.node }}
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     steps:
@@ -28,18 +34,27 @@ jobs:
       - name: setup jdk
         uses: actions/setup-java@v4
         with:
-          java-version: '21'
+          # Forge 1.20.1 compiles with Java 17, the 1.21 nodes with Java 21
+          java-version: |
+            17
+            21
           distribution: 'microsoft'
       - name: setup gradle (caches dependencies between runs)
         uses: gradle/actions/setup-gradle@v4
       - name: make gradle wrapper executable
         run: chmod +x ./gradlew
-      # Running plain `./gradlew build` builds every Minecraft version. Only the ported ones
-      # listed here build; add each new one as its port lands.
+      # The 1.20.1 data is converted from the 1.21.1 datagen output rather than generated;
+      # fail if someone regenerated one without the other.
+      - name: check 1.20.1 data is in sync
+        if: startsWith(matrix.node, '1.20.1')
+        run: |
+          python3 tools/convert-generated-1.20.1.py
+          git diff --exit-code -- src/generated/1.20.1
+          test -z "$(git status --porcelain -- src/generated/1.20.1)"
       - name: build
-        run: ./gradlew :1.21.1:build :1.21.10:build
+        run: ./gradlew :${{ matrix.node }}:build
       - name: capture build artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: Artifacts
-          path: versions/*/build/libs/*.jar
+          name: eypipes-${{ matrix.node }}
+          path: versions/${{ matrix.node }}/build/libs/*.jar

@@ -9,6 +9,7 @@ import dev.emi.emi.api.widget.WidgetHolder;
 import frenk.eypipes.recipe.FermentingRecipe;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+//? if >=1.20.2
 import net.minecraft.world.item.crafting.RecipeHolder;
 import org.jetbrains.annotations.Nullable;
 
@@ -26,9 +27,14 @@ public class FermentingEmiRecipe implements EmiRecipe {
     private final int fermentingTime;
     private final int targetQuality;
 
+    //? if >=1.20.2 {
     public FermentingEmiRecipe(RecipeHolder<FermentingRecipe> recipeHolder) {
         FermentingRecipe recipe = recipeHolder.value();
         this.id = recipeHolder.id();
+    //?} else {
+    /*public FermentingEmiRecipe(FermentingRecipe recipe) {
+        this.id = recipe.getId();
+    *///?}
         this.input = EmiIngredient.of(recipe.getInput());
         this.output = EmiStack.of(recipe.getOutput());
         this.fermentingTime = recipe.getFermentingTime();

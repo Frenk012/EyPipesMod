@@ -13,7 +13,7 @@ version = "${property("mod.version")}+$mc-forge"
 group = property("mod.group") as String
 base.archivesName = modId
 
-val generatedResources: File = rootProject.file("src/generated/${sc.current.project}")
+val generatedResources: File = rootProject.file("src/generated/$mc")
 val runDirectory: File = rootProject.file("run/${sc.current.project}")
 
 sourceSets.named("main") {
@@ -26,8 +26,9 @@ sourceSets.named("main") {
         // 1.21.9+ only: these carry the smoking flag onto the humanoid render state.
         "frenk/eypipes/mixin/client/HumanoidRenderStateMixin.java",
         "frenk/eypipes/mixin/client/LivingEntityRendererMixin.java",
-        // Minecraft's model generators replace these from 1.21.4; Forge still has the old ones.
-        "frenk/eypipes/datagen/ModModelProvider.java",
+        // Data generators target the 1.21 APIs; 1.20.1 reads src/generated/1.20.1, which
+        // tools/convert-generated-1.20.1.py derives from the 1.21.1 output.
+        "frenk/eypipes/datagen/**",
     )
     resources.exclude("META-INF/neoforge.mods.toml")
 }
@@ -66,6 +67,9 @@ dependencies {
 
     modCompileOnly("me.shedaniel:RoughlyEnoughItems-api-forge:${property("deps.rei")}")
     modCompileOnly("me.shedaniel:RoughlyEnoughItems-forge:${property("deps.rei")}")
+    // REI's geometry and fluid types; the remapped REI artifacts do not bring them along transitively
+    compileOnly("me.shedaniel.cloth:basic-math:0.6.1")
+    modCompileOnly("dev.architectury:architectury-forge:9.2.14")
 
     modCompileOnly("mezz.jei:jei-$mc-common-api:${property("deps.jei")}")
     modCompileOnly("mezz.jei:jei-$mc-forge-api:${property("deps.jei")}")
@@ -102,16 +106,6 @@ legacyForge {
             programArgument("--nogui")
         }
 
-        register("data") {
-            data()
-            gameDirectory = runDirectory
-            programArguments.addAll(
-                "--mod", modId,
-                "--all",
-                "--output", generatedResources.absolutePath,
-                "--existing", rootProject.file("src/main/resources").absolutePath,
-            )
-        }
     }
 }
 
@@ -148,13 +142,21 @@ tasks {
 
         filesMatching("META-INF/mods.toml") { expand(props) }
 
+        // Forge 1.20.1 only loads a mod's data and assets when the jar carries pack metadata
+        inputs.property("pack_format", "15")
+        filesMatching("pack.mcmeta") { expand("pack_format" to "15") }
+
+        // Held as locals so the filter does not capture the build script itself, which the
+        // configuration cache cannot serialize. Forge 1.20.1 runs on Java 17 and, being
+        // obfuscated, needs the refmap the annotation processor writes.
         val mixinClients = "\"client.BipedModelMixin\""
+        val refmapLine = "\"mixins\": [],\n  \"refmap\": \"$modId.refmap.json\","
         inputs.property("mixinClients", mixinClients)
         filesMatching("eypipes.mixins.json") {
             filter { line ->
                 line.replace("MIXIN_CLIENT_LIST", mixinClients)
                     .replace("\"JAVA_21\"", "\"JAVA_17\"")
-                    .replace("\"mixins\": [],", "\"mixins\": [],\n  \"refmap\": \"$modId.refmap.json\",")
+                    .replace("\"mixins\": [],", refmapLine)
             }
         }
     }

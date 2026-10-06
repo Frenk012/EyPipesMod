@@ -385,33 +385,13 @@ public class BurningTobaccoLayer extends GeoRenderLayer<PipeItem> {
         int light = 15728880;
 
         // Render a quad facing forward (toward negative Z / toward camera when looking at skull)
-        vertexConsumer.addVertex(posMatrix, x - halfSize, y - halfSize, z)
-                .setColor(redInt, greenInt, blueInt, alphaInt)
-                .setUv(0, 0)
-                .setOverlay(OverlayTexture.NO_OVERLAY)
-                .setLight(light)
-                .setNormal(pose, 0, 0, -1);
+        emit(vertexConsumer, posMatrix, pose, x - halfSize, y - halfSize, z, redInt, greenInt, blueInt, alphaInt, 0, 0, light, 0, 0, -1);
 
-        vertexConsumer.addVertex(posMatrix, x - halfSize, y + halfSize, z)
-                .setColor(redInt, greenInt, blueInt, alphaInt)
-                .setUv(0, 1)
-                .setOverlay(OverlayTexture.NO_OVERLAY)
-                .setLight(light)
-                .setNormal(pose, 0, 0, -1);
+        emit(vertexConsumer, posMatrix, pose, x - halfSize, y + halfSize, z, redInt, greenInt, blueInt, alphaInt, 0, 1, light, 0, 0, -1);
 
-        vertexConsumer.addVertex(posMatrix, x + halfSize, y + halfSize, z)
-                .setColor(redInt, greenInt, blueInt, alphaInt)
-                .setUv(1, 1)
-                .setOverlay(OverlayTexture.NO_OVERLAY)
-                .setLight(light)
-                .setNormal(pose, 0, 0, -1);
+        emit(vertexConsumer, posMatrix, pose, x + halfSize, y + halfSize, z, redInt, greenInt, blueInt, alphaInt, 1, 1, light, 0, 0, -1);
 
-        vertexConsumer.addVertex(posMatrix, x + halfSize, y - halfSize, z)
-                .setColor(redInt, greenInt, blueInt, alphaInt)
-                .setUv(1, 0)
-                .setOverlay(OverlayTexture.NO_OVERLAY)
-                .setLight(light)
-                .setNormal(pose, 0, 0, -1);
+        emit(vertexConsumer, posMatrix, pose, x + halfSize, y - halfSize, z, redInt, greenInt, blueInt, alphaInt, 1, 0, light, 0, 0, -1);
     }
 
     /**
@@ -434,33 +414,13 @@ public class BurningTobaccoLayer extends GeoRenderLayer<PipeItem> {
         int light = 15728880;
 
         // Render a flat quad facing up (looking into the bowl)
-        vertexConsumer.addVertex(posMatrix, x - halfSize, 0, z - halfSize)
-                .setColor(redInt, greenInt, blueInt, alphaInt)
-                .setUv(0, 0)
-                .setOverlay(OverlayTexture.NO_OVERLAY)
-                .setLight(light)
-                .setNormal(pose, 0, 1, 0);
+        emit(vertexConsumer, posMatrix, pose, x - halfSize, 0, z - halfSize, redInt, greenInt, blueInt, alphaInt, 0, 0, light, 0, 1, 0);
 
-        vertexConsumer.addVertex(posMatrix, x + halfSize, 0, z - halfSize)
-                .setColor(redInt, greenInt, blueInt, alphaInt)
-                .setUv(1, 0)
-                .setOverlay(OverlayTexture.NO_OVERLAY)
-                .setLight(light)
-                .setNormal(pose, 0, 1, 0);
+        emit(vertexConsumer, posMatrix, pose, x + halfSize, 0, z - halfSize, redInt, greenInt, blueInt, alphaInt, 1, 0, light, 0, 1, 0);
 
-        vertexConsumer.addVertex(posMatrix, x + halfSize, 0, z + halfSize)
-                .setColor(redInt, greenInt, blueInt, alphaInt)
-                .setUv(1, 1)
-                .setOverlay(OverlayTexture.NO_OVERLAY)
-                .setLight(light)
-                .setNormal(pose, 0, 1, 0);
+        emit(vertexConsumer, posMatrix, pose, x + halfSize, 0, z + halfSize, redInt, greenInt, blueInt, alphaInt, 1, 1, light, 0, 1, 0);
 
-        vertexConsumer.addVertex(posMatrix, x - halfSize, 0, z + halfSize)
-                .setColor(redInt, greenInt, blueInt, alphaInt)
-                .setUv(0, 1)
-                .setOverlay(OverlayTexture.NO_OVERLAY)
-                .setLight(light)
-                .setNormal(pose, 0, 1, 0);
+        emit(vertexConsumer, posMatrix, pose, x - halfSize, 0, z + halfSize, redInt, greenInt, blueInt, alphaInt, 0, 1, light, 0, 1, 0);
     }
 
     /**
@@ -472,5 +432,27 @@ public class BurningTobaccoLayer extends GeoRenderLayer<PipeItem> {
             if (data == null) return true;
             return (currentGameTime - data.stopTime) > AFTERGLOW_TICKS * 2;
         });
+    }
+
+    /** One full-bright vertex; the vertex builder API was renamed at 1.21. */
+    private static void emit(VertexConsumer consumer, Matrix4f posMatrix, PoseStack.Pose pose,
+                             float x, float y, float z, int r, int g, int b, int a,
+                             float u, float v, int light, float nx, float ny, float nz) {
+        //? if <1.21 {
+        /*consumer.vertex(posMatrix, x, y, z)
+                .color(r, g, b, a)
+                .uv(u, v)
+                .overlayCoords(OverlayTexture.NO_OVERLAY)
+                .uv2(light)
+                .normal(pose.normal(), nx, ny, nz)
+                .endVertex();
+        *///?} else {
+        consumer.addVertex(posMatrix, x, y, z)
+                .setColor(r, g, b, a)
+                .setUv(u, v)
+                .setOverlay(OverlayTexture.NO_OVERLAY)
+                .setLight(light)
+                .setNormal(pose, nx, ny, nz);
+        //?}
     }
 }

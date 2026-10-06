@@ -1,6 +1,7 @@
 package frenk.eypipes.block;
 
 import frenk.eypipes.compat.Interactions;
+//? if >=1.20.5
 import com.mojang.serialization.MapCodec;
 import frenk.eypipes.block.entity.PipeRackBlockEntity;
 import frenk.eypipes.registries.ModBlockEntities;
@@ -8,10 +9,10 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.Containers;
 import net.minecraft.world.InteractionHand;
-//? if <1.21.2 {
+//? if >=1.20.5 && <1.21.2 {
 import net.minecraft.world.ItemInteractionResult;
 //?} else
-/*import net.minecraft.world.InteractionResult;*/
+//import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
@@ -36,6 +37,7 @@ import org.jetbrains.annotations.Nullable;
  */
 public class PipeRackBlock extends BaseEntityBlock {
 
+    //? if >=1.20.5
     public static final MapCodec<PipeRackBlock> CODEC = simpleCodec(PipeRackBlock::new);
     public static final EnumProperty<Direction> FACING = BlockStateProperties.HORIZONTAL_FACING;
 
@@ -50,10 +52,12 @@ public class PipeRackBlock extends BaseEntityBlock {
         this.registerDefaultState(this.stateDefinition.any().setValue(FACING, Direction.NORTH));
     }
 
+    //? if >=1.20.5 {
     @Override
     protected MapCodec<? extends BaseEntityBlock> codec() {
         return CODEC;
     }
+    //?}
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
@@ -67,7 +71,7 @@ public class PipeRackBlock extends BaseEntityBlock {
     }
 
     @Override
-    protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
+    public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
         return switch (state.getValue(FACING)) {
             case SOUTH -> SHAPE_SOUTH;
             case EAST -> SHAPE_EAST;
@@ -83,15 +87,18 @@ public class PipeRackBlock extends BaseEntityBlock {
     }
 
     @Override
-    protected RenderShape getRenderShape(BlockState state) {
+    public RenderShape getRenderShape(BlockState state) {
         return RenderShape.MODEL;
     }
 
     @Override
-    //? if <1.21.2 {
+    //? if <1.20.5 {
+    /*public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
+        ItemStack stack = player.getItemInHand(hand);
+    *///?} elif <1.21.2 {
     protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
     //?} else
-    /*protected InteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {*/
+    //protected InteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
         if (level.isClientSide()) {
             return Interactions.itemSuccess();
         }
@@ -137,7 +144,7 @@ public class PipeRackBlock extends BaseEntityBlock {
 
     //? if <1.21.5 {
     @Override
-    protected void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
+    public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
         if (!state.is(newState.getBlock())) {
             if (level.getBlockEntity(pos) instanceof PipeRackBlockEntity pipeRack) {
                 pipeRack.dropContents(level, pos);

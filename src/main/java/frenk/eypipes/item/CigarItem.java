@@ -39,6 +39,8 @@ import software.bernie.geckolib.animatable.GeoItem;
 import software.bernie.geckolib.animatable.SingletonGeoAnimatable;
 import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
 import software.bernie.geckolib.animation.*;
+//? if <1.20.5
+//import software.bernie.geckolib.core.object.PlayState;
 //? if >=1.21.9 {
 /*import software.bernie.geckolib.animatable.manager.AnimatableManager;
 import software.bernie.geckolib.animatable.processing.AnimationController;
@@ -83,16 +85,14 @@ public class CigarItem extends Item implements GeoItem, ICurioItem {
 
     // NBT helpers for smoking state (using custom data in 1.21.1)
     private boolean isSmoking(ItemStack stack) {
-        if (!stack.has(net.minecraft.core.component.DataComponents.CUSTOM_DATA)) {
+        if (!Nbt.hasItemTag(stack)) {
             return false;
         }
-        return Nbt.getBoolean(stack.get(net.minecraft.core.component.DataComponents.CUSTOM_DATA).copyTag(), SMOKING_KEY, false);
+        return Nbt.getBoolean(Nbt.itemTag(stack), SMOKING_KEY, false);
     }
 
     private void setSmoking(ItemStack stack, boolean smoking) {
-        stack.update(net.minecraft.core.component.DataComponents.CUSTOM_DATA,
-                net.minecraft.world.item.component.CustomData.EMPTY,
-                data -> data.update(tag -> tag.putBoolean(SMOKING_KEY, smoking)));
+        Nbt.updateItemTag(stack, tag -> tag.putBoolean(SMOKING_KEY, smoking));
     }
 
     //? if <1.21.9 {
@@ -426,4 +426,12 @@ public class CigarItem extends Item implements GeoItem, ICurioItem {
                 .add(rightVec.scale(0.30))
                 .add(upVec.scale(-0.15));
     }
+
+    //? if forge {
+    /*/^* Forge 1.20.1 asks each item for its client extension; NeoForge registers it from an event. ^/
+    @Override
+    public void initializeClient(java.util.function.Consumer<net.neoforged.neoforge.client.extensions.common.IClientItemExtensions> consumer) {
+        consumer.accept(frenk.eypipes.EyPipesClient.createCigarExtension());
+    }
+    *///?}
 }

@@ -1,21 +1,36 @@
 package frenk.eypipes.registries;
 
-import com.mojang.serialization.Codec;
 import frenk.eypipes.EyPipes;
+//? if >=1.20.5 {
+import com.mojang.serialization.Codec;
+import frenk.eypipes.platform.Registrar;
+import frenk.eypipes.platform.RegistryEntry;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.codec.ByteBufCodecs;
-import net.neoforged.bus.api.IEventBus;
-import net.neoforged.neoforge.registries.DeferredHolder;
-import net.neoforged.neoforge.registries.DeferredRegister;
+//?}
 
 /**
- * Registry for custom data components used by EyPipes.
- * Data components replace NBT tags in NeoForge 1.21.1.
+ * The values EyPipes keeps on item stacks: data components from 1.20.5, NBT keys before.
  */
 public class ModDataComponents {
-    public static final DeferredRegister<DataComponentType<?>> DATA_COMPONENTS =
-            DeferredRegister.create(Registries.DATA_COMPONENT_TYPE, EyPipes.MOD_ID);
+    //? if >=1.20.5 {
+    public static final Registrar<DataComponentType<?>> DATA_COMPONENTS = Registrar.create(Registries.DATA_COMPONENT_TYPE);
+
+    private static final RegistryEntry<DataComponentType<Integer>> FERMENTATION_LEVEL_TYPE =
+            DATA_COMPONENTS.register("fermentation_level",
+                    () -> DataComponentType.<Integer>builder()
+                            .persistent(Codec.INT)
+                            .networkSynchronized(ByteBufCodecs.INT)
+                            .build());
+
+    private static final RegistryEntry<DataComponentType<Long>> FERMENTATION_START_TYPE =
+            DATA_COMPONENTS.register("fermentation_start",
+                    () -> DataComponentType.<Long>builder()
+                            .persistent(Codec.LONG)
+                            .networkSynchronized(ByteBufCodecs.VAR_LONG)
+                            .build());
+    //?}
 
     /**
      * Fermentation level of tobacco/herbs.
@@ -24,26 +39,24 @@ public class ModDataComponents {
      * 2 = Aged (1 day in tobacco jar)
      * 3 = Fermented (3 days in tobacco jar)
      */
-    public static final DeferredHolder<DataComponentType<?>, DataComponentType<Integer>> FERMENTATION_LEVEL =
-            DATA_COMPONENTS.register("fermentation_level",
-                    () -> DataComponentType.<Integer>builder()
-                            .persistent(Codec.INT)
-                            .networkSynchronized(ByteBufCodecs.INT)
-                            .build());
+    public static final ItemValue<Integer> FERMENTATION_LEVEL =
+            //? if >=1.20.5 {
+            ItemValue.component(FERMENTATION_LEVEL_TYPE);
+            //?} else
+            //ItemValue.intTag("eypipes:fermentation_level");
 
     /**
      * Game time when fermentation started in the tobacco jar.
      * Used to calculate how long the item has been fermenting.
      */
-    public static final DeferredHolder<DataComponentType<?>, DataComponentType<Long>> FERMENTATION_START =
-            DATA_COMPONENTS.register("fermentation_start",
-                    () -> DataComponentType.<Long>builder()
-                            .persistent(Codec.LONG)
-                            .networkSynchronized(ByteBufCodecs.VAR_LONG)
-                            .build());
+    public static final ItemValue<Long> FERMENTATION_START =
+            //? if >=1.20.5 {
+            ItemValue.component(FERMENTATION_START_TYPE);
+            //?} else
+            //ItemValue.longTag("eypipes:fermentation_start");
 
-    public static void register(IEventBus eventBus) {
-        DATA_COMPONENTS.register(eventBus);
+    /** Loads this class, which declares (and on Fabric registers) its entries. */
+    public static void init() {
         EyPipes.LOGGER.info("Registering EyPipes Data Components");
     }
 

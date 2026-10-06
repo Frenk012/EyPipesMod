@@ -12,8 +12,13 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
+//? if forge {
+/*import net.neoforged.fml.common.Mod;
+import net.neoforged.neoforge.event.TickEvent;
+*///?} else {
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
+//?}
 import net.neoforged.neoforge.event.entity.living.LivingEntityUseItemEvent;
 import net.neoforged.neoforge.event.entity.player.ItemTooltipEvent;
 
@@ -21,6 +26,9 @@ import net.neoforged.neoforge.event.entity.player.ItemTooltipEvent;
  * Client-side game bus event handlers for EyPipes.
  * These events are on the NeoForge game bus, not the mod bus.
  */
+//? if forge {
+/*@Mod.EventBusSubscriber(modid = EyPipes.MOD_ID, value = Dist.CLIENT)
+*///?} else
 @EventBusSubscriber(modid = EyPipes.MOD_ID, value = Dist.CLIENT)
 public class EyPipesClientEvents {
 
@@ -31,6 +39,10 @@ public class EyPipesClientEvents {
      * Called every client tick - can be used for client-side processing.
      */
     @SubscribeEvent
+    //? if forge {
+    /*public static void onClientTick(TickEvent.ClientTickEvent event) {
+        if (event.phase != TickEvent.Phase.END) return;
+    *///?} else
     public static void onClientTick(ClientTickEvent.Post event) {
         // Afterglow entries are keyed by stack identity, so pipes that are dropped, destroyed or
         // unloaded never get cleared by the render path. Sweep them periodically.
@@ -97,8 +109,8 @@ public class EyPipesClientEvents {
         // Check if item is a fermentable herb (dried or cutted variants)
         if (isFermentableItem(stack)) {
             // Check if it has a fermentation level
-            if (stack.has(ModDataComponents.FERMENTATION_LEVEL.get())) {
-                int level = stack.get(ModDataComponents.FERMENTATION_LEVEL.get());
+            if (ModDataComponents.FERMENTATION_LEVEL.has(stack)) {
+                int level = ModDataComponents.FERMENTATION_LEVEL.get(stack);
                 String qualityName = ModDataComponents.getQualityName(level);
                 ChatFormatting color = getQualityColor(level);
 

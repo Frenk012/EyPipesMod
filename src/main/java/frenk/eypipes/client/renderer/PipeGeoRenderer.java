@@ -104,6 +104,9 @@ public class PipeGeoRenderer extends GeoItemRenderer<PipeItem> {
         }
 
         //? if <1.21.9 {
+        //? if <1.20.5 {
+        /*float partialTick = Minecraft.getInstance().getFrameTime();
+        *///?} else
         float partialTick = Minecraft.getInstance().getTimer().getGameTimeDeltaPartialTick(false);
         //?} else
         /*float partialTick = Minecraft.getInstance().getDeltaTracker().getGameTimeDeltaPartialTick(false);*/

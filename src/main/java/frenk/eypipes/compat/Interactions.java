@@ -1,10 +1,11 @@
 package frenk.eypipes.compat;
 
-//? if <1.21.2 {
+//? if <1.21.2
 import net.minecraft.world.InteractionResultHolder;
+//? if >=1.20.5 && <1.21.2
 import net.minecraft.world.ItemInteractionResult;
-//?} else
-/*import net.minecraft.world.InteractionResult;*/
+//? if <1.20.5 || >=1.21.2
+//import net.minecraft.world.InteractionResult;
 
 import net.minecraft.world.item.ItemStack;
 
@@ -37,6 +38,10 @@ import net.minecraft.world.item.ItemStack;
  *   <li>{@code PASS_TO_DEFAULT_BLOCK_INTERACTION} became {@code TRY_WITH_EMPTY_HAND}.</li>
  * </ul>
  *
+ * <p>Before 1.20.5 there was no {@code ItemInteractionResult} either: blocks had a single
+ * {@code use} method returning {@code InteractionResult}, where passing on to the block's own
+ * interaction is plain {@code PASS}.
+ *
  * <p>Note for editors: the inactive branch below is wrapped in a block comment by the
  * preprocessor, so it must not contain block comments of its own.
  */
@@ -44,7 +49,27 @@ public final class Interactions {
 
     private Interactions() {}
 
-    //? if <1.21.2 {
+    //? if <1.20.5 {
+    /*public static InteractionResult itemSuccess() {
+        return InteractionResult.SUCCESS;
+    }
+
+    public static InteractionResult itemFail() {
+        return InteractionResult.FAIL;
+    }
+
+    public static InteractionResult itemConsume() {
+        return InteractionResult.CONSUME;
+    }
+
+    public static InteractionResult itemSidedSuccess(boolean isClientSide) {
+        return InteractionResult.sidedSuccess(isClientSide);
+    }
+
+    public static InteractionResult itemPassToBlock() {
+        return InteractionResult.PASS;
+    }
+    *///?} elif <1.21.2 {
     public static ItemInteractionResult itemSuccess() {
         return ItemInteractionResult.SUCCESS;
     }
@@ -65,6 +90,9 @@ public final class Interactions {
         return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
     }
 
+    //?}
+
+    //? if <1.21.2 {
     public static InteractionResultHolder<ItemStack> useFail(ItemStack stack) {
         return InteractionResultHolder.fail(stack);
     }

@@ -5,19 +5,17 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.bus.api.IEventBus;
-import net.neoforged.neoforge.registries.DeferredHolder;
-import net.neoforged.neoforge.registries.DeferredRegister;
+import frenk.eypipes.platform.Registrar;
+import frenk.eypipes.platform.RegistryEntry;
 
 /**
- * Registry for EyPipes creative mode tab using NeoForge DeferredRegister
+ * Registry for EyPipes creative mode tab
  */
 public class ModCreativeTabs {
-    public static final DeferredRegister<CreativeModeTab> CREATIVE_MODE_TABS =
-            DeferredRegister.create(Registries.CREATIVE_MODE_TAB, EyPipes.MOD_ID);
+    public static final Registrar<CreativeModeTab> CREATIVE_MODE_TABS = Registrar.create(Registries.CREATIVE_MODE_TAB);
 
     // Main EyPipes creative tab
-    public static final DeferredHolder<CreativeModeTab, CreativeModeTab> EYPIPES_TAB =
+    public static final RegistryEntry<CreativeModeTab> EYPIPES_TAB =
             CREATIVE_MODE_TABS.register("eypipes_tab",
                     () -> CreativeModeTab.builder()
                             .title(Component.translatable("itemGroup." + EyPipes.MOD_ID + ".eypipes_tab"))
@@ -69,8 +67,8 @@ public class ModCreativeTabs {
                             })
                             .build());
 
-    public static void register(IEventBus eventBus) {
-        CREATIVE_MODE_TABS.register(eventBus);
+    /** Loads this class, which declares (and on Fabric registers) its entries. */
+    public static void init() {
         EyPipes.LOGGER.info("Registering EyPipes Creative Tabs");
     }
 }

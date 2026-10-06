@@ -21,7 +21,8 @@ val runDirectory: File = rootProject.file("run/${sc.current.project}")
 sourceSets.named("main") {
     resources.srcDir(generatedResources)
     // Forge 1.20.1's metadata; this build ships neoforge.mods.toml
-    resources.exclude("META-INF/mods.toml")
+    // Forge-only metadata: NeoForge reads neoforge.mods.toml and needs no pack.mcmeta
+    resources.exclude("META-INF/mods.toml", "pack.mcmeta")
 
     // EMI and Epic Fight have no release past 1.21.1, so their integrations cannot even
     // compile on later versions. They are dropped from those jars entirely rather than

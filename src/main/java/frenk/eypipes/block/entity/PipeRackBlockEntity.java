@@ -151,8 +151,14 @@ public class PipeRackBlockEntity extends BlockEntity {
 
     //? if <1.21.6 {
     @Override
+    //? if <1.20.5 {
+    /*protected void saveAdditional(CompoundTag tag) {
+        super.saveAdditional(tag);
+        HolderLookup.Provider registries = null;
+    *///?} else {
     protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.saveAdditional(tag, registries);
+    //?}
 
         for (int i = 0; i < SLOT_COUNT; i++) {
             Nbt.putStack(tag, "Pipe" + i, items[i], registries);
@@ -160,8 +166,14 @@ public class PipeRackBlockEntity extends BlockEntity {
     }
 
     @Override
+    //? if <1.20.5 {
+    /*public void load(CompoundTag tag) {
+        super.load(tag);
+        HolderLookup.Provider registries = null;
+    *///?} else {
     protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.loadAdditional(tag, registries);
+    //?}
 
         for (int i = 0; i < SLOT_COUNT; i++) {
             items[i] = Nbt.getStack(tag, "Pipe" + i, registries);
@@ -194,22 +206,40 @@ public class PipeRackBlockEntity extends BlockEntity {
 
     //? if <1.21.6 {
     @Override
+    //? if <1.20.5 {
+    /*public CompoundTag getUpdateTag() {
+        CompoundTag tag = new CompoundTag();
+        saveAdditional(tag);
+    *///?} else {
     public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
         CompoundTag tag = new CompoundTag();
         saveAdditional(tag, registries);
+    //?}
         return tag;
     }
 
     @Override
+    //? if <1.20.5 {
+    /*public void handleUpdateTag(CompoundTag tag) {
+        load(tag);
+    *///?} else {
     public void handleUpdateTag(CompoundTag tag, HolderLookup.Provider registries) {
         loadAdditional(tag, registries);
+    //?}
     }
 
     @Override
+    //? if <1.20.5 {
+    /*public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket pkt) {
+        CompoundTag tag = pkt.getTag();
+        if (tag != null) {
+            load(tag);
+    *///?} else {
     public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket pkt, HolderLookup.Provider registries) {
         CompoundTag tag = pkt.getTag();
         if (tag != null) {
             loadAdditional(tag, registries);
+    //?}
         }
     }
     //?} else {

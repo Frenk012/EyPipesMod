@@ -18,7 +18,7 @@ public class EpicFightCompat {
     private static boolean LOADED = false;
 
     public static void init(IEventBus modBus) {
-        //? if <1.21.2 {
+        //? if neoforge && <1.21.2 {
         LOADED = ModList.get().isLoaded("epicfight");
         if (LOADED) {
             modBus.register(EpicFightAnimations.class);
@@ -33,7 +33,7 @@ public class EpicFightCompat {
     /** Client-side: local player sees animation immediately + packet sent to server */
     public static void playSmokingClient(Player player, boolean isPipe) {
         if (!LOADED) return;
-        //? if <1.21.2 {
+        //? if neoforge && <1.21.2 {
         EpicFightAnimations.playSmokingClient(player, isPipe);
         //?}
     }
@@ -41,21 +41,21 @@ public class EpicFightCompat {
     /** Server-side: broadcasts SPAnimatorControl so all nearby clients see it */
     public static void playSmokingServer(ServerPlayer player, boolean isPipe) {
         if (!LOADED) return;
-        //? if <1.21.2 {
+        //? if neoforge && <1.21.2 {
         EpicFightAnimations.playSmokingServer(player, isPipe);
         //?}
     }
 
     public static void stopSmokingClient(Player player) {
         if (!LOADED) return;
-        //? if <1.21.2 {
+        //? if neoforge && <1.21.2 {
         EpicFightAnimations.stopSmokingClient(player);
         //?}
     }
 
     public static void stopSmokingServer(ServerPlayer player) {
         if (!LOADED) return;
-        //? if <1.21.2 {
+        //? if neoforge && <1.21.2 {
         EpicFightAnimations.stopSmokingServer(player);
         //?}
     }

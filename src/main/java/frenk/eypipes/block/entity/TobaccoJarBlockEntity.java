@@ -99,10 +99,10 @@ public class TobaccoJarBlockEntity extends BlockEntity {
                 ItemStack inserted = stack.copyWithCount(1);
 
                 // If no fermentation level exists, set it based on item type
-                if (!inserted.has(ModDataComponents.FERMENTATION_LEVEL.get())) {
+                if (!ModDataComponents.FERMENTATION_LEVEL.has(inserted)) {
                     // Dried items start at DRIED quality, cutted at FRESH
                     int quality = isDriedHerb(stack) ? ModDataComponents.QUALITY_DRIED : ModDataComponents.QUALITY_FRESH;
-                    inserted.set(ModDataComponents.FERMENTATION_LEVEL.get(), quality);
+                    ModDataComponents.FERMENTATION_LEVEL.set(inserted, quality);
                 }
 
                 items[i] = inserted;
@@ -162,7 +162,7 @@ public class TobaccoJarBlockEntity extends BlockEntity {
         int count = 0;
         for (ItemStack item : items) {
             if (!item.isEmpty()) {
-                Integer level = item.get(ModDataComponents.FERMENTATION_LEVEL.get());
+                Integer level = ModDataComponents.FERMENTATION_LEVEL.get(item);
                 total += (level != null) ? level : ModDataComponents.QUALITY_DRIED;
                 count++;
             }
@@ -229,7 +229,7 @@ public class TobaccoJarBlockEntity extends BlockEntity {
             if (entity.items[i].isEmpty()) continue;
 
             ItemStack stack = entity.items[i];
-            Integer currentLevel = stack.get(ModDataComponents.FERMENTATION_LEVEL.get());
+            Integer currentLevel = ModDataComponents.FERMENTATION_LEVEL.get(stack);
             if (currentLevel == null) {
                 currentLevel = ModDataComponents.QUALITY_DRIED;
             }
@@ -247,7 +247,7 @@ public class TobaccoJarBlockEntity extends BlockEntity {
                 }
 
                 if (newLevel != currentLevel) {
-                    stack.set(ModDataComponents.FERMENTATION_LEVEL.get(), newLevel);
+                    ModDataComponents.FERMENTATION_LEVEL.set(stack, newLevel);
                     changed = true;
                 }
             }
@@ -283,8 +283,14 @@ public class TobaccoJarBlockEntity extends BlockEntity {
 
     //? if <1.21.6 {
     @Override
+    //? if <1.20.5 {
+    /*protected void saveAdditional(CompoundTag tag) {
+        super.saveAdditional(tag);
+        HolderLookup.Provider registries = null;
+    *///?} else {
     protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.saveAdditional(tag, registries);
+    //?}
 
         for (int i = 0; i < SLOT_COUNT; i++) {
             Nbt.putStack(tag, "Item" + i, items[i], registries);
@@ -293,8 +299,14 @@ public class TobaccoJarBlockEntity extends BlockEntity {
     }
 
     @Override
+    //? if <1.20.5 {
+    /*public void load(CompoundTag tag) {
+        super.load(tag);
+        HolderLookup.Provider registries = null;
+    *///?} else {
     protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.loadAdditional(tag, registries);
+    //?}
 
         for (int i = 0; i < SLOT_COUNT; i++) {
             items[i] = Nbt.getStack(tag, "Item" + i, registries);
@@ -330,15 +342,26 @@ public class TobaccoJarBlockEntity extends BlockEntity {
 
     //? if <1.21.6 {
     @Override
+    //? if <1.20.5 {
+    /*public CompoundTag getUpdateTag() {
+        CompoundTag tag = new CompoundTag();
+        saveAdditional(tag);
+    *///?} else {
     public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
         CompoundTag tag = new CompoundTag();
         saveAdditional(tag, registries);
+    //?}
         return tag;
     }
 
     @Override
+    //? if <1.20.5 {
+    /*public void handleUpdateTag(CompoundTag tag) {
+        load(tag);
+    *///?} else {
     public void handleUpdateTag(CompoundTag tag, HolderLookup.Provider registries) {
         loadAdditional(tag, registries);
+    //?}
     }
     //?} else {
     /*@Override

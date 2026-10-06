@@ -9,6 +9,7 @@ import dev.emi.emi.api.widget.WidgetHolder;
 import frenk.eypipes.recipe.DryingRecipe;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+//? if >=1.20.2
 import net.minecraft.world.item.crafting.RecipeHolder;
 import org.jetbrains.annotations.Nullable;
 
@@ -25,9 +26,14 @@ public class DryingEmiRecipe implements EmiRecipe {
     private final EmiStack output;
     private final int dryingTime;
 
+    //? if >=1.20.2 {
     public DryingEmiRecipe(RecipeHolder<DryingRecipe> recipeHolder) {
         DryingRecipe recipe = recipeHolder.value();
         this.id = recipeHolder.id();
+    //?} else {
+    /*public DryingEmiRecipe(DryingRecipe recipe) {
+        this.id = recipe.getId();
+    *///?}
         this.input = EmiIngredient.of(recipe.getInput());
         this.output = EmiStack.of(recipe.getOutput());
         this.dryingTime = recipe.getDryingTime();

@@ -114,14 +114,14 @@ public class CuttingBoardBlockEntity extends BlockEntity {
         if (result == null) return null;
 
         // Copy fermentation properties from input to output
-        Integer fermentationLevel = storedItem.get(ModDataComponents.FERMENTATION_LEVEL.get());
+        Integer fermentationLevel = ModDataComponents.FERMENTATION_LEVEL.get(storedItem);
         if (fermentationLevel != null) {
-            result.set(ModDataComponents.FERMENTATION_LEVEL.get(), fermentationLevel);
+            ModDataComponents.FERMENTATION_LEVEL.set(result, fermentationLevel);
         }
 
-        Long fermentationStart = storedItem.get(ModDataComponents.FERMENTATION_START.get());
+        Long fermentationStart = ModDataComponents.FERMENTATION_START.get(storedItem);
         if (fermentationStart != null) {
-            result.set(ModDataComponents.FERMENTATION_START.get(), fermentationStart);
+            ModDataComponents.FERMENTATION_START.set(result, fermentationStart);
         }
 
         // Consume the leaf after cutting
@@ -161,14 +161,26 @@ public class CuttingBoardBlockEntity extends BlockEntity {
 
     //? if <1.21.6 {
     @Override
+    //? if <1.20.5 {
+    /*protected void saveAdditional(CompoundTag tag) {
+        super.saveAdditional(tag);
+        HolderLookup.Provider registries = null;
+    *///?} else {
     protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.saveAdditional(tag, registries);
+    //?}
         Nbt.putStack(tag, "StoredItem", storedItem, registries);
     }
 
     @Override
+    //? if <1.20.5 {
+    /*public void load(CompoundTag tag) {
+        super.load(tag);
+        HolderLookup.Provider registries = null;
+    *///?} else {
     protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.loadAdditional(tag, registries);
+    //?}
         storedItem = Nbt.getStack(tag, "StoredItem", registries);
     }
     //?} else {
@@ -193,22 +205,40 @@ public class CuttingBoardBlockEntity extends BlockEntity {
 
     //? if <1.21.6 {
     @Override
+    //? if <1.20.5 {
+    /*public CompoundTag getUpdateTag() {
+        CompoundTag tag = new CompoundTag();
+        saveAdditional(tag);
+    *///?} else {
     public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
         CompoundTag tag = new CompoundTag();
         saveAdditional(tag, registries);
+    //?}
         return tag;
     }
 
     @Override
+    //? if <1.20.5 {
+    /*public void handleUpdateTag(CompoundTag tag) {
+        load(tag);
+    *///?} else {
     public void handleUpdateTag(CompoundTag tag, HolderLookup.Provider registries) {
         loadAdditional(tag, registries);
+    //?}
     }
 
     @Override
+    //? if <1.20.5 {
+    /*public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket pkt) {
+        CompoundTag tag = pkt.getTag();
+        if (tag != null) {
+            load(tag);
+    *///?} else {
     public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket pkt, HolderLookup.Provider registries) {
         CompoundTag tag = pkt.getTag();
         if (tag != null) {
             loadAdditional(tag, registries);
+    //?}
         } else {
             // Empty tag means empty item
             storedItem = ItemStack.EMPTY;

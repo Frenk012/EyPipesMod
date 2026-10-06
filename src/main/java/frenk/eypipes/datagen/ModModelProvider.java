@@ -19,7 +19,7 @@ import net.minecraft.data.PackOutput;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
-import net.neoforged.neoforge.registries.DeferredItem;
+import frenk.eypipes.platform.RegistryEntry;
 import software.bernie.geckolib.renderer.base.GeckolibItemSpecialRenderer;
 
 import java.util.List;
@@ -42,21 +42,21 @@ import java.util.stream.Stream;
 public class ModModelProvider extends ModelProvider {
 
     /** Items whose model is generated from a single texture layer. */
-    private static final List<DeferredItem<Item>> FLAT_ITEMS = List.of(
+    private static final List<RegistryEntry<Item>> FLAT_ITEMS = List.of(
             ModItems.ERBAPIPA, ModItems.ERBAPIPA_DRIED, ModItems.ERBAPIPA_CUTTED, ModItems.ERBAPIPA_SEEDS,
             ModItems.VALERIANA, ModItems.VALERIANA_DRIED, ModItems.VALERIANA_CUTTED, ModItems.VALERIANA_SEEDS,
             ModItems.GINSENG, ModItems.GINSENG_DRIED, ModItems.GINSENG_CUTTED, ModItems.GINSENG_SEEDS,
             ModItems.SALVIA, ModItems.SALVIA_DRIED, ModItems.SALVIA_CUTTED, ModItems.SALVIA_SEEDS);
 
     /** Items whose model is hand-authored; they only need the client-item definition. */
-    private static final List<DeferredItem<Item>> HAND_AUTHORED_ITEMS = List.of(
+    private static final List<RegistryEntry<Item>> HAND_AUTHORED_ITEMS = List.of(
             ModItems.TOBACCO_JAR_ITEM, ModItems.PIPE_RACK_ITEM,
             ModItems.CUTTING_BOARD_ITEM, ModItems.KNIFE,
             ModItems.ERBAPIPA_BUNDLE_ITEM, ModItems.VALERIANA_BUNDLE_ITEM,
             ModItems.GINSENG_BUNDLE_ITEM, ModItems.SALVIA_BUNDLE_ITEM);
 
     /** Items drawn by GeckoLib rather than by a baked model. */
-    private static final List<DeferredItem<Item>> ANIMATED_ITEMS = List.of(
+    private static final List<RegistryEntry<Item>> ANIMATED_ITEMS = List.of(
             ModItems.PIPE, ModItems.CIGAR,
             ModItems.WOODEN_PIPE, ModItems.CLAY_PIPE, ModItems.CORN_COB_PIPE, ModItems.MEERSCHAUM_PIPE,
             ModItems.BRIAR_PIPE, ModItems.CHERRY_PIPE, ModItems.CALABASH_PIPE, ModItems.CHURCHWARD_PIPE,
@@ -78,12 +78,12 @@ public class ModModelProvider extends ModelProvider {
         registerErbapipaCrop(blockModels);
         registerDryingRack(blockModels);
 
-        for (DeferredItem<Item> item : FLAT_ITEMS) {
+        for (RegistryEntry<Item> item : FLAT_ITEMS) {
             itemModels.generateFlatItem(item.get(), ModelTemplates.FLAT_ITEM);
         }
 
         // The model already exists on disk, so only the client-item definition is emitted.
-        for (DeferredItem<Item> item : HAND_AUTHORED_ITEMS) {
+        for (RegistryEntry<Item> item : HAND_AUTHORED_ITEMS) {
             itemModels.declareCustomModelItem(item.get());
         }
 
@@ -95,7 +95,7 @@ public class ModModelProvider extends ModelProvider {
 
         // GeckoLib draws these through its own special renderer, which it registers itself;
         // the client item just has to point at that renderer rather than at a baked model.
-        for (DeferredItem<Item> item : ANIMATED_ITEMS) {
+        for (RegistryEntry<Item> item : ANIMATED_ITEMS) {
             ResourceLocation base = ResourceLocation.fromNamespaceAndPath(
                     EyPipes.MOD_ID, "item/" + item.getId().getPath());
             itemModels.itemModelOutput.accept(item.get(),

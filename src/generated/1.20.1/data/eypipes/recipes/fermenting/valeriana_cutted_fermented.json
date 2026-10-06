@@ -1,0 +1,12 @@
+{
+  "type": "eypipes:fermenting",
+  "fermenting_time": 72000,
+  "ingredient": {
+    "item": "eypipes:valeriana_cutted"
+  },
+  "result": {
+    "count": 1,
+    "item": "eypipes:valeriana_cutted"
+  },
+  "target_quality": 3
+}

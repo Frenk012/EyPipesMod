@@ -71,7 +71,7 @@ public class HerbCropBlock extends CropBlock {
         if (level.getRawBrightness(pos, 0) >= 9) {
             int age = getAge(state);
             if (age < getMaxAge()) {
-                float growthSpeed = getGrowthSpeed(state, level, pos);
+                float growthSpeed = getGrowthSpeed(/*? if <1.20.5 {*//*this*//*?} else {*/state/*?}*/, level, pos);
                 if (random.nextFloat() < 0.15F * growthSpeed / 25.0F) {
                     level.setBlock(pos, state.setValue(AGE, age + 1), 2);
                 }

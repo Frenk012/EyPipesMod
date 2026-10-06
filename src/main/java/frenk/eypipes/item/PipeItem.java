@@ -1,5 +1,6 @@
 package frenk.eypipes.item;
 
+import frenk.eypipes.registries.ModDataComponents;
 import frenk.eypipes.compat.Interactions;
 import frenk.eypipes.client.SmokeClientEffects;
 import frenk.eypipes.compat.Cooldowns;
@@ -46,6 +47,8 @@ import software.bernie.geckolib.animatable.GeoItem;
 import software.bernie.geckolib.animatable.SingletonGeoAnimatable;
 import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
 import software.bernie.geckolib.animation.*;
+//? if <1.20.5
+//import software.bernie.geckolib.core.object.PlayState;
 //? if >=1.21.9 {
 /*import software.bernie.geckolib.animatable.manager.AnimatableManager;
 import software.bernie.geckolib.animatable.processing.AnimationController;
@@ -94,45 +97,39 @@ public class PipeItem extends Item implements GeoItem, ICurioItem {
 
     // NBT helpers for smoking state (using custom data in 1.21.1)
     private boolean isSmoking(ItemStack stack) {
-        if (!stack.has(net.minecraft.core.component.DataComponents.CUSTOM_DATA)) {
+        if (!Nbt.hasItemTag(stack)) {
             return false;
         }
-        return Nbt.getBoolean(stack.get(net.minecraft.core.component.DataComponents.CUSTOM_DATA).copyTag(), SMOKING_KEY, false);
+        return Nbt.getBoolean(Nbt.itemTag(stack), SMOKING_KEY, false);
     }
 
     private void setSmoking(ItemStack stack, boolean smoking) {
-        stack.update(net.minecraft.core.component.DataComponents.CUSTOM_DATA,
-                net.minecraft.world.item.component.CustomData.EMPTY,
-                data -> data.update(tag -> tag.putBoolean(SMOKING_KEY, smoking)));
+        Nbt.updateItemTag(stack, tag -> tag.putBoolean(SMOKING_KEY, smoking));
     }
 
     // Herb type helpers
     private int getHerbType(ItemStack stack) {
-        if (!stack.has(net.minecraft.core.component.DataComponents.CUSTOM_DATA)) {
+        if (!Nbt.hasItemTag(stack)) {
             return HERB_ERBAPIPA;
         }
-        return Nbt.getInt(stack.get(net.minecraft.core.component.DataComponents.CUSTOM_DATA).copyTag(), HERB_TYPE_KEY, HERB_ERBAPIPA);
+        return Nbt.getInt(Nbt.itemTag(stack), HERB_TYPE_KEY, HERB_ERBAPIPA);
     }
 
     private void setHerbType(ItemStack stack, int herbType) {
-        stack.update(net.minecraft.core.component.DataComponents.CUSTOM_DATA,
-                net.minecraft.world.item.component.CustomData.EMPTY,
-                data -> data.update(tag -> tag.putInt(HERB_TYPE_KEY, herbType)));
+        Nbt.updateItemTag(stack, tag -> tag.putInt(HERB_TYPE_KEY, herbType));
     }
 
     // Quality level helpers (for fermented tobacco effects)
     private int getQualityLevel(ItemStack stack) {
-        if (!stack.has(net.minecraft.core.component.DataComponents.CUSTOM_DATA)) {
+        if (!Nbt.hasItemTag(stack)) {
             return 1; // Default: dried quality
         }
         // Absent means dried (1.0x), not fresh (0.5x), so the fallback is spelled out
-        return Nbt.getInt(stack.get(net.minecraft.core.component.DataComponents.CUSTOM_DATA).copyTag(), QUALITY_KEY, 1);
+        return Nbt.getInt(Nbt.itemTag(stack), QUALITY_KEY, 1);
     }
 
     private void setQualityLevel(ItemStack stack, int qualityLevel) {
-        stack.update(net.minecraft.core.component.DataComponents.CUSTOM_DATA,
-                net.minecraft.world.item.component.CustomData.EMPTY,
-                data -> data.update(tag -> tag.putInt(QUALITY_KEY, qualityLevel)));
+        Nbt.updateItemTag(stack, tag -> tag.putInt(QUALITY_KEY, qualityLevel));
     }
 
     /**
@@ -140,8 +137,8 @@ public class PipeItem extends Item implements GeoItem, ICurioItem {
      * Default quality for cutted herbs is DRIED (1).
      */
     private int getQualityFromHerb(ItemStack herbStack) {
-        if (herbStack.has(frenk.eypipes.registries.ModDataComponents.FERMENTATION_LEVEL.get())) {
-            return herbStack.get(frenk.eypipes.registries.ModDataComponents.FERMENTATION_LEVEL.get());
+        if (ModDataComponents.FERMENTATION_LEVEL.has(herbStack)) {
+            return ModDataComponents.FERMENTATION_LEVEL.get(herbStack);
         }
         return 1; // Default: dried quality
     }
@@ -608,4 +605,13 @@ public class PipeItem extends Item implements GeoItem, ICurioItem {
     public AnimatableInstanceCache getAnimatableInstanceCache() {
         return this.cache;
     }
+
+    //? if forge {
+    /*/^* Forge 1.20.1 asks each item for its client extension; NeoForge registers it from an event. ^/
+    @Override
+    public void initializeClient(java.util.function.Consumer<net.neoforged.neoforge.client.extensions.common.IClientItemExtensions> consumer) {
+        consumer.accept(frenk.eypipes.EyPipesClient.createPipeExtension(
+                () -> net.minecraft.core.registries.BuiltInRegistries.ITEM.getKey(this).getPath()));
+    }
+    *///?}
 }
