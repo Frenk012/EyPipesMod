@@ -1,8 +1,11 @@
 package frenk.eypipes.particle;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.*;
 import net.minecraft.core.particles.SimpleParticleType;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.Vec3;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 
@@ -22,9 +25,15 @@ public class SmokeStreamParticle extends EyPipesParticle {
     private final boolean clockwise;
     private final float driftX;
     private final float driftZ;
-    private final double startX;
-    private final double startY;
-    private final double startZ;
+    private double startX;
+    private double startY;
+    private double startZ;
+
+    // First-person anchoring: spawn point in the player's yaw frame (forward, right, up from the eye)
+    private boolean anchored;
+    private double anchorForward;
+    private double anchorRight;
+    private double anchorUp;
 
     // Visual parameters
     private final float baseAlpha;
@@ -121,6 +130,35 @@ public class SmokeStreamParticle extends EyPipesParticle {
         this.pickSprite(spriteSet);
         //?} else
         /*this.setSpriteFromAge(spriteSet);*/
+
+        Player player = Minecraft.getInstance().player;
+        if (FirstPersonSmoke.capturing && player != null) {
+            Vec3 offset = new Vec3(x, y, z).subtract(player.getEyePosition());
+            float yaw = (float) Math.toRadians(player.getYRot());
+            this.anchorForward = offset.x * -Math.sin(yaw) + offset.z * Math.cos(yaw);
+            this.anchorRight = offset.x * -Math.cos(yaw) + offset.z * -Math.sin(yaw);
+            this.anchorUp = offset.y;
+            this.anchored = true;
+        }
+    }
+
+    /**
+     * Moves the spawn point along with the local player while they keep smoking in first person.
+     */
+    private void followPlayer() {
+        Minecraft mc = Minecraft.getInstance();
+        Player player = mc.player;
+        if (player == null || !player.isUsingItem() || !mc.options.getCameraType().isFirstPerson()) {
+            this.anchored = false;
+            return;
+        }
+        Vec3 eye = player.getEyePosition();
+        float yaw = (float) Math.toRadians(player.getYRot());
+        double sin = Math.sin(yaw);
+        double cos = Math.cos(yaw);
+        this.startX = eye.x + anchorForward * -sin + anchorRight * -cos;
+        this.startY = eye.y + anchorUp;
+        this.startZ = eye.z + anchorForward * cos + anchorRight * -sin;
     }
 
     private float[][] getColorPalette() {
@@ -141,6 +179,10 @@ public class SmokeStreamParticle extends EyPipesParticle {
         if (this.age++ >= this.lifetime) {
             this.remove();
             return;
+        }
+
+        if (this.anchored) {
+            followPlayer();
         }
 
         float ageRatio = (float) this.age / this.lifetime;

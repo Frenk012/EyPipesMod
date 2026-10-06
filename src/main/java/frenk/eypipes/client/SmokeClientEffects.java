@@ -3,6 +3,7 @@ package frenk.eypipes.client;
 import frenk.eypipes.client.layer.BurningTobaccoLayer;
 import frenk.eypipes.client.renderer.PipeGeoRenderer;
 import frenk.eypipes.particle.EnhancedParticleHelper;
+import frenk.eypipes.particle.FirstPersonSmoke;
 import frenk.eypipes.registries.ModParticles;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.entity.LivingEntity;
@@ -56,13 +57,22 @@ public final class SmokeClientEffects {
     public static void spawnFirstPersonBowl(Level level, float intensity) {
         Vec3 locatorPos = PipeGeoRenderer.getLastLocatorWorldPos();
         if (locatorPos != Vec3.ZERO) {
-            EnhancedParticleHelper.spawnFirstPersonBowlSmoke(level, locatorPos, intensity);
+            FirstPersonSmoke.run(() -> EnhancedParticleHelper.spawnFirstPersonBowlSmoke(level, locatorPos, intensity));
             EnhancedParticleHelper.spawnFirstPersonBowlEmbers(level, locatorPos, intensity);
         }
     }
 
     /**
-     * Spawn the full-size smoke plume and bowl embers at an eye-relative position.
+     * Whether this entity is the local player looking through their own eyes, in which case
+     * smoke is placed in front of the camera and follows it.
+     */
+    public static boolean isLocalFirstPerson(LivingEntity entity) {
+        Minecraft minecraft = Minecraft.getInstance();
+        return entity == minecraft.player && minecraft.options.getCameraType().isFirstPerson();
+    }
+
+    /**
+     * Spawn the full-size smoke plume and bowl embers at the given position.
      */
     public static void spawnThirdPersonBowl(Level level, Vec3 position, float intensity) {
         for (int i = 0; i < 10; i++) {
