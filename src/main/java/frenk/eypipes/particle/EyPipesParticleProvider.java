@@ -5,8 +5,6 @@ import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.ParticleProvider;
 import net.minecraft.client.particle.SpriteSet;
 import net.minecraft.core.particles.SimpleParticleType;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 
 /**
  * Base provider for every EyPipes particle.
@@ -16,7 +14,6 @@ import net.neoforged.api.distmarker.OnlyIn;
  * where they want randomness - so the extra parameter is swallowed here and each particle only
  * implements {@link #create}.
  */
-@OnlyIn(Dist.CLIENT)
 public abstract class EyPipesParticleProvider implements ParticleProvider<SimpleParticleType> {
 
     protected final SpriteSet spriteSet;

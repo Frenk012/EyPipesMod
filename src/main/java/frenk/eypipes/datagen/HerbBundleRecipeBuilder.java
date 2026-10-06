@@ -16,7 +16,7 @@ import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.crafting.Recipe;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 import java.util.LinkedHashMap;
 import java.util.Map;
 

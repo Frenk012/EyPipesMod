@@ -26,9 +26,9 @@ public class EyPipesServerEvents {
         if (!EpicFightCompat.isLoaded()) return;
         if (!(event.getEntity() instanceof ServerPlayer player)) return;
         ItemStack stack = event.getItem();
-        if (isPipeItem(stack)) {
+        if (ModItems.isPipe(stack)) {
             EpicFightCompat.playSmokingServer(player, true);
-        } else if (isCigarItem(stack)) {
+        } else if (ModItems.isCigar(stack)) {
             EpicFightCompat.playSmokingServer(player, false);
         }
     }
@@ -37,7 +37,7 @@ public class EyPipesServerEvents {
     public static void onItemUseStop(LivingEntityUseItemEvent.Stop event) {
         if (!EpicFightCompat.isLoaded()) return;
         if (!(event.getEntity() instanceof ServerPlayer player)) return;
-        if (isPipeItem(event.getItem()) || isCigarItem(event.getItem())) {
+        if (ModItems.isPipe(event.getItem()) || ModItems.isCigar(event.getItem())) {
             EpicFightCompat.stopSmokingServer(player);
         }
     }
@@ -46,25 +46,8 @@ public class EyPipesServerEvents {
     public static void onItemUseFinish(LivingEntityUseItemEvent.Finish event) {
         if (!EpicFightCompat.isLoaded()) return;
         if (!(event.getEntity() instanceof ServerPlayer player)) return;
-        if (isPipeItem(event.getItem()) || isCigarItem(event.getItem())) {
+        if (ModItems.isPipe(event.getItem()) || ModItems.isCigar(event.getItem())) {
             EpicFightCompat.stopSmokingServer(player);
         }
-    }
-
-    private static boolean isPipeItem(ItemStack stack) {
-        return stack.is(ModItems.PIPE.get())
-            || stack.is(ModItems.WOODEN_PIPE.get())
-            || stack.is(ModItems.CLAY_PIPE.get())
-            || stack.is(ModItems.CORN_COB_PIPE.get())
-            || stack.is(ModItems.MEERSCHAUM_PIPE.get())
-            || stack.is(ModItems.BRIAR_PIPE.get())
-            || stack.is(ModItems.CHERRY_PIPE.get())
-            || stack.is(ModItems.CALABASH_PIPE.get())
-            || stack.is(ModItems.CHURCHWARD_PIPE.get())
-            || stack.is(ModItems.BENT_PIPE.get());
-    }
-
-    private static boolean isCigarItem(ItemStack stack) {
-        return stack.is(ModItems.CIGAR.get());
     }
 }

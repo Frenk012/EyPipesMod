@@ -29,8 +29,11 @@ sourceSets.named("main") {
         // Data generators target the 1.21 APIs; 1.20.1 reads src/generated/1.20.1, which
         // tools/convert-generated-1.20.1.py derives from the 1.21.1 output.
         "frenk/eypipes/datagen/**",
+        // Fabric's entry points and its Trinkets renderers (Curios covers those here)
+        "frenk/eypipes/fabric/**",
+        "frenk/eypipes/client/trinkets/**",
     )
-    resources.exclude("META-INF/neoforge.mods.toml")
+    resources.exclude("META-INF/neoforge.mods.toml", "fabric.mod.json", "data/trinkets/**")
 }
 
 java {
@@ -141,6 +144,9 @@ tasks {
         }
 
         filesMatching("META-INF/mods.toml") { expand(props) }
+
+        // Hand-written tags use the 1.21 folder name; 1.20.1 still reads the plural one
+        filesMatching("data/*/tags/item/**") { path = path.replace("/tags/item/", "/tags/items/") }
 
         // Forge 1.20.1 only loads a mod's data and assets when the jar carries pack metadata
         inputs.property("pack_format", "15")

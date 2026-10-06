@@ -1,0 +1,15 @@
+{
+  "replace": false,
+  "values": [
+    "eypipes:pipe",
+    "eypipes:wooden_pipe",
+    "eypipes:clay_pipe",
+    "eypipes:corn_cob_pipe",
+    "eypipes:meerschaum_pipe",
+    "eypipes:briar_pipe",
+    "eypipes:cherry_pipe",
+    "eypipes:calabash_pipe",
+    "eypipes:churchward_pipe",
+    "eypipes:bent_pipe"
+  ]
+}

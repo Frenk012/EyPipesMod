@@ -6,8 +6,6 @@ import net.minecraft.client.particle.ParticleRenderType;
 import net.minecraft.client.particle.TextureSheetParticle;
 //?} else
 /*import net.minecraft.client.particle.SingleQuadParticle;*/
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 
 /**
  * Base class for every EyPipes particle.
@@ -18,7 +16,6 @@ import net.neoforged.api.distmarker.OnlyIn;
  * sprites from the particle atlas and differ only in how they move, so the superclass swap lives
  * here once instead of six times.
  */
-@OnlyIn(Dist.CLIENT)
 //? if <1.21.9 {
 public abstract class EyPipesParticle extends TextureSheetParticle {
 //?} else

@@ -1,6 +1,7 @@
 package frenk.eypipes.registries;
 
 import frenk.eypipes.EyPipes;
+import java.util.List;
 import java.util.function.Function;
 import frenk.eypipes.config.EyPipesConfig;
 import frenk.eypipes.item.CigarItem;
@@ -12,6 +13,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 //? if <1.21.5
 import net.minecraft.world.item.ItemNameBlockItem;
 import net.minecraft.world.level.block.ComposterBlock;
@@ -156,6 +158,14 @@ public class ModItems {
     public static final RegistryEntry<Item> BENT_PIPE = item("bent_pipe",
             PipeItem::new, pipeProperties());
 
+    /**
+     * Every pipe variant. Each entry's registry name doubles as its GeckoLib asset base name, so
+     * adding a variant only means adding it here plus its assets.
+     */
+    public static final List<RegistryEntry<Item>> PIPES = List.of(
+            PIPE, WOODEN_PIPE, CLAY_PIPE, CORN_COB_PIPE, MEERSCHAUM_PIPE,
+            BRIAR_PIPE, CHERRY_PIPE, CALABASH_PIPE, CHURCHWARD_PIPE, BENT_PIPE);
+
     // Block items
     public static final RegistryEntry<Item> DRYING_RACK_ITEM = item("drying_rack_erb",
             props -> new BlockItem(ModBlocks.DRYING_RACK.get(), blockItemProperties(props)));
@@ -186,6 +196,17 @@ public class ModItems {
 
     public static final RegistryEntry<Item> SALVIA_BUNDLE_ITEM = item("salvia_bundle",
             props -> new HerbBundleBlockItem(ModBlocks.SALVIA_BUNDLE.get(), blockItemProperties(props), ChatFormatting.DARK_GREEN));
+
+    public static boolean isPipe(ItemStack stack) {
+        for (RegistryEntry<Item> pipe : PIPES) {
+            if (stack.is(pipe.get())) return true;
+        }
+        return false;
+    }
+
+    public static boolean isCigar(ItemStack stack) {
+        return stack.is(CIGAR.get());
+    }
 
     /** Loads this class, which declares (and on Fabric registers) its entries. */
     public static void init() {

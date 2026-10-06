@@ -33,13 +33,13 @@ public final class Registrar<T> {
     //? if neoforge || forge {
     private final DeferredRegister<T> deferred;
     //?} else
-    /*private final ResourceKey<? extends Registry<T>> key;*/
+    //private final ResourceKey<? extends Registry<T>> key;
 
     private Registrar(ResourceKey<? extends Registry<T>> key) {
         //? if neoforge || forge {
         this.deferred = DeferredRegister.create(key, EyPipes.MOD_ID);
         //?} else
-        /*this.key = key;*/
+        //this.key = key;
     }
 
     public static <T> Registrar<T> create(ResourceKey<? extends Registry<T>> key) {

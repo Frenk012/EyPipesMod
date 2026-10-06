@@ -27,7 +27,7 @@ stonecutter {
         // dependencies, have no build for them. 1.21.5 is started but not finished; its
         // conditionals are already in the sources and adding it back here is the only step needed.
         match("1.20.1", "forge")
-        match("1.21.1", "neoforge")
+        match("1.21.1", "neoforge", "fabric")
         match("1.21.10", "neoforge")
         vcsVersion = "1.21.1-neoforge"
     }

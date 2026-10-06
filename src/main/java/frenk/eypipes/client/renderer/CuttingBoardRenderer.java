@@ -23,7 +23,7 @@ import net.minecraft.client.renderer.state.CameraRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.Vec3;
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 *///?}
 
 /**

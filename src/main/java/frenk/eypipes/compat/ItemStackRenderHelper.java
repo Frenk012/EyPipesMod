@@ -6,8 +6,6 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 
 /**
  * Version seam for drawing a loose {@link ItemStack} from a block entity renderer.
@@ -20,7 +18,6 @@ import net.neoforged.api.distmarker.OnlyIn;
  *
  * <p>Current implementation targets Minecraft 1.21.1.
  */
-@OnlyIn(Dist.CLIENT)
 public final class ItemStackRenderHelper {
 
     private ItemStackRenderHelper() {}

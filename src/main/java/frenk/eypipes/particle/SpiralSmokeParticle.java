@@ -3,15 +3,12 @@ package frenk.eypipes.particle;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.*;
 import net.minecraft.core.particles.SimpleParticleType;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 
 /**
  * Enchanted Spiral Smoke - Dramatic 3D helix pattern for exhale effect.
  * Features majestic spiraling motion, magical color shifts, and ethereal presence.
  * Creates stunning smoke formations that dance and swirl with mystical energy.
  */
-@OnlyIn(Dist.CLIENT)
 public class SpiralSmokeParticle extends EyPipesParticle {
     private final SpriteSet spriteSet;
     private final double startX;
@@ -222,7 +219,6 @@ public class SpiralSmokeParticle extends EyPipesParticle {
     }
 
 
-    @OnlyIn(Dist.CLIENT)
     public static class Provider extends EyPipesParticleProvider {
         public Provider(SpriteSet spriteSet) {
             super(spriteSet);

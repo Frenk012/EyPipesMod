@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 1,
+  "id": "${mod_id}",
+  "version": "${mod_version}",
+  "name": "${mod_name}",
+  "description": "${mod_description}",
+  "authors": ["${mod_authors}"],
+  "contact": {
+    "issues": "https://github.com/Frenk012/EyPipesMod/issues",
+    "sources": "https://github.com/Frenk012/EyPipesMod"
+  },
+  "license": "${mod_license}",
+  "icon": "assets/eypipes/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": ["frenk.eypipes.fabric.EyPipesFabric"],
+    "client": ["frenk.eypipes.fabric.EyPipesFabricClient"],
+    "jei_mod_plugin": ["frenk.eypipes.integration.jei.EyPipesJEIPlugin"],
+    "rei_client": ["frenk.eypipes.integration.rei.EyPipesREIPlugin"],
+    "emi": ["frenk.eypipes.integration.emi.EyPipesEMIPlugin"]
+  },
+  "mixins": ["eypipes.mixins.json"],
+  "depends": {
+    "fabricloader": "${fabric_loader_dependency}",
+    "fabric-api": "*",
+    "minecraft": "${minecraft_dependency}",
+    "java": "${java_dependency}",
+    "geckolib": "${geckolib_dependency}",
+    "trinkets": "${trinkets_dependency}",
+    "forgeconfigapiport": "${forgeconfigapiport_dependency}"
+  },
+  "suggests": {
+    "jei": "*",
+    "roughlyenoughitems": "*",
+    "emi": "*"
+  }
+}

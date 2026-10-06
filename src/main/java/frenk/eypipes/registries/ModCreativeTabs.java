@@ -17,7 +17,8 @@ public class ModCreativeTabs {
     // Main EyPipes creative tab
     public static final RegistryEntry<CreativeModeTab> EYPIPES_TAB =
             CREATIVE_MODE_TABS.register("eypipes_tab",
-                    () -> CreativeModeTab.builder()
+                    // Vanilla's builder takes a row and column; Fabric API and (Neo)Forge add their own
+                    () -> /*? if fabric {*//*net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup.builder()*//*?} else {*/CreativeModeTab.builder()/*?}*/
                             .title(Component.translatable("itemGroup." + EyPipes.MOD_ID + ".eypipes_tab"))
                             .icon(() -> new ItemStack(ModItems.PIPE.get()))
                             .displayItems((parameters, output) -> {

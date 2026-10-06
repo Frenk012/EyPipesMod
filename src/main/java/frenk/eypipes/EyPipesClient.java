@@ -41,7 +41,6 @@ import frenk.eypipes.platform.RegistryEntry;
 import software.bernie.geckolib.renderer.GeoItemRenderer;
 import top.theillusivec4.curios.api.client.CuriosRendererRegistry;
 
-import java.util.List;
 
 /**
  * Client-side initialization and event handling for EyPipes mod.
@@ -55,22 +54,6 @@ import java.util.List;
 public class EyPipesClient {
 
     /**
-     * Every item rendered by {@link PipeGeoRenderer}. Each entry's registry name doubles as its
-     * GeckoLib asset base name, so adding a pipe variant only means adding it here plus its assets.
-     */
-    private static final List<RegistryEntry<Item>> PIPE_ITEMS = List.of(
-            ModItems.PIPE,
-            ModItems.WOODEN_PIPE,
-            ModItems.CLAY_PIPE,
-            ModItems.CORN_COB_PIPE,
-            ModItems.MEERSCHAUM_PIPE,
-            ModItems.BRIAR_PIPE,
-            ModItems.CHERRY_PIPE,
-            ModItems.CALABASH_PIPE,
-            ModItems.CHURCHWARD_PIPE,
-            ModItems.BENT_PIPE);
-
-    /**
      * Client setup event - runs after registries are complete.
      */
     @SubscribeEvent
@@ -82,20 +65,11 @@ public class EyPipesClient {
             //?} else
             /*ItemBlockRenderTypes.setRenderLayer(ModBlocks.ERBAPIPA_CROP.get(), net.minecraft.client.renderer.chunk.ChunkSectionLayer.CUTOUT);*/
 
-            // Register Curios renderers
-            CuriosRendererRegistry.register(ModItems.PIPE.get(), PipeCuriosRenderer::new);
+            // Curios renderers: every pipe variant shares one, the cigar has its own
+            for (RegistryEntry<Item> pipe : ModItems.PIPES) {
+                CuriosRendererRegistry.register(pipe.get(), PipeCuriosRenderer::new);
+            }
             CuriosRendererRegistry.register(ModItems.CIGAR.get(), CigarCuriosRenderer::new);
-
-            // Register Curios renderers for pipe variants
-            CuriosRendererRegistry.register(ModItems.WOODEN_PIPE.get(), PipeCuriosRenderer::new);
-            CuriosRendererRegistry.register(ModItems.CLAY_PIPE.get(), PipeCuriosRenderer::new);
-            CuriosRendererRegistry.register(ModItems.CORN_COB_PIPE.get(), PipeCuriosRenderer::new);
-            CuriosRendererRegistry.register(ModItems.MEERSCHAUM_PIPE.get(), PipeCuriosRenderer::new);
-            CuriosRendererRegistry.register(ModItems.BRIAR_PIPE.get(), PipeCuriosRenderer::new);
-            CuriosRendererRegistry.register(ModItems.CHERRY_PIPE.get(), PipeCuriosRenderer::new);
-            CuriosRendererRegistry.register(ModItems.CALABASH_PIPE.get(), PipeCuriosRenderer::new);
-            CuriosRendererRegistry.register(ModItems.CHURCHWARD_PIPE.get(), PipeCuriosRenderer::new);
-            CuriosRendererRegistry.register(ModItems.BENT_PIPE.get(), PipeCuriosRenderer::new);
         });
 
         EyPipes.LOGGER.info("EyPipes client setup complete");
@@ -125,14 +99,14 @@ public class EyPipesClient {
     @SubscribeEvent
     public static void onRegisterClientExtensions(RegisterClientExtensionsEvent event) {
         // Every pipe variant shares one data-driven renderer; the asset name is the registry name
-        for (RegistryEntry<Item> pipe : PIPE_ITEMS) {
+        for (RegistryEntry<Item> pipe : ModItems.PIPES) {
             String name = pipe.getId().getPath();
             event.registerItem(createPipeExtension(() -> name), pipe.get());
         }
 
         event.registerItem(createCigarExtension(), ModItems.CIGAR.get());
 
-        EyPipes.LOGGER.debug("Registered EyPipes GeckoLib item renderers ({} total)", PIPE_ITEMS.size() + 1);
+        EyPipes.LOGGER.debug("Registered EyPipes GeckoLib item renderers ({} total)", ModItems.PIPES.size() + 1);
     }
     //?}
 

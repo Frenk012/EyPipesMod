@@ -11,8 +11,9 @@ group = property("mod.group") as String
 base.archivesName = modId
 
 // Datagen output is version-specific (model and recipe formats change across the range),
-// so each Minecraft version keeps its own generated tree, committed alongside the sources.
-val generatedResources: File = rootProject.file("src/generated/${sc.current.project}")
+// so each Minecraft version keeps its own generated tree, committed alongside the sources
+// and shared with the Fabric build of the same version.
+val generatedResources: File = rootProject.file("src/generated/$mc")
 
 // Each version needs its own game directory: the dev mods folder holds builds of Curios,
 // JEI and the rest that only load on one Minecraft version.
@@ -20,9 +21,10 @@ val runDirectory: File = rootProject.file("run/${sc.current.project}")
 
 sourceSets.named("main") {
     resources.srcDir(generatedResources)
-    // Forge 1.20.1's metadata; this build ships neoforge.mods.toml
-    // Forge-only metadata: NeoForge reads neoforge.mods.toml and needs no pack.mcmeta
-    resources.exclude("META-INF/mods.toml", "pack.mcmeta")
+    // Other loaders' metadata: NeoForge reads neoforge.mods.toml and needs no pack.mcmeta
+    resources.exclude("META-INF/mods.toml", "pack.mcmeta", "fabric.mod.json", "data/trinkets/**")
+    // Fabric's entry points and its Trinkets renderers (Curios covers those here)
+    java.exclude("frenk/eypipes/fabric/**", "frenk/eypipes/client/trinkets/**")
 
     // EMI and Epic Fight have no release past 1.21.1, so their integrations cannot even
     // compile on later versions. They are dropped from those jars entirely rather than

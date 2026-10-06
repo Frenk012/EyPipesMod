@@ -46,6 +46,7 @@ import software.bernie.geckolib.animation.*;
 import software.bernie.geckolib.animatable.processing.AnimationController;
 *///?}
 import software.bernie.geckolib.util.GeckoLibUtil;
+//? if !fabric
 import top.theillusivec4.curios.api.type.capability.ICurioItem;
 
 import java.util.concurrent.Executors;
@@ -57,7 +58,8 @@ import java.util.concurrent.TimeUnit;
  * Unlike the pipe, the cigar is destroyed when durability runs out (no refilling).
  * Ported from Fabric 1.19.2 (GeckoLib 3 + Trinkets) to NeoForge 1.21.1 (GeckoLib 4 + Curios)
  */
-public class CigarItem extends Item implements GeoItem, ICurioItem {
+// Fabric wears it through Trinkets, which needs no interface on the item
+public class CigarItem extends Item implements GeoItem/*? if !fabric {*/, ICurioItem/*?}*/ {
     private static final Logger LOGGER = LoggerFactory.getLogger("EyPipes");
 
     // Animation constants
@@ -334,8 +336,9 @@ public class CigarItem extends Item implements GeoItem, ICurioItem {
     *///?}
 
     // From 1.21.9 repairability is a data component; an item that never sets one
-    // cannot be repaired anyway, which is what this override was for.
-    //? if <1.21.9 {
+    // cannot be repaired anyway, which is what this override was for. The hook is (Neo)Forge's;
+    // on Fabric the item has no repair material, so only combining two in an anvil remains.
+    //? if <1.21.9 && !fabric {
     @Override
     public boolean isRepairable(ItemStack stack) {
         return false; // Cigars cannot be repaired - they are consumed
@@ -389,8 +392,9 @@ public class CigarItem extends Item implements GeoItem, ICurioItem {
     }
 
     // From GeckoLib 5 the item supplies its own renderer instead of it being registered
-    // through NeoForge client extensions, which no longer have a BEWLR to hand back.
-    //? if >=1.21.9 {
+    // through NeoForge client extensions, which no longer have a BEWLR to hand back. Fabric has
+    // no client extensions at all, so it always goes this way.
+    //? if >=1.21.9 || fabric {
     /*@Override
     public void createGeoRenderer(java.util.function.Consumer<software.bernie.geckolib.animatable.client.GeoRenderProvider> consumer) {
         consumer.accept(new software.bernie.geckolib.animatable.client.GeoRenderProvider() {

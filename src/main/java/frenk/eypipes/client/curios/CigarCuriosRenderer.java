@@ -1,7 +1,7 @@
 package frenk.eypipes.client.curios;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Axis;
+import frenk.eypipes.client.WornItemPose;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.HumanoidModel;
@@ -29,18 +29,6 @@ import net.minecraft.client.renderer.item.ItemStackRenderState;
  */
 public class CigarCuriosRenderer implements ICurioRenderer {
 
-    /** Put the cigar in the wearer's mouth. Only the head slot positions it. */
-    private static void applySlotPose(PoseStack poseStack, HumanoidModel<?> humanoidModel, String slotId) {
-        if ("head".equals(slotId) || "pipe_head".equals(slotId)) {
-            humanoidModel.head.translateAndRotate(poseStack);
-
-            // Apply cigar transformations (converted from model units to world units)
-            poseStack.translate(0.0f, 0.6f / 16.0f, -4.75f / 16.0f);
-            poseStack.mulPose(Axis.ZP.rotationDegrees(180));
-            poseStack.scale(0.7f, 0.7f, 0.7f);
-        }
-    }
-
     //? if <1.21.9 {
     @Override
     public <T extends LivingEntity, M extends EntityModel<T>> void render(
@@ -54,7 +42,7 @@ public class CigarCuriosRenderer implements ICurioRenderer {
         }
 
         poseStack.pushPose();
-        applySlotPose(poseStack, humanoidModel, slotContext.identifier());
+        WornItemPose.cigar(poseStack, humanoidModel, slotContext.identifier());
         Minecraft.getInstance().getItemRenderer().renderStatic(stack, ItemDisplayContext.FIXED,
                 packedLight, OverlayTexture.NO_OVERLAY, poseStack, bufferSource,
                 slotContext.entity().level(), 0);
@@ -73,7 +61,7 @@ public class CigarCuriosRenderer implements ICurioRenderer {
         }
 
         poseStack.pushPose();
-        applySlotPose(poseStack, humanoidModel, slotContext.identifier());
+        WornItemPose.cigar(poseStack, humanoidModel, slotContext.identifier());
 
         ItemStackRenderState itemState = new ItemStackRenderState();
         Minecraft.getInstance().getItemModelResolver().updateForTopItem(itemState, stack,

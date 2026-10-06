@@ -5,8 +5,6 @@ import frenk.eypipes.registries.ModParticles;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 
 /**
  * Enhanced Particle Helper - Coordinates complex particle effects for stunning visuals.
@@ -15,7 +13,6 @@ import net.neoforged.api.distmarker.OnlyIn;
  *
  * All methods must be called from the client render thread.
  */
-@OnlyIn(Dist.CLIENT)
 public class EnhancedParticleHelper {
 
     /**

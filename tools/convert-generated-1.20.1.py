@@ -18,7 +18,7 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-SOURCE = Path(sys.argv[1]) if len(sys.argv) > 1 else ROOT / "src/generated/1.21.1-neoforge"
+SOURCE = Path(sys.argv[1]) if len(sys.argv) > 1 else ROOT / "src/generated/1.21.1"
 TARGET = Path(sys.argv[2]) if len(sys.argv) > 2 else ROOT / "src/generated/1.20.1"
 
 FOLDERS = {"recipe": "recipes", "loot_table": "loot_tables", "advancement": "advancements"}

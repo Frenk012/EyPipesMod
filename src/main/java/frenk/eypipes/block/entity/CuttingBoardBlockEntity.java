@@ -213,10 +213,16 @@ public class CuttingBoardBlockEntity extends BlockEntity {
     public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
         CompoundTag tag = new CompoundTag();
         saveAdditional(tag, registries);
+        // Without (Neo)Forge's hooks, vanilla skips an empty update tag, so an emptied block
+        // would keep showing its last item. The marker keeps the tag from ever being empty.
+        //? if fabric
+        //tag.putBoolean("eypipes_sync", true);
     //?}
         return tag;
     }
 
+    // (Neo)Forge hooks. Fabric needs neither: vanilla already loads both through loadAdditional.
+    //? if !fabric {
     @Override
     //? if <1.20.5 {
     /*public void handleUpdateTag(CompoundTag tag) {
@@ -244,6 +250,7 @@ public class CuttingBoardBlockEntity extends BlockEntity {
             storedItem = ItemStack.EMPTY;
         }
     }
+    //?}
     //?} else {
     /*@Override
     public CompoundTag getUpdateTag(HolderLookup.Provider registries) {

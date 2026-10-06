@@ -6,15 +6,12 @@ import net.minecraft.client.particle.*;
 import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 
 /**
  * Enchanted Smoke Stream - A magical blend of realistic and fantasy smoke.
  * Features graceful dancing motion, ethereal color shifts, and mystical glow.
  * The smoke appears alive, breathing and swirling with subtle magic.
  */
-@OnlyIn(Dist.CLIENT)
 public class SmokeStreamParticle extends EyPipesParticle {
     private final SpriteSet spriteSet;
 
@@ -273,7 +270,6 @@ public class SmokeStreamParticle extends EyPipesParticle {
     }
 
 
-    @OnlyIn(Dist.CLIENT)
     public static class Provider extends EyPipesParticleProvider {
         public Provider(SpriteSet spriteSet) {
             super(spriteSet);

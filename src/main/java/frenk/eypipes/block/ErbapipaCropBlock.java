@@ -127,10 +127,10 @@ public class ErbapipaCropBlock extends CropBlock {
 
     @Override
     public void randomTick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
-        if (!level.isAreaLoaded(pos, 1)) return;
+        if (!/*? if fabric {*//*level.hasChunksAt(pos.offset(-1, -1, -1), pos.offset(1, 1, 1))*//*?} else {*/level.isAreaLoaded(pos, 1)/*?}*/) return;
 
         int age = getAge(state);
-        float growthSpeed = getGrowthSpeed(/*? if <1.20.5 {*//*this*//*?} else {*/state/*?}*/, level, pos);
+        float growthSpeed = getGrowthSpeed(/*? if neoforge {*/state/*?} else {*//*this*//*?}*/, level, pos); // NeoForge passes the state
 
         if (level.getRawBrightness(pos, 0) >= 9) {
             // Growth logic for the current block

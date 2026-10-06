@@ -3,15 +3,12 @@ package frenk.eypipes.particle;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.*;
 import net.minecraft.core.particles.SimpleParticleType;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 
 /**
  * Steam particle for drying rack visualization.
  * Creates gentle white/gray particles that rise slowly and fade out.
  * Spawned during the drying process to show that herbs are being dried.
  */
-@OnlyIn(Dist.CLIENT)
 public class SteamParticle extends EyPipesParticle {
     private final SpriteSet spriteSet;
     private final float baseAlpha;
@@ -91,7 +88,6 @@ public class SteamParticle extends EyPipesParticle {
     }
 
 
-    @OnlyIn(Dist.CLIENT)
     public static class Provider extends EyPipesParticleProvider {
         public Provider(SpriteSet spriteSet) {
             super(spriteSet);

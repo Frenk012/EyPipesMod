@@ -11,8 +11,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 
 /**
  * The single seam between EyPipes' common item logic and client-only rendering APIs.
@@ -25,7 +23,6 @@ import net.neoforged.api.distmarker.OnlyIn;
  *
  * <p>Every method here must only be called from a {@code level.isClientSide()} branch.
  */
-@OnlyIn(Dist.CLIENT)
 public final class SmokeClientEffects {
 
     private SmokeClientEffects() {}

@@ -3,15 +3,12 @@ package frenk.eypipes.particle;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.*;
 import net.minecraft.core.particles.SimpleParticleType;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 
 /**
  * Spark particle effect - Bright, energetic sparks that pop and fade quickly.
  * Features rapid color shifts between orange/yellow/white, erratic motion, and bloom effect.
  * Creates a magical, fiery appearance when smoking the pipe.
  */
-@OnlyIn(Dist.CLIENT)
 public class SparkParticle extends EyPipesParticle {
     private final float baseScale;
     private final float flickerRate;
@@ -111,7 +108,6 @@ public class SparkParticle extends EyPipesParticle {
         return 0xF000F0;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public static class Provider extends EyPipesParticleProvider {
         public Provider(SpriteSet spriteSet) {
             super(spriteSet);

@@ -2,8 +2,10 @@ package frenk.eypipes.integration.epicfight;
 
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
+//? if !fabric {
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModList;
+//?}
 
 /**
  * Guard facade for Epic Fight integration.
@@ -17,6 +19,8 @@ public class EpicFightCompat {
 
     private static boolean LOADED = false;
 
+    // Epic Fight does not exist on Fabric, which never calls this
+    //? if !fabric {
     public static void init(IEventBus modBus) {
         //? if neoforge && <1.21.2 {
         LOADED = ModList.get().isLoaded("epicfight");
@@ -25,6 +29,7 @@ public class EpicFightCompat {
         }
         //?}
     }
+    //?}
 
     public static boolean isLoaded() {
         return LOADED;

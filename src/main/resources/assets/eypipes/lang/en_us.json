@@ -50,6 +50,8 @@
     "curios.identifier.pipe_chest": "Pipe (Chest)",
     "curios.modifiers.pipe_head": "When equipped in head slot:",
     "curios.modifiers.pipe_chest": "When equipped in chest slot:",
+    "trinkets.slot.head.pipe_head": "Pipe (Head)",
+    "trinkets.slot.chest.pipe_chest": "Pipe (Chest)",
 
     "rei.eypipes.category.drying": "Drying Rack",
     "rei.eypipes.category.fermenting": "Tobacco Jar Fermenting",

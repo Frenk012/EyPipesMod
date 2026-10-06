@@ -50,6 +50,8 @@
     "curios.identifier.pipe_chest": "Pipa (Petto)",
     "curios.modifiers.pipe_head": "Quando equipaggiato sulla testa:",
     "curios.modifiers.pipe_chest": "Quando equipaggiato sul petto:",
+    "trinkets.slot.head.pipe_head": "Pipa (Testa)",
+    "trinkets.slot.chest.pipe_chest": "Pipa (Petto)",
 
     "rei.eypipes.category.drying": "Essiccatoio",
     "rei.eypipes.category.fermenting": "Fermentazione Barattolo",

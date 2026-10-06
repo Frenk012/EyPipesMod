@@ -1,0 +1,10 @@
+{
+  "replace": false,
+  "icon": "minecraft:item/empty_armor_slot_chestplate",
+  "order": 1,
+  "amount": 1,
+  "validators": [
+    "trinkets:tag"
+  ],
+  "tooltip": true
+}

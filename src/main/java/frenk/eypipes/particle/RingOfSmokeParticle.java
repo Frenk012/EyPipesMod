@@ -3,15 +3,12 @@ package frenk.eypipes.particle;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.*;
 import net.minecraft.core.particles.SimpleParticleType;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 
 /**
  * Represents a custom particle effect that simulates a ring of smoke.
  * This particle has velocity-based lifetime, gradual scaling, and fading.
  * Ported from Fabric 1.19.2 to NeoForge 1.21.1.
  */
-@OnlyIn(Dist.CLIENT)
 public class RingOfSmokeParticle extends EyPipesParticle {
     private final SpriteSet spriteSet;
     private final double strength;
@@ -63,7 +60,6 @@ public class RingOfSmokeParticle extends EyPipesParticle {
         this.scaleMultiplier = multiplier;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public static class Provider extends EyPipesParticleProvider {
         public Provider(SpriteSet spriteSet) {
             super(spriteSet);

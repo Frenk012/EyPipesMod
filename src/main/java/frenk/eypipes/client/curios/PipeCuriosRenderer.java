@@ -1,8 +1,7 @@
 package frenk.eypipes.client.curios;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Axis;
-import frenk.eypipes.config.EyPipesConfig;
+import frenk.eypipes.client.WornItemPose;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.HumanoidModel;
@@ -33,32 +32,6 @@ import net.minecraft.client.renderer.item.ItemStackRenderState;
  */
 public class PipeCuriosRenderer implements ICurioRenderer {
 
-    /** Position the pipe on the wearer according to which Curios slot holds it. */
-    private static void applySlotPose(PoseStack poseStack, HumanoidModel<?> humanoidModel, String slotId) {
-        if ("chest".equals(slotId) || "pipe_chest".equals(slotId)) {
-            // Transform to right hand position for chest slot
-            humanoidModel.rightArm.translateAndRotate(poseStack);
-
-            float offsetX = (float) (double) EyPipesConfig.CLIENT.particleOffsetThirdViewX.get();
-            float offsetY = (float) (double) EyPipesConfig.CLIENT.particleOffsetThirdViewY.get();
-            float offsetZ = (float) (double) EyPipesConfig.CLIENT.particleOffsetThirdViewZ.get();
-
-            poseStack.translate(offsetX, offsetY, offsetZ);
-            poseStack.mulPose(Axis.XP.rotationDegrees(25));  // Rotate to hold properly
-            poseStack.mulPose(Axis.ZP.rotationDegrees(180)); // Rotate to hold properly
-            poseStack.mulPose(Axis.YP.rotationDegrees(330)); // Adjust orientation
-            poseStack.scale(0.9f, 0.9f, 0.9f);
-        } else {
-            // Default head position for other slots (like pipe_head)
-            humanoidModel.head.translateAndRotate(poseStack);
-
-            // Apply custom transformations for head trinket slot positioning
-            poseStack.mulPose(Axis.ZP.rotationDegrees(180)); // Rotation: Z-axis rotation
-            poseStack.mulPose(Axis.YP.rotationDegrees(350)); // Rotation: Y-axis tilt
-            poseStack.scale(0.9f, 0.9f, 0.9f);
-        }
-    }
-
     //? if <1.21.9 {
     @Override
     public <T extends LivingEntity, M extends EntityModel<T>> void render(
@@ -72,7 +45,7 @@ public class PipeCuriosRenderer implements ICurioRenderer {
         }
 
         poseStack.pushPose();
-        applySlotPose(poseStack, humanoidModel, slotContext.identifier());
+        WornItemPose.pipe(poseStack, humanoidModel, slotContext.identifier());
         Minecraft.getInstance().getItemRenderer().renderStatic(stack, ItemDisplayContext.FIXED,
                 packedLight, OverlayTexture.NO_OVERLAY, poseStack, bufferSource,
                 slotContext.entity().level(), 0);
@@ -91,7 +64,7 @@ public class PipeCuriosRenderer implements ICurioRenderer {
         }
 
         poseStack.pushPose();
-        applySlotPose(poseStack, humanoidModel, slotContext.identifier());
+        WornItemPose.pipe(poseStack, humanoidModel, slotContext.identifier());
 
         ItemStackRenderState itemState = new ItemStackRenderState();
         Minecraft.getInstance().getItemModelResolver().updateForTopItem(itemState, stack,
