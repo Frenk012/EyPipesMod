@@ -57,7 +57,11 @@ repositories {
     maven("https://maven.parchmentmc.org") { name = "ParchmentMC" }
     maven("https://dl.cloudsmith.io/public/geckolib3/geckolib/maven/") {
         name = "GeckoLib"
-        content { includeGroup("software.bernie.geckolib") }
+        content {
+            includeGroup("software.bernie.geckolib")
+            // Molang library GeckoLib 4 on 1.20.1 depends on
+            includeGroup("com.eliotlash.mclib")
+        }
     }
     maven("https://maven.terraformersmc.com/releases/") {
         name = "TerraformersMC"
@@ -65,11 +69,19 @@ repositories {
     }
     maven("https://maven.ladysnake.org/releases") {
         name = "Ladysnake"
-        content { includeGroupByRegex("org\\.ladysnake.*") }
+        content {
+            includeGroupByRegex("org\\.ladysnake.*")
+            // Cardinal Components 5.x, which Trinkets 3.7 pulls in on 1.20.1
+            includeGroupByRegex("dev\\.onyxstudios.*")
+        }
     }
     maven("https://raw.githubusercontent.com/Fuzss/modresources/main/maven/") {
         name = "Fuzs"
         content { includeGroup("fuzs.forgeconfigapiport") }
+    }
+    maven("https://api.modrinth.com/maven") {
+        name = "Modrinth"
+        content { includeGroup("maven.modrinth") }
     }
     maven("https://maven.shedaniel.me/") { name = "REI" }
     maven("https://maven.architectury.dev/") { name = "Architectury" }
@@ -91,7 +103,16 @@ dependencies {
     modImplementation("net.fabricmc.fabric-api:fabric-api:${property("deps.fabric_api")}")
 
     modImplementation("software.bernie.geckolib:geckolib-fabric-$mc:${property("deps.geckolib")}")
-    modImplementation("dev.emi:trinkets:${property("deps.trinkets")}")
+    if (sc.current.parsed >= "1.20.5") {
+        modImplementation("dev.emi:trinkets:${property("deps.trinkets")}")
+    } else {
+        // The 3.7.2 jar on the Terraformers maven is not the released one: its mixins keep
+        // unmapped names and fail to apply. Modrinth serves the jar players actually run, but
+        // without a POM, so the Cardinal Components it bundles are listed by hand.
+        modImplementation("maven.modrinth:trinkets:${property("deps.trinkets")}")
+        modImplementation("dev.onyxstudios.cardinal-components-api:cardinal-components-base:${property("deps.cardinal_components")}")
+        modImplementation("dev.onyxstudios.cardinal-components-api:cardinal-components-entity:${property("deps.cardinal_components")}")
+    }
     // (Neo)Forge's config API on Fabric, so EyPipesConfig is shared as is
     modImplementation("fuzs.forgeconfigapiport:forgeconfigapiport-fabric:${property("deps.forgeconfigapiport")}")
 
@@ -138,6 +159,11 @@ tasks {
         }
         val javaDependency = ">=${javaVersion.majorVersion}"
         inputs.property("java_dependency", javaDependency)
+
+        // Hand-written tags use the 1.21 folder name; 1.20.1 still reads the plural one
+        if (sc.current.parsed < "1.21") {
+            filesMatching("data/*/tags/item/**") { path = path.replace("/tags/item/", "/tags/items/") }
+        }
 
         filesMatching("fabric.mod.json") { expand(props + ("java_dependency" to javaDependency)) }
 

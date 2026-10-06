@@ -588,7 +588,7 @@ public class PipeItem extends Item implements GeoItem/*? if !fabric {*/, ICurioI
     // From GeckoLib 5 the item supplies its own renderer instead of it being registered
     // through NeoForge client extensions, which no longer have a BEWLR to hand back. Fabric has
     // no client extensions at all, so it always goes this way.
-    //? if >=1.21.9 || fabric {
+    //? if >=1.21.9 || fabric && >=1.20.5 {
     /*@Override
     public void createGeoRenderer(java.util.function.Consumer<software.bernie.geckolib.animatable.client.GeoRenderProvider> consumer) {
         consumer.accept(new software.bernie.geckolib.animatable.client.GeoRenderProvider() {
@@ -602,6 +602,31 @@ public class PipeItem extends Item implements GeoItem/*? if !fabric {*/, ICurioI
                 return this.renderer;
             }
         });
+    }
+    *///?}
+
+    // GeckoLib 4 for Fabric 1.20.1 asks the item for its renderer through these two
+    //? if fabric && <1.20.5 {
+    /*private final java.util.function.Supplier<Object> renderProvider = GeoItem.makeRenderer(this);
+
+    @Override
+    public void createRenderer(java.util.function.Consumer<Object> consumer) {
+        consumer.accept(new software.bernie.geckolib.animatable.client.RenderProvider() {
+            private net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer renderer;
+
+            @Override
+            public net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer getCustomRenderer() {
+                if (this.renderer == null) {
+                    this.renderer = new frenk.eypipes.client.renderer.PipeGeoRenderer(net.minecraft.core.registries.BuiltInRegistries.ITEM.getKey(PipeItem.this).getPath());
+                }
+                return this.renderer;
+            }
+        });
+    }
+
+    @Override
+    public java.util.function.Supplier<Object> getRenderProvider() {
+        return this.renderProvider;
     }
     *///?}
 

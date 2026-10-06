@@ -23,7 +23,9 @@ stonecutter parameters {
     // Forge and NeoForge share most of their API under different package names. Renaming the
     // imports here keeps one copy of the code instead of an `if` around every import.
     replacements {
-        string(loader == "forge") {
+        // Forge Config API Port before 1.20.5 ships Forge's own config packages on Fabric, so
+        // 1.20.1 Fabric takes the same renames as Forge (only the config imports matter there).
+        string(loader == "forge" || loader == "fabric" && current.parsed < "1.20.5") {
             // Every pair is a distinct prefix in both directions, so switching back is exact.
             replace("net.neoforged.api.distmarker.", "net.minecraftforge.api.distmarker.")
             replace("net.neoforged.bus.api.", "net.minecraftforge.eventbus.api.")

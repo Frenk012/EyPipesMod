@@ -22,7 +22,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        node: [1.20.1-forge, 1.21.1-neoforge, 1.21.1-fabric, 1.21.10-neoforge]
+        node: [1.20.1-forge, 1.20.1-fabric, 1.21.1-neoforge, 1.21.1-fabric, 1.21.10-neoforge]
     name: build ${{ matrix.node }}
     runs-on: ubuntu-24.04
     timeout-minutes: 30

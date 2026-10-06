@@ -41,7 +41,7 @@ public class BurningTobaccoLayer extends GeoRenderLayer<PipeItem> {
 /*public class BurningTobaccoLayer extends GeoRenderLayer<PipeItem, GeoItemRenderer.RenderData, GeoRenderState> {*/
 
     // White texture for solid color rendering
-    private static final ResourceLocation WHITE_TEXTURE = ResourceLocation.withDefaultNamespace("textures/misc/white.png");
+    private static final ResourceLocation WHITE_TEXTURE = ResourceLocation.fromNamespaceAndPath("minecraft", "textures/misc/white.png");
 
     // Track afterglow per ItemStack (using identity hash to track specific stacks)
     // Key: System.identityHashCode of ItemStack, Value: AfterglowData

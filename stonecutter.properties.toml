@@ -69,21 +69,21 @@ deps.jei_range = "[26.0,)"
 ["1.20.1"]
 mod.mc_compat = "[1.20.1]"
 mod.mc_releases = ["1.20.1"]
+deps.parchment = "2023.09.03"
+deps.geckolib = "4.8.4"
+deps.rei = "12.1.740"
+deps.jei = "15.62.0.219"
+deps.emi = "1.1.24+1.20.1"
 
 [forge."1.20.1"]
 deps.forge = "1.20.1-47.4.26"
 deps.forge_range = "[47,)"
 deps.loader_range = "[47,)"
-deps.parchment = "2023.09.03"
-deps.geckolib = "4.8.4"
 deps.geckolib_range = "[4.4,)"
 deps.curios = "5.14.1+1.20.1"
 deps.curios_range = "[5.4,)"
-deps.rei = "12.1.740"
 deps.rei_range = "[12.0,)"
-deps.jei = "15.62.0.219"
 deps.jei_range = "[15.0,)"
-deps.emi = "1.1.24+1.20.1"
 
 [fabric."1.21.1"]
 deps.fabric_loader = "0.17.3"
@@ -96,3 +96,15 @@ deps.trinkets_dependency = ">=3.10"
 deps.forgeconfigapiport = "21.1.6"
 deps.forgeconfigapiport_dependency = ">=21.1"
 deps.emi = "1.1.24+1.21.1"
+
+[fabric."1.20.1"]
+deps.fabric_loader = "0.17.3"
+deps.fabric_loader_dependency = ">=0.14"
+deps.fabric_api = "0.92.12+1.20.1"
+deps.minecraft_dependency = "~1.20.1"
+deps.geckolib_dependency = ">=4.4"
+deps.trinkets = "3.7.2"
+deps.cardinal_components = "5.2.0"
+deps.trinkets_dependency = ">=3.7"
+deps.forgeconfigapiport = "8.0.3"
+deps.forgeconfigapiport_dependency = ">=8.0"
