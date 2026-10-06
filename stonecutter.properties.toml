@@ -65,3 +65,22 @@ deps.rei = "21.9.813"
 deps.rei_range = "[21.9,)"
 deps.jei = "26.3.0.31"
 deps.jei_range = "[26.0,)"
+
+["1.20.1"]
+mod.mc_compat = "[1.20.1]"
+mod.mc_releases = ["1.20.1"]
+
+[forge."1.20.1"]
+deps.forge = "1.20.1-47.4.26"
+deps.forge_range = "[47,)"
+deps.loader_range = "[47,)"
+deps.parchment = "2023.09.03"
+deps.geckolib = "4.8.4"
+deps.geckolib_range = "[4.4,)"
+deps.curios = "5.14.1+1.20.1"
+deps.curios_range = "[5.4,)"
+deps.rei = "12.1.740"
+deps.rei_range = "[12.0,)"
+deps.jei = "15.62.0.219"
+deps.jei_range = "[15.0,)"
+deps.emi = "1.1.24+1.20.1"

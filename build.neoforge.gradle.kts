@@ -12,14 +12,16 @@ base.archivesName = modId
 
 // Datagen output is version-specific (model and recipe formats change across the range),
 // so each Minecraft version keeps its own generated tree, committed alongside the sources.
-val generatedResources: File = rootProject.file("src/generated/$mc")
+val generatedResources: File = rootProject.file("src/generated/${sc.current.project}")
 
 // Each version needs its own game directory: the dev mods folder holds builds of Curios,
 // JEI and the rest that only load on one Minecraft version.
-val runDirectory: File = rootProject.file("run/$mc")
+val runDirectory: File = rootProject.file("run/${sc.current.project}")
 
 sourceSets.named("main") {
     resources.srcDir(generatedResources)
+    // Forge 1.20.1's metadata; this build ships neoforge.mods.toml
+    resources.exclude("META-INF/mods.toml")
 
     // EMI and Epic Fight have no release past 1.21.1, so their integrations cannot even
     // compile on later versions. They are dropped from those jars entirely rather than
@@ -275,6 +277,6 @@ tasks {
         group = "build"
         description = "Builds the mod jar and collects it into build/libs/<mod version>/"
         from(jar.flatMap { it.archiveFile }, named<Jar>("sourcesJar").flatMap { it.archiveFile })
-        into(rootProject.layout.buildDirectory.dir("libs/${property("mod.version")}"))
+        into(rootProject.layout.buildDirectory.dir("libs/${project.property("mod.version")}"))
     }
 }

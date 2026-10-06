@@ -4,6 +4,7 @@ pluginManagement {
         mavenCentral()
         gradlePluginPortal()
         maven("https://maven.neoforged.net/releases/") { name = "NeoForged" }
+        maven("https://maven.fabricmc.net/") { name = "FabricMC" }
         maven("https://maven.kikugie.dev/releases") { name = "KikuGie Releases" }
         maven("https://maven.kikugie.dev/snapshots") { name = "KikuGie Snapshots" }
     }
@@ -16,14 +17,19 @@ plugins {
 
 stonecutter {
     create(rootProject) {
-        // Minecraft versions that get their own jar. 1.21.2, 1.21.3 and 1.21.9 are deliberately
-        // absent: GeckoLib and/or Curios, both required dependencies, have no build for them.
-        //
-        // 1.21.5 is started but not finished, and a declared version that does not compile makes
-        // every unqualified Gradle command fail, so it stays out until its port lands. Its
-        // conditionals are already in the sources; adding it back here is the only step needed.
-        versions("1.21.1", "1.21.10")
-        vcsVersion = "1.21.1"
+        // Each node is "<minecraft>-<loader>" and builds with build.<loader>.gradle.kts.
+        fun match(version: String, vararg loaders: String) {
+            for (loader in loaders) version("$version-$loader", version).buildscript("build.$loader.gradle.kts")
+        }
+
+        // The most played version on each loader, plus the newest NeoForge release. 1.21.2,
+        // 1.21.3 and 1.21.9 are deliberately absent: GeckoLib and/or Curios, both required
+        // dependencies, have no build for them. 1.21.5 is started but not finished; its
+        // conditionals are already in the sources and adding it back here is the only step needed.
+        match("1.20.1", "forge")
+        match("1.21.1", "neoforge")
+        match("1.21.10", "neoforge")
+        vcsVersion = "1.21.1-neoforge"
     }
 }
 
