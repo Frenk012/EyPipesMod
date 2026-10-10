@@ -1,23 +1,33 @@
 package frenk.eypipes.item;
 
+import frenk.eypipes.compat.Interactions;
+import frenk.eypipes.client.SmokeClientEffects;
+import frenk.eypipes.compat.Cooldowns;
+import frenk.eypipes.compat.Nbt;
+import frenk.eypipes.compat.ServerParticles;
 import frenk.eypipes.config.EyPipesConfig;
 import frenk.eypipes.particle.FirstPersonSmoke;
 import frenk.eypipes.registries.ModParticles;
 import frenk.eypipes.registries.ModSounds;
 import frenk.eypipes.util.SmokeOrigin;
-import net.minecraft.client.Minecraft;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionHand;
+//? if <1.21.5 {
 import net.minecraft.world.InteractionResultHolder;
+//?} else
+/*import net.minecraft.world.InteractionResult;*/
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
+//? if <1.21.5 {
 import net.minecraft.world.item.UseAnim;
+//?} else
+/*import net.minecraft.world.item.ItemUseAnimation;*/
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.network.chat.Component;
@@ -29,7 +39,14 @@ import software.bernie.geckolib.animatable.GeoItem;
 import software.bernie.geckolib.animatable.SingletonGeoAnimatable;
 import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
 import software.bernie.geckolib.animation.*;
+//? if <1.20.5
+//import software.bernie.geckolib.core.object.PlayState;
+//? if >=1.21.9 {
+/*import software.bernie.geckolib.animatable.manager.AnimatableManager;
+import software.bernie.geckolib.animatable.processing.AnimationController;
+*///?}
 import software.bernie.geckolib.util.GeckoLibUtil;
+//? if !fabric
 import top.theillusivec4.curios.api.type.capability.ICurioItem;
 
 import java.util.concurrent.Executors;
@@ -41,7 +58,8 @@ import java.util.concurrent.TimeUnit;
  * Unlike the pipe, the cigar is destroyed when durability runs out (no refilling).
  * Ported from Fabric 1.19.2 (GeckoLib 3 + Trinkets) to NeoForge 1.21.1 (GeckoLib 4 + Curios)
  */
-public class CigarItem extends Item implements GeoItem, ICurioItem {
+// Fabric wears it through Trinkets, which needs no interface on the item
+public class CigarItem extends Item implements GeoItem/*? if !fabric {*/, ICurioItem/*?}*/ {
     private static final Logger LOGGER = LoggerFactory.getLogger("EyPipes");
 
     // Animation constants
@@ -69,19 +87,17 @@ public class CigarItem extends Item implements GeoItem, ICurioItem {
 
     // NBT helpers for smoking state (using custom data in 1.21.1)
     private boolean isSmoking(ItemStack stack) {
-        if (!stack.has(net.minecraft.core.component.DataComponents.CUSTOM_DATA)) {
+        if (!Nbt.hasItemTag(stack)) {
             return false;
         }
-        return stack.get(net.minecraft.core.component.DataComponents.CUSTOM_DATA)
-                .copyTag().getBoolean(SMOKING_KEY);
+        return Nbt.getBoolean(Nbt.itemTag(stack), SMOKING_KEY, false);
     }
 
     private void setSmoking(ItemStack stack, boolean smoking) {
-        stack.update(net.minecraft.core.component.DataComponents.CUSTOM_DATA,
-                net.minecraft.world.item.component.CustomData.EMPTY,
-                data -> data.update(tag -> tag.putBoolean(SMOKING_KEY, smoking)));
+        Nbt.updateItemTag(stack, tag -> tag.putBoolean(SMOKING_KEY, smoking));
     }
 
+    //? if <1.21.9 {
     @Override
     public void onCraftedBy(ItemStack stack, Level level, Player player) {
         if (!level.isClientSide()) {
@@ -89,6 +105,15 @@ public class CigarItem extends Item implements GeoItem, ICurioItem {
             stack.setDamageValue(0);
         }
     }
+    //?} else {
+    /*@Override
+    public void onCraftedPostProcess(ItemStack stack, Level level) {
+        if (!level.isClientSide()) {
+            // Start with cigar full (fresh cigar)
+            stack.setDamageValue(0);
+        }
+    }
+    *///?}
 
     @Override
     public int getBarColor(ItemStack stack) {
@@ -104,7 +129,10 @@ public class CigarItem extends Item implements GeoItem, ICurioItem {
     }
 
     @Override
+    //? if <1.21.5 {
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
+    //?} else
+    /*public InteractionResult use(Level level, Player player, InteractionHand hand) {*/
         ItemStack itemStack = player.getItemInHand(hand);
 
         // Check if cigar is depleted (destroyed when empty, no refilling)
@@ -115,12 +143,12 @@ public class CigarItem extends Item implements GeoItem, ICurioItem {
                 level.playSound(null, player.getX(), player.getY(), player.getZ(),
                         ModSounds.PIPE_EXHALE.get(), SoundSource.PLAYERS, 0.5F, 0.8F);
             }
-            return InteractionResultHolder.fail(itemStack);
+            return Interactions.useFail(itemStack);
         }
 
         // Double-check cigar has durability before smoking
         if (itemStack.isDamageableItem() && itemStack.getDamageValue() >= itemStack.getMaxDamage()) {
-            return InteractionResultHolder.fail(itemStack);
+            return Interactions.useFail(itemStack);
         }
 
         // Start smoking
@@ -135,11 +163,14 @@ public class CigarItem extends Item implements GeoItem, ICurioItem {
 
         player.awardStat(Stats.ITEM_USED.get(this));
 
-        return InteractionResultHolder.consume(itemStack);
+        return Interactions.useConsume(itemStack);
     }
 
     @Override
+    //? if <1.21.5 {
     public void releaseUsing(ItemStack stack, Level level, LivingEntity entity, int timeCharged) {
+    //?} else
+    /*public boolean releaseUsing(ItemStack stack, Level level, LivingEntity entity, int timeCharged) {*/
         if (isSmoking(stack)) {
             finishUsing(stack, level, entity);
         }
@@ -151,8 +182,11 @@ public class CigarItem extends Item implements GeoItem, ICurioItem {
         }
 
         if (entity instanceof Player player) {
-            player.getCooldowns().addCooldown(this, 20);
+            Cooldowns.add(player, stack, 20);
         }
+        //? if >=1.21.5 {
+        /*return false;
+        *///?}
     }
 
     @Override
@@ -165,8 +199,7 @@ public class CigarItem extends Item implements GeoItem, ICurioItem {
         if (remainingUseTicks % frequency == 0) {
             if (level.isClientSide()) {
                 // Local player in first person: in front of the camera; anyone else: at the hand
-                Minecraft mc = Minecraft.getInstance();
-                boolean firstPerson = entity == mc.player && mc.options.getCameraType().isFirstPerson();
+                boolean firstPerson = SmokeClientEffects.isLocalFirstPerson(entity);
                 Vec3 correctPosition = firstPerson
                         ? firstPersonPosition(entity)
                         : SmokeOrigin.handPosition(entity, 1.0F);
@@ -196,8 +229,7 @@ public class CigarItem extends Item implements GeoItem, ICurioItem {
                 Vec3 thirdPersonPos = SmokeOrigin.handPosition(entity, 1.0F);
                 for (ServerPlayer player : serverLevel.players()) {
                     if (player != entity && player.distanceTo(entity) <= 32.0) {
-                        serverLevel.sendParticles(player, ModParticles.SMOKE_STREAM.get(),
-                                false,
+                        ServerParticles.sendTo(serverLevel, player, ModParticles.SMOKE_STREAM.get(),
                                 thirdPersonPos.x + (level.random.nextGaussian() * 0.02),
                                 thirdPersonPos.y + (level.random.nextGaussian() * 0.02),
                                 thirdPersonPos.z + (level.random.nextGaussian() * 0.02),
@@ -235,7 +267,7 @@ public class CigarItem extends Item implements GeoItem, ICurioItem {
         setSmoking(item, false);
 
         if (entity instanceof Player player) {
-            player.getCooldowns().addCooldown(this, 20);
+            Cooldowns.add(player, item, 20);
         }
 
         return item;
@@ -256,16 +288,10 @@ public class CigarItem extends Item implements GeoItem, ICurioItem {
                 final double offsetMultiplier = 0.3 + (particleIndex * 0.15);
 
                 PARTICLE_EXECUTOR.schedule(() ->
-                    net.minecraft.client.Minecraft.getInstance().execute(() -> {
+                    // Dispatch back to render thread - addParticle is not thread-safe
+                    SmokeClientEffects.runOnRenderThread(() -> {
                         if (entity.isAlive()) {
-                            Vec3 vec = entity.getViewVector(1.0F);
-                            level.addParticle(ModParticles.RING_OF_SMOKE.get(),
-                                    entity.getX() + vec.x * offsetMultiplier,
-                                    entity.getY() + entity.getEyeHeight() + vec.y * offsetMultiplier,
-                                    entity.getZ() + vec.z * offsetMultiplier,
-                                    vec.x * velocityMultiplier,
-                                    vec.y * velocityMultiplier,
-                                    vec.z * velocityMultiplier);
+                            SmokeClientEffects.spawnSmokeRing(entity, level, offsetMultiplier, velocityMultiplier);
                         }
                     }), particleIndex * 800L, TimeUnit.MILLISECONDS);
             }
@@ -281,8 +307,7 @@ public class CigarItem extends Item implements GeoItem, ICurioItem {
                             Vec3 vec = entity.getViewVector(1.0F);
                             for (ServerPlayer player : serverLevel.players()) {
                                 if (player != entity) {
-                                    serverLevel.sendParticles(player, ModParticles.RING_OF_SMOKE.get(),
-                                            false,
+                                    ServerParticles.sendTo(serverLevel, player, ModParticles.RING_OF_SMOKE.get(),
                                             entity.getX() + vec.x * offsetMultiplier,
                                             entity.getY() + entity.getEyeHeight() + vec.y * offsetMultiplier,
                                             entity.getZ() + vec.z * offsetMultiplier,
@@ -300,44 +325,116 @@ public class CigarItem extends Item implements GeoItem, ICurioItem {
     }
 
     @Override
+    //? if <1.21.5 {
     public UseAnim getUseAnimation(ItemStack stack) {
         return UseAnim.NONE;
     }
+    //?} else {
+    /*public ItemUseAnimation getUseAnimation(ItemStack stack) {
+        return ItemUseAnimation.NONE;
+    }
+    *///?}
 
+    // From 1.21.9 repairability is a data component; an item that never sets one
+    // cannot be repaired anyway, which is what this override was for. The hook is (Neo)Forge's;
+    // on Fabric the item has no repair material, so only combining two in an anvil remains.
+    //? if <1.21.9 && !fabric {
     @Override
     public boolean isRepairable(ItemStack stack) {
         return false; // Cigars cannot be repaired - they are consumed
     }
+    //?}
 
+    //? if <1.21.5 {
     @Override
     public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltipComponents, TooltipFlag tooltipFlag) {
         super.appendHoverText(stack, context, tooltipComponents, tooltipFlag);
+        addEyPipesTooltip(stack, tooltipComponents::add);
+    }
+    //?} else {
+    /*@Override
+    public void appendHoverText(ItemStack stack, TooltipContext context, net.minecraft.world.item.component.TooltipDisplay display, java.util.function.Consumer<Component> tooltipAdder, TooltipFlag flag) {
+        super.appendHoverText(stack, context, display, tooltipAdder, flag);
+        addEyPipesTooltip(stack, tooltipAdder);
+    }
+    *///?}
+
+    /** The mod's own tooltip lines, independent of how the game asks for them. */
+    private void addEyPipesTooltip(ItemStack stack, java.util.function.Consumer<Component> lines) {
 
         // Calculate remaining uses
         int remainingUses = stack.getMaxDamage() - stack.getDamageValue();
 
         // Show remaining puffs
         if (remainingUses > 0) {
-            tooltipComponents.add(Component.translatable("tooltip.eypipes.cigar_remaining", remainingUses)
+            lines.accept(Component.translatable("tooltip.eypipes.cigar_remaining", remainingUses)
                     .withStyle(ChatFormatting.GRAY));
         } else {
-            tooltipComponents.add(Component.translatable("tooltip.eypipes.cigar_finished")
+            lines.accept(Component.translatable("tooltip.eypipes.cigar_finished")
                     .withStyle(ChatFormatting.DARK_GRAY, ChatFormatting.ITALIC));
         }
 
         // Show mod name
-        tooltipComponents.add(Component.translatable("itemGroup.eypipes.eypipes_tab")
+        lines.accept(Component.translatable("itemGroup.eypipes.eypipes_tab")
                 .withStyle(ChatFormatting.BLUE, ChatFormatting.ITALIC));
     }
 
     // GeckoLib 4 methods
     @Override
     public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
+        //? if <1.21.9 {
         controllers.add(new AnimationController<>(this, "smokeController", 0, state -> {
+        //?} else
+        /*controllers.add(new AnimationController<>("smokeController", 0, state -> {*/
             // Only play animation when smoking
             return PlayState.STOP;
         }).triggerableAnim("smoke", SMOKE_ANIM));
     }
+
+    // From GeckoLib 5 the item supplies its own renderer instead of it being registered
+    // through NeoForge client extensions, which no longer have a BEWLR to hand back. Fabric has
+    // no client extensions at all, so it always goes this way.
+    //? if >=1.21.9 || fabric && >=1.20.5 {
+    /*@Override
+    public void createGeoRenderer(java.util.function.Consumer<software.bernie.geckolib.animatable.client.GeoRenderProvider> consumer) {
+        consumer.accept(new software.bernie.geckolib.animatable.client.GeoRenderProvider() {
+            private software.bernie.geckolib.renderer.GeoItemRenderer<?> renderer;
+
+            @Override
+            public software.bernie.geckolib.renderer.GeoItemRenderer<?> getGeoItemRenderer() {
+                if (this.renderer == null) {
+                    this.renderer = new frenk.eypipes.client.renderer.CigarItemRenderer();
+                }
+                return this.renderer;
+            }
+        });
+    }
+    *///?}
+
+    // GeckoLib 4 for Fabric 1.20.1 asks the item for its renderer through these two
+    //? if fabric && <1.20.5 {
+    /*private final java.util.function.Supplier<Object> renderProvider = GeoItem.makeRenderer(this);
+
+    @Override
+    public void createRenderer(java.util.function.Consumer<Object> consumer) {
+        consumer.accept(new software.bernie.geckolib.animatable.client.RenderProvider() {
+            private net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer renderer;
+
+            @Override
+            public net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer getCustomRenderer() {
+                if (this.renderer == null) {
+                    this.renderer = new frenk.eypipes.client.renderer.CigarItemRenderer();
+                }
+                return this.renderer;
+            }
+        });
+    }
+
+    @Override
+    public java.util.function.Supplier<Object> getRenderProvider() {
+        return this.renderProvider;
+    }
+    *///?}
 
     @Override
     public AnimatableInstanceCache getAnimatableInstanceCache() {
@@ -358,4 +455,12 @@ public class CigarItem extends Item implements GeoItem, ICurioItem {
                 .add(rightVec.scale(0.30))
                 .add(upVec.scale(-0.15));
     }
+
+    //? if forge {
+    /*/^* Forge 1.20.1 asks each item for its client extension; NeoForge registers it from an event. ^/
+    @Override
+    public void initializeClient(java.util.function.Consumer<net.neoforged.neoforge.client.extensions.common.IClientItemExtensions> consumer) {
+        consumer.accept(frenk.eypipes.EyPipesClient.createCigarExtension());
+    }
+    *///?}
 }

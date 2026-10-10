@@ -3,16 +3,13 @@ package frenk.eypipes.particle;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.*;
 import net.minecraft.core.particles.SimpleParticleType;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 
 /**
  * Represents a custom particle effect that simulates a ring of smoke.
  * This particle has velocity-based lifetime, gradual scaling, and fading.
  * Ported from Fabric 1.19.2 to NeoForge 1.21.1.
  */
-@OnlyIn(Dist.CLIENT)
-public class RingOfSmokeParticle extends TextureSheetParticle {
+public class RingOfSmokeParticle extends EyPipesParticle {
     private final SpriteSet spriteSet;
     private final double strength;
     private float scaleMultiplier = 1.0F;
@@ -52,10 +49,6 @@ public class RingOfSmokeParticle extends TextureSheetParticle {
         }
     }
 
-    @Override
-    public ParticleRenderType getRenderType() {
-        return ParticleRenderType.PARTICLE_SHEET_TRANSLUCENT;
-    }
 
     @Override
     public float getQuadSize(float scaleFactor) {
@@ -67,16 +60,13 @@ public class RingOfSmokeParticle extends TextureSheetParticle {
         this.scaleMultiplier = multiplier;
     }
 
-    @OnlyIn(Dist.CLIENT)
-    public static class Provider implements ParticleProvider<SimpleParticleType> {
-        private final SpriteSet spriteSet;
-
+    public static class Provider extends EyPipesParticleProvider {
         public Provider(SpriteSet spriteSet) {
-            this.spriteSet = spriteSet;
+            super(spriteSet);
         }
 
         @Override
-        public Particle createParticle(SimpleParticleType type, ClientLevel level,
+        protected Particle create(ClientLevel level,
                 double x, double y, double z, double velX, double velY, double velZ) {
             return new RingOfSmokeParticle(level, x, y, z, velX, velY, velZ, spriteSet);
         }

@@ -1,5 +1,12 @@
 package frenk.eypipes.block.entity;
 
+import frenk.eypipes.compat.Nbt;
+//? if >=1.21.6 {
+/*import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
+*///?}
+import net.minecraft.world.level.Level;
+import net.minecraft.world.Containers;
 import frenk.eypipes.registries.ModBlockEntities;
 import frenk.eypipes.registries.ModItems;
 import net.minecraft.core.BlockPos;
@@ -64,16 +71,7 @@ public class PipeRackBlockEntity extends BlockEntity {
      * Check if an item is a pipe that can be placed on the rack.
      */
     public static boolean isPipeItem(ItemStack stack) {
-        return stack.is(ModItems.PIPE.get()) ||
-               stack.is(ModItems.WOODEN_PIPE.get()) ||
-               stack.is(ModItems.CLAY_PIPE.get()) ||
-               stack.is(ModItems.CORN_COB_PIPE.get()) ||
-               stack.is(ModItems.MEERSCHAUM_PIPE.get()) ||
-               stack.is(ModItems.BRIAR_PIPE.get()) ||
-               stack.is(ModItems.CHERRY_PIPE.get()) ||
-               stack.is(ModItems.CALABASH_PIPE.get()) ||
-               stack.is(ModItems.CHURCHWARD_PIPE.get()) ||
-               stack.is(ModItems.BENT_PIPE.get());
+        return ModItems.isPipe(stack);
     }
 
     public boolean insertItem(ItemStack stack) {
@@ -120,29 +118,75 @@ public class PipeRackBlockEntity extends BlockEntity {
         return ItemStack.EMPTY;
     }
 
+    /**
+     * Drop everything stored here on the ground. Called when the block is removed:
+     * from the block's onRemove hook before 1.21.5, and from preRemoveSideEffects after,
+     * because affectNeighborsAfterRemoval runs once the block entity is already gone.
+     */
+    public void dropContents(Level level, BlockPos pos) {
+        for (ItemStack stack : items) {
+            if (!stack.isEmpty()) {
+                Containers.dropItemStack(level, pos.getX(), pos.getY(), pos.getZ(), stack);
+            }
+        }
+    }
+
+    //? if >=1.21.5 {
+    /*@Override
+    public void preRemoveSideEffects(BlockPos pos, BlockState state) {
+        if (this.level != null) {
+            dropContents(this.level, pos);
+        }
+    }
+    *///?}
+
+    //? if <1.21.6 {
     @Override
+    //? if <1.20.5 {
+    /*protected void saveAdditional(CompoundTag tag) {
+        super.saveAdditional(tag);
+        HolderLookup.Provider registries = null;
+    *///?} else {
     protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.saveAdditional(tag, registries);
+    //?}
 
         for (int i = 0; i < SLOT_COUNT; i++) {
-            if (!items[i].isEmpty()) {
-                tag.put("Pipe" + i, items[i].save(registries));
-            }
+            Nbt.putStack(tag, "Pipe" + i, items[i], registries);
         }
     }
 
     @Override
+    //? if <1.20.5 {
+    /*public void load(CompoundTag tag) {
+        super.load(tag);
+        HolderLookup.Provider registries = null;
+    *///?} else {
     protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.loadAdditional(tag, registries);
+    //?}
 
         for (int i = 0; i < SLOT_COUNT; i++) {
-            if (tag.contains("Pipe" + i)) {
-                items[i] = ItemStack.parse(registries, tag.getCompound("Pipe" + i)).orElse(ItemStack.EMPTY);
-            } else {
-                items[i] = ItemStack.EMPTY;
-            }
+            items[i] = Nbt.getStack(tag, "Pipe" + i, registries);
         }
     }
+    //?} else {
+    /*@Override
+    protected void saveAdditional(ValueOutput output) {
+        super.saveAdditional(output);
+        for (int i = 0; i < SLOT_COUNT; i++) {
+            Nbt.putStack(output, "Pipe" + i, items[i]);
+        }
+    }
+
+    @Override
+    protected void loadAdditional(ValueInput input) {
+        super.loadAdditional(input);
+        for (int i = 0; i < SLOT_COUNT; i++) {
+            items[i] = Nbt.getStack(input, "Pipe" + i);
+        }
+    }
+    *///?}
 
     // Client synchronization methods
     @Nullable
@@ -151,23 +195,65 @@ public class PipeRackBlockEntity extends BlockEntity {
         return ClientboundBlockEntityDataPacket.create(this);
     }
 
+    //? if <1.21.6 {
     @Override
+    //? if <1.20.5 {
+    /*public CompoundTag getUpdateTag() {
+        CompoundTag tag = new CompoundTag();
+        saveAdditional(tag);
+    *///?} else {
     public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
         CompoundTag tag = new CompoundTag();
         saveAdditional(tag, registries);
+    //?}
+        // Vanilla drops an empty update tag (1.20.1 sends none, 1.21 skips loading it), so an
+        // emptied block would keep showing its last item. The marker keeps the tag non-empty.
+        tag.putBoolean("eypipes_sync", true);
         return tag;
     }
 
+    // (Neo)Forge hooks. Fabric needs neither: vanilla already loads both through loadAdditional.
+    //? if !fabric {
     @Override
+    //? if <1.20.5 {
+    /*public void handleUpdateTag(CompoundTag tag) {
+        load(tag);
+    *///?} else {
     public void handleUpdateTag(CompoundTag tag, HolderLookup.Provider registries) {
         loadAdditional(tag, registries);
+    //?}
     }
 
     @Override
+    //? if <1.20.5 {
+    /*public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket pkt) {
+        CompoundTag tag = pkt.getTag();
+        if (tag != null) {
+            load(tag);
+    *///?} else {
     public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket pkt, HolderLookup.Provider registries) {
         CompoundTag tag = pkt.getTag();
         if (tag != null) {
             loadAdditional(tag, registries);
+    //?}
         }
     }
+    //?}
+    //?} else {
+    /*@Override
+    public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
+        return saveCustomOnly(registries);
+    }
+
+    @Override
+    public void handleUpdateTag(ValueInput input) {
+        loadAdditional(input);
+    }
+
+    @Override
+    public void onDataPacket(Connection net, ValueInput input) {
+        // An absent key already reads back as empty, so the old null-tag branch is moot.
+        loadAdditional(input);
+    }
+    *///?}
 }

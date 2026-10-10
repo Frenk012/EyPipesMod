@@ -8,6 +8,7 @@ import me.shedaniel.rei.api.common.entry.EntryIngredient;
 import me.shedaniel.rei.api.common.util.EntryIngredients;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
+//? if >=1.20.2
 import net.minecraft.world.item.crafting.RecipeHolder;
 
 import java.util.Arrays;
@@ -26,9 +27,14 @@ public class CuttingBoardDisplay implements Display {
     private final EntryIngredient knife;
     private final EntryIngredient output;
 
+    //? if >=1.20.2 {
     public CuttingBoardDisplay(RecipeHolder<CuttingBoardRecipe> recipeHolder) {
         CuttingBoardRecipe recipe = recipeHolder.value();
         this.id = recipeHolder.id();
+    //?} else {
+    /*public CuttingBoardDisplay(CuttingBoardRecipe recipe) {
+        this.id = recipe.getId();
+    *///?}
         this.input = EntryIngredients.ofIngredient(recipe.getInput());
         this.knife = EntryIngredients.of(new ItemStack(ModItems.KNIFE.get()));
         ItemStack outputStack = recipe.getOutput().copy();

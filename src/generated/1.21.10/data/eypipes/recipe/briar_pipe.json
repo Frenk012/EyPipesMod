@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "D": "minecraft:dark_oak_planks",
+    "S": "minecraft:stick"
+  },
+  "pattern": [
+    "  S",
+    " D ",
+    "D  "
+  ],
+  "result": {
+    "count": 1,
+    "id": "eypipes:briar_pipe"
+  }
+}

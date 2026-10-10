@@ -2,7 +2,7 @@ package frenk.eypipes.client.layer;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import frenk.eypipes.client.renderer.BasePipeRenderer;
+import frenk.eypipes.client.renderer.PipeGeoRenderer;
 import frenk.eypipes.item.PipeItem;
 import frenk.eypipes.registries.ModItems;
 import net.minecraft.client.Minecraft;
@@ -14,8 +14,17 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import org.joml.Matrix4f;
 import software.bernie.geckolib.cache.object.BakedGeoModel;
+//? if <1.21.9 {
 import software.bernie.geckolib.renderer.GeoRenderer;
 import software.bernie.geckolib.renderer.layer.GeoRenderLayer;
+//?} else {
+/*import net.minecraft.client.renderer.SubmitNodeCollector;
+import net.minecraft.client.renderer.state.CameraRenderState;
+import software.bernie.geckolib.renderer.GeoItemRenderer;
+import software.bernie.geckolib.renderer.base.GeoRenderer;
+import software.bernie.geckolib.renderer.base.GeoRenderState;
+import software.bernie.geckolib.renderer.layer.GeoRenderLayer;
+*///?}
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -26,10 +35,13 @@ import java.util.concurrent.ConcurrentHashMap;
  * Renders animated glowing embers in the pipe bowl area.
  * Only renders on the specific pipe being smoked, not all pipes.
  */
+//? if <1.21.9 {
 public class BurningTobaccoLayer extends GeoRenderLayer<PipeItem> {
+//?} else
+/*public class BurningTobaccoLayer extends GeoRenderLayer<PipeItem, GeoItemRenderer.RenderData, GeoRenderState> {*/
 
     // White texture for solid color rendering
-    private static final ResourceLocation WHITE_TEXTURE = ResourceLocation.withDefaultNamespace("textures/misc/white.png");
+    private static final ResourceLocation WHITE_TEXTURE = ResourceLocation.fromNamespaceAndPath("minecraft", "textures/misc/white.png");
 
     // Track afterglow per ItemStack (using identity hash to track specific stacks)
     // Key: System.identityHashCode of ItemStack, Value: AfterglowData
@@ -52,9 +64,15 @@ public class BurningTobaccoLayer extends GeoRenderLayer<PipeItem> {
         }
     }
 
+    //? if <1.21.9 {
     public BurningTobaccoLayer(GeoRenderer<PipeItem> renderer) {
         super(renderer);
     }
+    //?} else {
+    /*public BurningTobaccoLayer(GeoRenderer<PipeItem, GeoItemRenderer.RenderData, GeoRenderState> renderer) {
+        super(renderer);
+    }
+    *///?}
 
     /**
      * Called when a player starts smoking a specific pipe.
@@ -114,23 +132,51 @@ public class BurningTobaccoLayer extends GeoRenderLayer<PipeItem> {
         return 1.0f - ((float) elapsed / AFTERGLOW_TICKS);
     }
 
+    //? if <1.21.9 {
     @Override
     public void render(PoseStack poseStack, PipeItem animatable, BakedGeoModel bakedModel,
                        RenderType renderType, MultiBufferSource bufferSource,
                        VertexConsumer buffer, float partialTick,
                        int packedLight, int packedOverlay) {
+        drawBurningTobacco(poseStack,
+                bufferSource.getBuffer(RenderType.entityTranslucentEmissive(WHITE_TEXTURE)),
+                partialTick, PipeGeoRenderer.getCurrentRenderingStack(),
+                PipeGeoRenderer.isCurrentStackBeingSmoked());
+    }
+    //?} else {
+    /*@Override
+    public void submitRenderTask(GeoRenderState renderState, PoseStack poseStack, BakedGeoModel bakedModel,
+                                 SubmitNodeCollector collector, CameraRenderState cameraState,
+                                 int packedLight, int packedOverlay, int renderColor, boolean isReRender) {
+        // submitCustomGeometry hands back a VertexConsumer, so the hand-built ember quads
+        // carry over unchanged; only the way we obtain the consumer differs.
+        // The stack and the lit flag come from the captured state: the renderer statics have
+        // already been overwritten by whatever was captured after this pipe.
+        ItemStack pipeStack = renderState.getOrDefaultGeckolibData(PipeGeoRenderer.PIPE_STACK, ItemStack.EMPTY);
+        boolean lit = renderState.getOrDefaultGeckolibData(PipeGeoRenderer.IS_LIT, false);
+
+        collector.submitCustomGeometry(poseStack, RenderType.entityTranslucentEmissive(WHITE_TEXTURE),
+                (pose, consumer) -> drawBurningTobacco(poseStack, consumer,
+                        renderState.getPartialTick(), pipeStack, lit));
+    }
+    *///?}
+
+    /**
+     * Decide whether this pipe should glow and, if so, draw it. Identical on every version;
+     * only how the caller obtains the vertex consumer changes.
+     */
+    private void drawBurningTobacco(PoseStack poseStack, VertexConsumer vertexConsumer, float partialTick,
+            ItemStack currentStack, boolean isBeingSmoked) {
 
         Player player = Minecraft.getInstance().player;
         if (player == null) return;
 
-        // Get the current ItemStack being rendered from BasePipeRenderer
-        ItemStack currentStack = BasePipeRenderer.getCurrentRenderingStack();
+
         if (currentStack == null || currentStack.isEmpty()) return;
 
         long gameTime = player.level().getGameTime();
 
-        // Check if THIS specific pipe is being smoked
-        boolean isBeingSmoked = BasePipeRenderer.isCurrentStackBeingSmoked();
+
 
         // Check if THIS specific pipe has afterglow
         boolean hasAfterglowEffect = hasAfterglow(currentStack, gameTime);
@@ -176,11 +222,11 @@ public class BurningTobaccoLayer extends GeoRenderLayer<PipeItem> {
         }
 
         // Render glowing embers in the bowl area
-        renderBowlEmbers(poseStack, bufferSource, intensity, partialTick, bowlY, bowlZ, bowlRadius);
+        renderBowlEmbers(poseStack, vertexConsumer, intensity, partialTick, bowlY, bowlZ, bowlRadius);
 
         // Render glowing skull eyes for meerschaum pipe
         if (isMeerschaum) {
-            renderSkullEyes(poseStack, bufferSource, intensity, partialTick);
+            renderSkullEyes(poseStack, vertexConsumer, intensity, partialTick);
         }
     }
 
@@ -191,7 +237,7 @@ public class BurningTobaccoLayer extends GeoRenderLayer<PipeItem> {
      * @param bowlZ Z position of the bowl
      * @param bowlRadiusUnits Radius of the bowl in model units
      */
-    private void renderBowlEmbers(PoseStack poseStack, MultiBufferSource bufferSource,
+    private void renderBowlEmbers(PoseStack poseStack, VertexConsumer vertexConsumer,
                                    float intensity, float partialTick, float bowlY, float bowlZ,
                                    float bowlRadiusUnits) {
         poseStack.pushPose();
@@ -206,9 +252,6 @@ public class BurningTobaccoLayer extends GeoRenderLayer<PipeItem> {
         PoseStack.Pose pose = poseStack.last();
         Matrix4f posMatrix = pose.pose();
 
-        // Use emissive render type for maximum brightness glow effect
-        VertexConsumer vertexConsumer = bufferSource.getBuffer(
-                RenderType.entityTranslucentEmissive(WHITE_TEXTURE));
 
         // Calculate ember animation
         float time = animationTicker;
@@ -260,7 +303,7 @@ public class BurningTobaccoLayer extends GeoRenderLayer<PipeItem> {
      * Render glowing red/orange eyes on the meerschaum pipe skull.
      * Eyes flicker with ember-like glow without rotation.
      */
-    private void renderSkullEyes(PoseStack poseStack, MultiBufferSource bufferSource,
+    private void renderSkullEyes(PoseStack poseStack, VertexConsumer vertexConsumer,
                                   float intensity, float partialTick) {
         poseStack.pushPose();
 
@@ -280,9 +323,6 @@ public class BurningTobaccoLayer extends GeoRenderLayer<PipeItem> {
         PoseStack.Pose pose = poseStack.last();
         Matrix4f posMatrix = pose.pose();
 
-        // Use emissive render type for bright glow
-        VertexConsumer vertexConsumer = bufferSource.getBuffer(
-                RenderType.entityTranslucentEmissive(WHITE_TEXTURE));
 
         // Calculate flicker animation (different frequency than bowl embers)
         float time = animationTicker;
@@ -345,33 +385,13 @@ public class BurningTobaccoLayer extends GeoRenderLayer<PipeItem> {
         int light = 15728880;
 
         // Render a quad facing forward (toward negative Z / toward camera when looking at skull)
-        vertexConsumer.addVertex(posMatrix, x - halfSize, y - halfSize, z)
-                .setColor(redInt, greenInt, blueInt, alphaInt)
-                .setUv(0, 0)
-                .setOverlay(OverlayTexture.NO_OVERLAY)
-                .setLight(light)
-                .setNormal(pose, 0, 0, -1);
+        emit(vertexConsumer, posMatrix, pose, x - halfSize, y - halfSize, z, redInt, greenInt, blueInt, alphaInt, 0, 0, light, 0, 0, -1);
 
-        vertexConsumer.addVertex(posMatrix, x - halfSize, y + halfSize, z)
-                .setColor(redInt, greenInt, blueInt, alphaInt)
-                .setUv(0, 1)
-                .setOverlay(OverlayTexture.NO_OVERLAY)
-                .setLight(light)
-                .setNormal(pose, 0, 0, -1);
+        emit(vertexConsumer, posMatrix, pose, x - halfSize, y + halfSize, z, redInt, greenInt, blueInt, alphaInt, 0, 1, light, 0, 0, -1);
 
-        vertexConsumer.addVertex(posMatrix, x + halfSize, y + halfSize, z)
-                .setColor(redInt, greenInt, blueInt, alphaInt)
-                .setUv(1, 1)
-                .setOverlay(OverlayTexture.NO_OVERLAY)
-                .setLight(light)
-                .setNormal(pose, 0, 0, -1);
+        emit(vertexConsumer, posMatrix, pose, x + halfSize, y + halfSize, z, redInt, greenInt, blueInt, alphaInt, 1, 1, light, 0, 0, -1);
 
-        vertexConsumer.addVertex(posMatrix, x + halfSize, y - halfSize, z)
-                .setColor(redInt, greenInt, blueInt, alphaInt)
-                .setUv(1, 0)
-                .setOverlay(OverlayTexture.NO_OVERLAY)
-                .setLight(light)
-                .setNormal(pose, 0, 0, -1);
+        emit(vertexConsumer, posMatrix, pose, x + halfSize, y - halfSize, z, redInt, greenInt, blueInt, alphaInt, 1, 0, light, 0, 0, -1);
     }
 
     /**
@@ -394,33 +414,13 @@ public class BurningTobaccoLayer extends GeoRenderLayer<PipeItem> {
         int light = 15728880;
 
         // Render a flat quad facing up (looking into the bowl)
-        vertexConsumer.addVertex(posMatrix, x - halfSize, 0, z - halfSize)
-                .setColor(redInt, greenInt, blueInt, alphaInt)
-                .setUv(0, 0)
-                .setOverlay(OverlayTexture.NO_OVERLAY)
-                .setLight(light)
-                .setNormal(pose, 0, 1, 0);
+        emit(vertexConsumer, posMatrix, pose, x - halfSize, 0, z - halfSize, redInt, greenInt, blueInt, alphaInt, 0, 0, light, 0, 1, 0);
 
-        vertexConsumer.addVertex(posMatrix, x + halfSize, 0, z - halfSize)
-                .setColor(redInt, greenInt, blueInt, alphaInt)
-                .setUv(1, 0)
-                .setOverlay(OverlayTexture.NO_OVERLAY)
-                .setLight(light)
-                .setNormal(pose, 0, 1, 0);
+        emit(vertexConsumer, posMatrix, pose, x + halfSize, 0, z - halfSize, redInt, greenInt, blueInt, alphaInt, 1, 0, light, 0, 1, 0);
 
-        vertexConsumer.addVertex(posMatrix, x + halfSize, 0, z + halfSize)
-                .setColor(redInt, greenInt, blueInt, alphaInt)
-                .setUv(1, 1)
-                .setOverlay(OverlayTexture.NO_OVERLAY)
-                .setLight(light)
-                .setNormal(pose, 0, 1, 0);
+        emit(vertexConsumer, posMatrix, pose, x + halfSize, 0, z + halfSize, redInt, greenInt, blueInt, alphaInt, 1, 1, light, 0, 1, 0);
 
-        vertexConsumer.addVertex(posMatrix, x - halfSize, 0, z + halfSize)
-                .setColor(redInt, greenInt, blueInt, alphaInt)
-                .setUv(0, 1)
-                .setOverlay(OverlayTexture.NO_OVERLAY)
-                .setLight(light)
-                .setNormal(pose, 0, 1, 0);
+        emit(vertexConsumer, posMatrix, pose, x - halfSize, 0, z + halfSize, redInt, greenInt, blueInt, alphaInt, 0, 1, light, 0, 1, 0);
     }
 
     /**
@@ -432,5 +432,27 @@ public class BurningTobaccoLayer extends GeoRenderLayer<PipeItem> {
             if (data == null) return true;
             return (currentGameTime - data.stopTime) > AFTERGLOW_TICKS * 2;
         });
+    }
+
+    /** One full-bright vertex; the vertex builder API was renamed at 1.21. */
+    private static void emit(VertexConsumer consumer, Matrix4f posMatrix, PoseStack.Pose pose,
+                             float x, float y, float z, int r, int g, int b, int a,
+                             float u, float v, int light, float nx, float ny, float nz) {
+        //? if <1.21 {
+        /*consumer.vertex(posMatrix, x, y, z)
+                .color(r, g, b, a)
+                .uv(u, v)
+                .overlayCoords(OverlayTexture.NO_OVERLAY)
+                .uv2(light)
+                .normal(pose.normal(), nx, ny, nz)
+                .endVertex();
+        *///?} else {
+        consumer.addVertex(posMatrix, x, y, z)
+                .setColor(r, g, b, a)
+                .setUv(u, v)
+                .setOverlay(OverlayTexture.NO_OVERLAY)
+                .setLight(light)
+                .setNormal(pose, nx, ny, nz);
+        //?}
     }
 }

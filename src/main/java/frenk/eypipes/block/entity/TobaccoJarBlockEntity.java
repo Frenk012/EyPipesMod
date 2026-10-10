@@ -1,5 +1,11 @@
 package frenk.eypipes.block.entity;
 
+import frenk.eypipes.compat.Nbt;
+//? if >=1.21.6 {
+/*import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
+*///?}
+import net.minecraft.world.Containers;
 import frenk.eypipes.registries.ModBlockEntities;
 import frenk.eypipes.registries.ModDataComponents;
 import frenk.eypipes.registries.ModItems;
@@ -93,10 +99,10 @@ public class TobaccoJarBlockEntity extends BlockEntity {
                 ItemStack inserted = stack.copyWithCount(1);
 
                 // If no fermentation level exists, set it based on item type
-                if (!inserted.has(ModDataComponents.FERMENTATION_LEVEL.get())) {
+                if (!ModDataComponents.FERMENTATION_LEVEL.has(inserted)) {
                     // Dried items start at DRIED quality, cutted at FRESH
                     int quality = isDriedHerb(stack) ? ModDataComponents.QUALITY_DRIED : ModDataComponents.QUALITY_FRESH;
-                    inserted.set(ModDataComponents.FERMENTATION_LEVEL.get(), quality);
+                    ModDataComponents.FERMENTATION_LEVEL.set(inserted, quality);
                 }
 
                 items[i] = inserted;
@@ -156,7 +162,7 @@ public class TobaccoJarBlockEntity extends BlockEntity {
         int count = 0;
         for (ItemStack item : items) {
             if (!item.isEmpty()) {
-                Integer level = item.get(ModDataComponents.FERMENTATION_LEVEL.get());
+                Integer level = ModDataComponents.FERMENTATION_LEVEL.get(item);
                 total += (level != null) ? level : ModDataComponents.QUALITY_DRIED;
                 count++;
             }
@@ -223,7 +229,7 @@ public class TobaccoJarBlockEntity extends BlockEntity {
             if (entity.items[i].isEmpty()) continue;
 
             ItemStack stack = entity.items[i];
-            Integer currentLevel = stack.get(ModDataComponents.FERMENTATION_LEVEL.get());
+            Integer currentLevel = ModDataComponents.FERMENTATION_LEVEL.get(stack);
             if (currentLevel == null) {
                 currentLevel = ModDataComponents.QUALITY_DRIED;
             }
@@ -241,7 +247,7 @@ public class TobaccoJarBlockEntity extends BlockEntity {
                 }
 
                 if (newLevel != currentLevel) {
-                    stack.set(ModDataComponents.FERMENTATION_LEVEL.get(), newLevel);
+                    ModDataComponents.FERMENTATION_LEVEL.set(stack, newLevel);
                     changed = true;
                 }
             }
@@ -253,31 +259,79 @@ public class TobaccoJarBlockEntity extends BlockEntity {
         }
     }
 
+    /**
+     * Drop everything stored here on the ground. Called when the block is removed:
+     * from the block's onRemove hook before 1.21.5, and from preRemoveSideEffects after,
+     * because affectNeighborsAfterRemoval runs once the block entity is already gone.
+     */
+    public void dropContents(Level level, BlockPos pos) {
+        for (ItemStack stack : items) {
+            if (!stack.isEmpty()) {
+                Containers.dropItemStack(level, pos.getX(), pos.getY(), pos.getZ(), stack);
+            }
+        }
+    }
+
+    //? if >=1.21.5 {
+    /*@Override
+    public void preRemoveSideEffects(BlockPos pos, BlockState state) {
+        if (this.level != null) {
+            dropContents(this.level, pos);
+        }
+    }
+    *///?}
+
+    //? if <1.21.6 {
     @Override
+    //? if <1.20.5 {
+    /*protected void saveAdditional(CompoundTag tag) {
+        super.saveAdditional(tag);
+        HolderLookup.Provider registries = null;
+    *///?} else {
     protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.saveAdditional(tag, registries);
+    //?}
 
         for (int i = 0; i < SLOT_COUNT; i++) {
-            if (!items[i].isEmpty()) {
-                tag.put("Item" + i, items[i].save(registries));
-            }
-            tag.putLong("FermentStart" + i, fermentationStartTimes[i]);
+            Nbt.putStack(tag, "Item" + i, items[i], registries);
+            Nbt.putLong(tag, "FermentStart" + i, fermentationStartTimes[i]);
         }
     }
 
     @Override
+    //? if <1.20.5 {
+    /*public void load(CompoundTag tag) {
+        super.load(tag);
+        HolderLookup.Provider registries = null;
+    *///?} else {
     protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.loadAdditional(tag, registries);
+    //?}
 
         for (int i = 0; i < SLOT_COUNT; i++) {
-            if (tag.contains("Item" + i)) {
-                items[i] = ItemStack.parse(registries, tag.getCompound("Item" + i)).orElse(ItemStack.EMPTY);
-            } else {
-                items[i] = ItemStack.EMPTY;
-            }
-            fermentationStartTimes[i] = tag.getLong("FermentStart" + i);
+            items[i] = Nbt.getStack(tag, "Item" + i, registries);
+            fermentationStartTimes[i] = Nbt.getLong(tag, "FermentStart" + i, 0);
         }
     }
+    //?} else {
+    /*@Override
+    protected void saveAdditional(ValueOutput output) {
+        super.saveAdditional(output);
+        for (int i = 0; i < SLOT_COUNT; i++) {
+            Nbt.putStack(output, "Item" + i, items[i]);
+            Nbt.putLong(output, "FermentStart" + i, fermentationStartTimes[i]);
+        }
+    }
+
+    @Override
+    protected void loadAdditional(ValueInput input) {
+        super.loadAdditional(input);
+        for (int i = 0; i < SLOT_COUNT; i++) {
+            items[i] = Nbt.getStack(input, "Item" + i);
+            fermentationStartTimes[i] = Nbt.getLong(input, "FermentStart" + i, 0);
+        }
+    }
+    *///?}
 
     // Client synchronization methods
     @Nullable
@@ -286,15 +340,44 @@ public class TobaccoJarBlockEntity extends BlockEntity {
         return ClientboundBlockEntityDataPacket.create(this);
     }
 
+    //? if <1.21.6 {
     @Override
+    //? if <1.20.5 {
+    /*public CompoundTag getUpdateTag() {
+        CompoundTag tag = new CompoundTag();
+        saveAdditional(tag);
+    *///?} else {
     public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
         CompoundTag tag = new CompoundTag();
         saveAdditional(tag, registries);
+    //?}
+        // Vanilla drops an empty update tag (1.20.1 sends none, 1.21 skips loading it), so an
+        // emptied block would keep showing its last item. The marker keeps the tag non-empty.
+        tag.putBoolean("eypipes_sync", true);
         return tag;
     }
 
+    // (Neo)Forge hooks. Fabric needs neither: vanilla already loads both through loadAdditional.
+    //? if !fabric {
     @Override
+    //? if <1.20.5 {
+    /*public void handleUpdateTag(CompoundTag tag) {
+        load(tag);
+    *///?} else {
     public void handleUpdateTag(CompoundTag tag, HolderLookup.Provider registries) {
         loadAdditional(tag, registries);
+    //?}
     }
+    //?}
+    //?} else {
+    /*@Override
+    public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
+        return saveCustomOnly(registries);
+    }
+
+    @Override
+    public void handleUpdateTag(ValueInput input) {
+        loadAdditional(input);
+    }
+    *///?}
 }

@@ -1,0 +1,34 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "eypipes:cutting_board/valeriana"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    },
+    "has_valeriana_dried": {
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "eypipes:valeriana_dried"
+            ]
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_valeriana_dried"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "eypipes:cutting_board/valeriana"
+    ]
+  }
+}

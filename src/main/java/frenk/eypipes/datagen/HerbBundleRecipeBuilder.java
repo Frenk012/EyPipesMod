@@ -9,11 +9,14 @@ import net.minecraft.advancements.Criterion;
 import net.minecraft.advancements.critereon.RecipeUnlockedTrigger;
 import net.minecraft.data.recipes.RecipeBuilder;
 import net.minecraft.data.recipes.RecipeOutput;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.crafting.Recipe;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -63,6 +66,7 @@ public class HerbBundleRecipeBuilder implements RecipeBuilder {
         return outputItem;
     }
 
+    //? if <1.21.2 {
     @Override
     public void save(RecipeOutput recipeOutput, ResourceLocation id) {
         Advancement.Builder advancementBuilder = recipeOutput.advancement()
@@ -81,4 +85,25 @@ public class HerbBundleRecipeBuilder implements RecipeBuilder {
 
         recipeOutput.accept(id, recipe, advancementBuilder.build(id.withPrefix("recipes/misc/")));
     }
+    //?} else {
+    /*@Override
+    public void save(RecipeOutput recipeOutput, ResourceKey<Recipe<?>> id) {
+        Advancement.Builder advancementBuilder = recipeOutput.advancement()
+                .addCriterion("has_the_recipe", RecipeUnlockedTrigger.unlocked(id))
+                .rewards(AdvancementRewards.Builder.recipe(id))
+                .requirements(AdvancementRequirements.Strategy.OR);
+
+        this.criteria.forEach(advancementBuilder::addCriterion);
+
+        Recipe<?> recipe;
+        if (isPacking) {
+            recipe = new HerbBundlePackingRecipe(inputItem, outputItem);
+        } else {
+            recipe = new HerbBundleUnpackingRecipe(inputItem, outputItem);
+        }
+
+        recipeOutput.accept(id, recipe, advancementBuilder.build(id.location().withPrefix("recipes/misc/")));
+    }
+    *///?}
+
 }

@@ -1,0 +1,110 @@
+# Per-version properties. See https://stonecutter.kikugie.dev/wiki/config/properties
+#
+# Every dependency version here was checked against the upstream maven-metadata.xml.
+# Do not bump one by guesswork: GeckoLib and JEI put the Minecraft version in the artifact
+# id, and Curios changes its major version on every Minecraft release.
+
+mod.id = "eypipes"
+mod.name = "EyPipes"
+mod.group = "frenk.eypipes"
+mod.version = "2.3.0"
+mod.license = "MIT"
+mod.authors = "Frenk02"
+mod.description = "A smoking pipe mod with custom crops, drying mechanics, and animated items. Grow erbapipa, dry it, and enjoy your pipe with beautiful smoke effects!"
+
+["1.21.1"]
+mod.mc_compat = "[1.21.1]"
+mod.mc_releases = ["1.21.1"]
+deps.neo_loader = "21.1.230"
+deps.neo_range = "[21.1.0,)"
+deps.loader_range = "[4,)"
+deps.parchment = "2024.11.17"
+deps.geckolib = "4.7.1"
+deps.geckolib_range = "[4.7,)"
+deps.curios = "9.5.1+1.21.1"
+deps.curios_range = "[9.0,)"
+deps.rei = "16.0.799"
+deps.rei_range = "[16.0,)"
+deps.jei = "19.21.2.313"
+deps.jei_range = "[19.0,)"
+# EMI and Epic Fight never shipped past 1.21.1, so they are compiled into this jar only.
+deps.emi_curse_file = "6420931"
+
+["1.21.5"]
+mod.mc_compat = "[1.21.5]"
+mod.mc_releases = ["1.21.5"]
+deps.neo_loader = "21.5.98"
+deps.neo_range = "[21.5.0,)"
+deps.loader_range = "[4,)"
+deps.parchment = "2025.06.15"
+# GeckoLib 5.x is the only line published for 1.21.5; 4.x does not exist here.
+deps.geckolib = "5.1.0"
+deps.geckolib_range = "[5.1,)"
+deps.curios = "11.0.1+1.21.5"
+deps.curios_range = "[11.0,)"
+deps.rei = "19.0.809"
+deps.rei_range = "[19.0,)"
+deps.jei = "21.4.0.27"
+deps.jei_range = "[21.0,)"
+
+["1.21.10"]
+mod.mc_compat = "[1.21.10]"
+mod.mc_releases = ["1.21.10"]
+deps.neo_loader = "21.10.64"
+deps.neo_range = "[21.10.0,)"
+deps.loader_range = "[4,)"
+deps.parchment = "2025.10.12"
+# GeckoLib has no stable release for 1.21.10; 5.3-alpha-3 is all there is. The range has to
+# name the alpha explicitly, because an alpha sorts below the release it leads up to and
+# "[5.3,)" would reject the only build that exists.
+deps.geckolib = "5.3-alpha-3"
+deps.geckolib_range = "[5.3-alpha-3,)"
+deps.curios = "13.0.0+1.21.10"
+deps.curios_range = "[13.0,)"
+deps.rei = "21.9.813"
+deps.rei_range = "[21.9,)"
+deps.jei = "26.3.0.31"
+deps.jei_range = "[26.0,)"
+
+["1.20.1"]
+mod.mc_compat = "[1.20.1]"
+mod.mc_releases = ["1.20.1"]
+deps.parchment = "2023.09.03"
+deps.geckolib = "4.8.4"
+deps.rei = "12.1.740"
+deps.jei = "15.62.0.219"
+deps.emi = "1.1.24+1.20.1"
+
+[forge."1.20.1"]
+deps.forge = "1.20.1-47.4.26"
+deps.forge_range = "[47,)"
+deps.loader_range = "[47,)"
+deps.geckolib_range = "[4.4,)"
+deps.curios = "5.14.1+1.20.1"
+deps.curios_range = "[5.4,)"
+deps.rei_range = "[12.0,)"
+deps.jei_range = "[15.0,)"
+
+[fabric."1.21.1"]
+deps.fabric_loader = "0.17.3"
+deps.fabric_loader_dependency = ">=0.16"
+deps.fabric_api = "0.116.17+1.21.1"
+deps.minecraft_dependency = "~1.21.1"
+deps.geckolib_dependency = ">=4.7"
+deps.trinkets = "3.10.0"
+deps.trinkets_dependency = ">=3.10"
+deps.forgeconfigapiport = "21.1.6"
+deps.forgeconfigapiport_dependency = ">=21.1"
+deps.emi = "1.1.24+1.21.1"
+
+[fabric."1.20.1"]
+deps.fabric_loader = "0.17.3"
+deps.fabric_loader_dependency = ">=0.14"
+deps.fabric_api = "0.92.12+1.20.1"
+deps.minecraft_dependency = "~1.20.1"
+deps.geckolib_dependency = ">=4.4"
+deps.trinkets = "3.7.2"
+deps.cardinal_components = "5.2.0"
+deps.trinkets_dependency = ">=3.7"
+deps.forgeconfigapiport = "8.0.3"
+deps.forgeconfigapiport_dependency = ">=8.0"

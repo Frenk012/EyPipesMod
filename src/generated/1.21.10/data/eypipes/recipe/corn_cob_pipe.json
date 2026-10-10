@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "K": "minecraft:dried_kelp_block",
+    "S": "minecraft:stick",
+    "W": "minecraft:wheat"
+  },
+  "pattern": [
+    "  S",
+    " K ",
+    "W  "
+  ],
+  "result": {
+    "count": 1,
+    "id": "eypipes:corn_cob_pipe"
+  }
+}

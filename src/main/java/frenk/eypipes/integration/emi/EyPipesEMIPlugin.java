@@ -12,6 +12,7 @@ import frenk.eypipes.recipe.FermentingRecipe;
 import frenk.eypipes.recipe.ModRecipes;
 import frenk.eypipes.registries.ModItems;
 import net.minecraft.resources.ResourceLocation;
+//? if >=1.20.2
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeManager;
 
@@ -58,17 +59,17 @@ public class EyPipesEMIPlugin implements EmiPlugin {
         RecipeManager recipeManager = registry.getRecipeManager();
 
         // Register drying recipes from data-driven JSON
-        for (RecipeHolder<DryingRecipe> holder : recipeManager.getAllRecipesFor(ModRecipes.DRYING_TYPE.get())) {
+        for (/*? if >=1.20.2 {*/RecipeHolder<DryingRecipe>/*?} else {*//*DryingRecipe*//*?}*/ holder : recipeManager.getAllRecipesFor(ModRecipes.DRYING_TYPE.get())) {
             registry.addRecipe(new DryingEmiRecipe(holder));
         }
 
         // Register fermenting recipes from data-driven JSON
-        for (RecipeHolder<FermentingRecipe> holder : recipeManager.getAllRecipesFor(ModRecipes.FERMENTING_TYPE.get())) {
+        for (/*? if >=1.20.2 {*/RecipeHolder<FermentingRecipe>/*?} else {*//*FermentingRecipe*//*?}*/ holder : recipeManager.getAllRecipesFor(ModRecipes.FERMENTING_TYPE.get())) {
             registry.addRecipe(new FermentingEmiRecipe(holder));
         }
 
         // Register cutting board recipes from data-driven JSON
-        for (RecipeHolder<CuttingBoardRecipe> holder : recipeManager.getAllRecipesFor(ModRecipes.CUTTING_BOARD_TYPE.get())) {
+        for (/*? if >=1.20.2 {*/RecipeHolder<CuttingBoardRecipe>/*?} else {*//*CuttingBoardRecipe*//*?}*/ holder : recipeManager.getAllRecipesFor(ModRecipes.CUTTING_BOARD_TYPE.get())) {
             registry.addRecipe(new CuttingBoardEmiRecipe(holder));
         }
 

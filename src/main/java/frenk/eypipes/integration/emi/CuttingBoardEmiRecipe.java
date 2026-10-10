@@ -10,6 +10,7 @@ import frenk.eypipes.recipe.CuttingBoardRecipe;
 import frenk.eypipes.registries.ModItems;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
+//? if >=1.20.2
 import net.minecraft.world.item.crafting.RecipeHolder;
 import org.jetbrains.annotations.Nullable;
 
@@ -26,9 +27,14 @@ public class CuttingBoardEmiRecipe implements EmiRecipe {
     private final EmiIngredient knife;
     private final EmiStack output;
 
+    //? if >=1.20.2 {
     public CuttingBoardEmiRecipe(RecipeHolder<CuttingBoardRecipe> recipeHolder) {
         CuttingBoardRecipe recipe = recipeHolder.value();
         this.id = recipeHolder.id();
+    //?} else {
+    /*public CuttingBoardEmiRecipe(CuttingBoardRecipe recipe) {
+        this.id = recipe.getId();
+    *///?}
         this.input = EmiIngredient.of(recipe.getInput());
         this.knife = EmiStack.of(new ItemStack(ModItems.KNIFE.get()));
         ItemStack outputStack = recipe.getOutput().copy();

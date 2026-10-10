@@ -23,23 +23,36 @@ public class HerbBundleBlockItem extends BlockItem {
         this.herbColor = herbColor;
     }
 
+    //? if <1.21.5 {
     @Override
     public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltipComponents, TooltipFlag tooltipFlag) {
         super.appendHoverText(stack, context, tooltipComponents, tooltipFlag);
+        addEyPipesTooltip(stack, tooltipComponents::add);
+    }
+    //?} else {
+    /*@Override
+    public void appendHoverText(ItemStack stack, TooltipContext context, net.minecraft.world.item.component.TooltipDisplay display, java.util.function.Consumer<Component> tooltipAdder, TooltipFlag flag) {
+        super.appendHoverText(stack, context, display, tooltipAdder, flag);
+        addEyPipesTooltip(stack, tooltipAdder);
+    }
+    *///?}
+
+    /** The mod's own tooltip lines, independent of how the game asks for them. */
+    private void addEyPipesTooltip(ItemStack stack, java.util.function.Consumer<Component> lines) {
 
         // Show quality level if present
-        if (stack.has(ModDataComponents.FERMENTATION_LEVEL.get())) {
-            int qualityLevel = stack.get(ModDataComponents.FERMENTATION_LEVEL.get());
+        if (ModDataComponents.FERMENTATION_LEVEL.has(stack)) {
+            int qualityLevel = ModDataComponents.FERMENTATION_LEVEL.get(stack);
             String qualityName = ModDataComponents.getQualityName(qualityLevel);
             ChatFormatting qualityColor = getQualityColor(qualityLevel);
 
-            tooltipComponents.add(Component.translatable("tooltip.eypipes.quality",
+            lines.accept(Component.translatable("tooltip.eypipes.quality",
                     Component.translatable("tooltip.eypipes.quality." + qualityName.toLowerCase()).withStyle(qualityColor))
                     .withStyle(ChatFormatting.GRAY));
         }
 
         // Show mod name
-        tooltipComponents.add(Component.translatable("itemGroup.eypipes.eypipes_tab")
+        lines.accept(Component.translatable("itemGroup.eypipes.eypipes_tab")
                 .withStyle(ChatFormatting.BLUE, ChatFormatting.ITALIC));
     }
 

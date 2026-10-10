@@ -13,8 +13,12 @@ public class KnifeItem extends Item {
         super(properties);
     }
 
+    // From 1.21.5 enchantability is a data component rather than an override, and an item
+    // that never sets it is not enchantable to begin with.
+    //? if <1.21.5 {
     @Override
     public boolean isEnchantable(ItemStack stack) {
         return false;
     }
+    //?}
 }

@@ -1,0 +1,5 @@
+{
+  "type": "eypipes:herb_bundle_unpacking",
+  "input": "eypipes:valeriana_bundle",
+  "output": "eypipes:valeriana_dried"
+}

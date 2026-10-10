@@ -13,7 +13,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 import java.util.List;
 
 /**
@@ -40,15 +40,15 @@ public class HerbBundleBlock extends Block implements EntityBlock {
         if (!level.isClientSide()) {
             BlockEntity be = level.getBlockEntity(pos);
             if (be instanceof HerbBundleBlockEntity bundleBE) {
-                if (stack.has(ModDataComponents.FERMENTATION_LEVEL.get())) {
-                    bundleBE.setFermentationLevel(stack.get(ModDataComponents.FERMENTATION_LEVEL.get()));
+                if (ModDataComponents.FERMENTATION_LEVEL.has(stack)) {
+                    bundleBE.setFermentationLevel(ModDataComponents.FERMENTATION_LEVEL.get(stack));
                 }
             }
         }
     }
 
     @Override
-    protected List<ItemStack> getDrops(BlockState state, LootParams.Builder builder) {
+    public List<ItemStack> getDrops(BlockState state, LootParams.Builder builder) {
         // Get the block entity to preserve fermentation level
         BlockEntity be = builder.getOptionalParameter(LootContextParams.BLOCK_ENTITY);
 
@@ -59,7 +59,7 @@ public class HerbBundleBlock extends Block implements EntityBlock {
             int fermentationLevel = bundleBE.getFermentationLevel();
             for (ItemStack drop : drops) {
                 if (drop.getItem() == this.asItem()) {
-                    drop.set(ModDataComponents.FERMENTATION_LEVEL.get(), fermentationLevel);
+                    ModDataComponents.FERMENTATION_LEVEL.set(drop, fermentationLevel);
                 }
             }
         }

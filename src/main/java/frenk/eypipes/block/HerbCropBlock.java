@@ -66,12 +66,12 @@ public class HerbCropBlock extends CropBlock {
 
     @Override
     public void randomTick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
-        if (!level.isAreaLoaded(pos, 1)) return;
+        if (!/*? if fabric {*//*level.hasChunksAt(pos.offset(-1, -1, -1), pos.offset(1, 1, 1))*//*?} else {*/level.isAreaLoaded(pos, 1)/*?}*/) return;
 
         if (level.getRawBrightness(pos, 0) >= 9) {
             int age = getAge(state);
             if (age < getMaxAge()) {
-                float growthSpeed = getGrowthSpeed(state, level, pos);
+                float growthSpeed = getGrowthSpeed(/*? if neoforge {*/state/*?} else {*//*this*//*?}*/, level, pos); // NeoForge passes the state
                 if (random.nextFloat() < 0.15F * growthSpeed / 25.0F) {
                     level.setBlock(pos, state.setValue(AGE, age + 1), 2);
                 }

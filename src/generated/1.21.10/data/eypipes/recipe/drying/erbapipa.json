@@ -1,0 +1,8 @@
+{
+  "type": "eypipes:drying",
+  "ingredient": "eypipes:erbapipa",
+  "result": {
+    "count": 1,
+    "id": "eypipes:erbapipa_dried"
+  }
+}

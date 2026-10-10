@@ -1,0 +1,10 @@
+{
+  "type": "eypipes:drying",
+  "ingredient": {
+    "item": "eypipes:valeriana"
+  },
+  "result": {
+    "count": 1,
+    "item": "eypipes:valeriana_dried"
+  }
+}

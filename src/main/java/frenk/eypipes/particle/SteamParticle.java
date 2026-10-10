@@ -3,16 +3,13 @@ package frenk.eypipes.particle;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.*;
 import net.minecraft.core.particles.SimpleParticleType;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 
 /**
  * Steam particle for drying rack visualization.
  * Creates gentle white/gray particles that rise slowly and fade out.
  * Spawned during the drying process to show that herbs are being dried.
  */
-@OnlyIn(Dist.CLIENT)
-public class SteamParticle extends TextureSheetParticle {
+public class SteamParticle extends EyPipesParticle {
     private final SpriteSet spriteSet;
     private final float baseAlpha;
 
@@ -45,7 +42,10 @@ public class SteamParticle extends TextureSheetParticle {
         this.gravity = 0;
         this.hasPhysics = false;
 
+        //? if <1.21.9 {
         this.pickSprite(spriteSet);
+        //?} else
+        /*this.setSpriteFromAge(spriteSet);*/
     }
 
     @Override
@@ -87,21 +87,14 @@ public class SteamParticle extends TextureSheetParticle {
         }
     }
 
-    @Override
-    public ParticleRenderType getRenderType() {
-        return ParticleRenderType.PARTICLE_SHEET_TRANSLUCENT;
-    }
 
-    @OnlyIn(Dist.CLIENT)
-    public static class Provider implements ParticleProvider<SimpleParticleType> {
-        private final SpriteSet spriteSet;
-
+    public static class Provider extends EyPipesParticleProvider {
         public Provider(SpriteSet spriteSet) {
-            this.spriteSet = spriteSet;
+            super(spriteSet);
         }
 
         @Override
-        public Particle createParticle(SimpleParticleType type, ClientLevel level,
+        protected Particle create(ClientLevel level,
                 double x, double y, double z, double velX, double velY, double velZ) {
             return new SteamParticle(level, x, y, z, velX, velY, velZ, spriteSet);
         }

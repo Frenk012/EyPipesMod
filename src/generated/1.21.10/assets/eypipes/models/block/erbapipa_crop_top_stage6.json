@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/cross",
+  "textures": {
+    "cross": "eypipes:block/erbapipa_crop_top_stage6"
+  }
+}

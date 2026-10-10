@@ -1,0 +1,10 @@
+{
+  "type": "eypipes:fermenting",
+  "ingredient": {
+    "item": "eypipes:ginseng_cutted"
+  },
+  "result": {
+    "count": 1,
+    "item": "eypipes:ginseng_cutted"
+  }
+}

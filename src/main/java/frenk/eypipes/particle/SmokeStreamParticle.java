@@ -6,16 +6,13 @@ import net.minecraft.client.particle.*;
 import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 
 /**
  * Enchanted Smoke Stream - A magical blend of realistic and fantasy smoke.
  * Features graceful dancing motion, ethereal color shifts, and mystical glow.
  * The smoke appears alive, breathing and swirling with subtle magic.
  */
-@OnlyIn(Dist.CLIENT)
-public class SmokeStreamParticle extends TextureSheetParticle {
+public class SmokeStreamParticle extends EyPipesParticle {
     private final SpriteSet spriteSet;
 
     // Motion parameters
@@ -126,7 +123,10 @@ public class SmokeStreamParticle extends TextureSheetParticle {
         this.gravity = 0;
         this.hasPhysics = false;
 
+        //? if <1.21.9 {
         this.pickSprite(spriteSet);
+        //?} else
+        /*this.setSpriteFromAge(spriteSet);*/
 
         Player player = Minecraft.getInstance().player;
         if (FirstPersonSmoke.capturing && player != null) {
@@ -269,21 +269,14 @@ public class SmokeStreamParticle extends TextureSheetParticle {
         return a + (b - a) * t;
     }
 
-    @Override
-    public ParticleRenderType getRenderType() {
-        return ParticleRenderType.PARTICLE_SHEET_TRANSLUCENT;
-    }
 
-    @OnlyIn(Dist.CLIENT)
-    public static class Provider implements ParticleProvider<SimpleParticleType> {
-        private final SpriteSet spriteSet;
-
+    public static class Provider extends EyPipesParticleProvider {
         public Provider(SpriteSet spriteSet) {
-            this.spriteSet = spriteSet;
+            super(spriteSet);
         }
 
         @Override
-        public Particle createParticle(SimpleParticleType type, ClientLevel level,
+        protected Particle create(ClientLevel level,
                 double x, double y, double z, double velX, double velY, double velZ) {
             return new SmokeStreamParticle(level, x, y, z, velX, velY, velZ, spriteSet);
         }

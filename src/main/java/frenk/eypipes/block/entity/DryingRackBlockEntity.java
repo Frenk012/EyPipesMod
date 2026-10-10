@@ -1,5 +1,11 @@
 package frenk.eypipes.block.entity;
 
+import frenk.eypipes.compat.Nbt;
+//? if >=1.21.6 {
+/*import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
+*///?}
+import net.minecraft.world.Containers;
 import frenk.eypipes.config.EyPipesConfig;
 import frenk.eypipes.registries.ModBlockEntities;
 import frenk.eypipes.registries.ModItems;
@@ -222,42 +228,86 @@ public class DryingRackBlockEntity extends BlockEntity {
         return getDriedResult(stack) != null;
     }
 
+    /**
+     * Drop everything stored here on the ground. Called when the block is removed:
+     * from the block's onRemove hook before 1.21.5, and from preRemoveSideEffects after,
+     * because affectNeighborsAfterRemoval runs once the block entity is already gone.
+     */
+    public void dropContents(Level level, BlockPos pos) {
+        for (ItemStack stack : items) {
+            if (!stack.isEmpty()) {
+                Containers.dropItemStack(level, pos.getX(), pos.getY(), pos.getZ(), stack);
+            }
+        }
+    }
+
+    //? if >=1.21.5 {
+    /*@Override
+    public void preRemoveSideEffects(BlockPos pos, BlockState state) {
+        if (this.level != null) {
+            dropContents(this.level, pos);
+        }
+    }
+    *///?}
+
+    //? if <1.21.6 {
     @Override
+    //? if <1.20.5 {
+    /*protected void saveAdditional(CompoundTag tag) {
+        super.saveAdditional(tag);
+        HolderLookup.Provider registries = null;
+    *///?} else {
     protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.saveAdditional(tag, registries);
+    //?}
 
         for (int i = 0; i < SLOT_COUNT; i++) {
-            if (!items[i].isEmpty()) {
-                tag.put("Item" + i, items[i].save(registries));
-            }
+            Nbt.putStack(tag, "Item" + i, items[i], registries);
             // Save start time instead of elapsed time
-            tag.putLong("DryingStart" + i, dryingStartTimes[i]);
+            Nbt.putLong(tag, "DryingStart" + i, dryingStartTimes[i]);
         }
     }
 
     @Override
+    //? if <1.20.5 {
+    /*public void load(CompoundTag tag) {
+        super.load(tag);
+        HolderLookup.Provider registries = null;
+    *///?} else {
     protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.loadAdditional(tag, registries);
+    //?}
 
         for (int i = 0; i < SLOT_COUNT; i++) {
-            if (tag.contains("Item" + i)) {
-                items[i] = ItemStack.parse(registries, tag.getCompound("Item" + i)).orElse(ItemStack.EMPTY);
-            } else {
-                items[i] = ItemStack.EMPTY;
-            }
+            items[i] = Nbt.getStack(tag, "Item" + i, registries);
 
-            // Load start time (handle migration from old format)
-            if (tag.contains("DryingStart" + i)) {
-                dryingStartTimes[i] = tag.getLong("DryingStart" + i);
-            } else if (tag.contains("DryingTime" + i)) {
-                // Migration: old format stored elapsed ticks, convert to start time
-                // We'll set start time to 0 and let the tick method fix it
-                dryingStartTimes[i] = 0;
-            } else {
-                dryingStartTimes[i] = 0;
-            }
+            // Load start time. Racks saved in the old format stored elapsed ticks under
+            // "DryingTime<i>"; those fall back to 0 here and the tick method fixes them up.
+            dryingStartTimes[i] = Nbt.getLong(tag, "DryingStart" + i, 0);
         }
     }
+    //?} else {
+    /*@Override
+    protected void saveAdditional(ValueOutput output) {
+        super.saveAdditional(output);
+        for (int i = 0; i < SLOT_COUNT; i++) {
+            Nbt.putStack(output, "Item" + i, items[i]);
+            // Save start time instead of elapsed time
+            Nbt.putLong(output, "DryingStart" + i, dryingStartTimes[i]);
+        }
+    }
+
+    @Override
+    protected void loadAdditional(ValueInput input) {
+        super.loadAdditional(input);
+        for (int i = 0; i < SLOT_COUNT; i++) {
+            items[i] = Nbt.getStack(input, "Item" + i);
+            // Racks saved in the old format stored elapsed ticks under "DryingTime<i>";
+            // those fall back to 0 here and the tick method fixes them up.
+            dryingStartTimes[i] = Nbt.getLong(input, "DryingStart" + i, 0);
+        }
+    }
+    *///?}
 
     // Client synchronization methods
     @Nullable
@@ -266,15 +316,44 @@ public class DryingRackBlockEntity extends BlockEntity {
         return ClientboundBlockEntityDataPacket.create(this);
     }
 
+    //? if <1.21.6 {
     @Override
+    //? if <1.20.5 {
+    /*public CompoundTag getUpdateTag() {
+        CompoundTag tag = new CompoundTag();
+        saveAdditional(tag);
+    *///?} else {
     public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
         CompoundTag tag = new CompoundTag();
         saveAdditional(tag, registries);
+    //?}
+        // Vanilla drops an empty update tag (1.20.1 sends none, 1.21 skips loading it), so an
+        // emptied block would keep showing its last item. The marker keeps the tag non-empty.
+        tag.putBoolean("eypipes_sync", true);
         return tag;
     }
 
+    // (Neo)Forge hooks. Fabric needs neither: vanilla already loads both through loadAdditional.
+    //? if !fabric {
     @Override
+    //? if <1.20.5 {
+    /*public void handleUpdateTag(CompoundTag tag) {
+        load(tag);
+    *///?} else {
     public void handleUpdateTag(CompoundTag tag, HolderLookup.Provider registries) {
         loadAdditional(tag, registries);
+    //?}
     }
+    //?}
+    //?} else {
+    /*@Override
+    public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
+        return saveCustomOnly(registries);
+    }
+
+    @Override
+    public void handleUpdateTag(ValueInput input) {
+        loadAdditional(input);
+    }
+    *///?}
 }

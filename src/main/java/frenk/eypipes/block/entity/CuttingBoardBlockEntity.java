@@ -1,5 +1,12 @@
 package frenk.eypipes.block.entity;
 
+import frenk.eypipes.compat.Nbt;
+//? if >=1.21.6 {
+/*import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
+*///?}
+import net.minecraft.world.level.Level;
+import net.minecraft.world.Containers;
 import frenk.eypipes.registries.ModBlockEntities;
 import frenk.eypipes.registries.ModDataComponents;
 import frenk.eypipes.registries.ModItems;
@@ -107,14 +114,14 @@ public class CuttingBoardBlockEntity extends BlockEntity {
         if (result == null) return null;
 
         // Copy fermentation properties from input to output
-        Integer fermentationLevel = storedItem.get(ModDataComponents.FERMENTATION_LEVEL.get());
+        Integer fermentationLevel = ModDataComponents.FERMENTATION_LEVEL.get(storedItem);
         if (fermentationLevel != null) {
-            result.set(ModDataComponents.FERMENTATION_LEVEL.get(), fermentationLevel);
+            ModDataComponents.FERMENTATION_LEVEL.set(result, fermentationLevel);
         }
 
-        Long fermentationStart = storedItem.get(ModDataComponents.FERMENTATION_START.get());
+        Long fermentationStart = ModDataComponents.FERMENTATION_START.get(storedItem);
         if (fermentationStart != null) {
-            result.set(ModDataComponents.FERMENTATION_START.get(), fermentationStart);
+            ModDataComponents.FERMENTATION_START.set(result, fermentationStart);
         }
 
         // Consume the leaf after cutting
@@ -132,23 +139,63 @@ public class CuttingBoardBlockEntity extends BlockEntity {
         }
     }
 
-    @Override
-    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.saveAdditional(tag, registries);
+    /**
+     * Drop everything stored here on the ground. Called when the block is removed:
+     * from the block's onRemove hook before 1.21.5, and from preRemoveSideEffects after,
+     * because affectNeighborsAfterRemoval runs once the block entity is already gone.
+     */
+    public void dropContents(Level level, BlockPos pos) {
         if (!storedItem.isEmpty()) {
-            tag.put("StoredItem", storedItem.save(registries));
+            Containers.dropItemStack(level, pos.getX(), pos.getY(), pos.getZ(), storedItem);
         }
     }
 
-    @Override
-    protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.loadAdditional(tag, registries);
-        if (tag.contains("StoredItem")) {
-            storedItem = ItemStack.parse(registries, tag.getCompound("StoredItem")).orElse(ItemStack.EMPTY);
-        } else {
-            storedItem = ItemStack.EMPTY;
+    //? if >=1.21.5 {
+    /*@Override
+    public void preRemoveSideEffects(BlockPos pos, BlockState state) {
+        if (this.level != null) {
+            dropContents(this.level, pos);
         }
     }
+    *///?}
+
+    //? if <1.21.6 {
+    @Override
+    //? if <1.20.5 {
+    /*protected void saveAdditional(CompoundTag tag) {
+        super.saveAdditional(tag);
+        HolderLookup.Provider registries = null;
+    *///?} else {
+    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
+        super.saveAdditional(tag, registries);
+    //?}
+        Nbt.putStack(tag, "StoredItem", storedItem, registries);
+    }
+
+    @Override
+    //? if <1.20.5 {
+    /*public void load(CompoundTag tag) {
+        super.load(tag);
+        HolderLookup.Provider registries = null;
+    *///?} else {
+    protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
+        super.loadAdditional(tag, registries);
+    //?}
+        storedItem = Nbt.getStack(tag, "StoredItem", registries);
+    }
+    //?} else {
+    /*@Override
+    protected void saveAdditional(ValueOutput output) {
+        super.saveAdditional(output);
+        Nbt.putStack(output, "StoredItem", storedItem);
+    }
+
+    @Override
+    protected void loadAdditional(ValueInput input) {
+        super.loadAdditional(input);
+        storedItem = Nbt.getStack(input, "StoredItem");
+    }
+    *///?}
 
     @Nullable
     @Override
@@ -156,26 +203,68 @@ public class CuttingBoardBlockEntity extends BlockEntity {
         return ClientboundBlockEntityDataPacket.create(this);
     }
 
+    //? if <1.21.6 {
     @Override
+    //? if <1.20.5 {
+    /*public CompoundTag getUpdateTag() {
+        CompoundTag tag = new CompoundTag();
+        saveAdditional(tag);
+    *///?} else {
     public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
         CompoundTag tag = new CompoundTag();
         saveAdditional(tag, registries);
+    //?}
+        // Vanilla drops an empty update tag (1.20.1 sends none, 1.21 skips loading it), so an
+        // emptied block would keep showing its last item. The marker keeps the tag non-empty.
+        tag.putBoolean("eypipes_sync", true);
         return tag;
     }
 
+    // (Neo)Forge hooks. Fabric needs neither: vanilla already loads both through loadAdditional.
+    //? if !fabric {
     @Override
+    //? if <1.20.5 {
+    /*public void handleUpdateTag(CompoundTag tag) {
+        load(tag);
+    *///?} else {
     public void handleUpdateTag(CompoundTag tag, HolderLookup.Provider registries) {
         loadAdditional(tag, registries);
+    //?}
     }
 
     @Override
+    //? if <1.20.5 {
+    /*public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket pkt) {
+        CompoundTag tag = pkt.getTag();
+        if (tag != null) {
+            load(tag);
+    *///?} else {
     public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket pkt, HolderLookup.Provider registries) {
         CompoundTag tag = pkt.getTag();
         if (tag != null) {
             loadAdditional(tag, registries);
+    //?}
         } else {
             // Empty tag means empty item
             storedItem = ItemStack.EMPTY;
         }
     }
+    //?}
+    //?} else {
+    /*@Override
+    public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
+        return saveCustomOnly(registries);
+    }
+
+    @Override
+    public void handleUpdateTag(ValueInput input) {
+        loadAdditional(input);
+    }
+
+    @Override
+    public void onDataPacket(Connection net, ValueInput input) {
+        // An absent key already reads back as empty, so the old null-tag branch is moot.
+        loadAdditional(input);
+    }
+    *///?}
 }

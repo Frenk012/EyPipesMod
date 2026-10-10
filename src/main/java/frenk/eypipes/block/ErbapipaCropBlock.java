@@ -127,10 +127,10 @@ public class ErbapipaCropBlock extends CropBlock {
 
     @Override
     public void randomTick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
-        if (!level.isAreaLoaded(pos, 1)) return;
+        if (!/*? if fabric {*//*level.hasChunksAt(pos.offset(-1, -1, -1), pos.offset(1, 1, 1))*//*?} else {*/level.isAreaLoaded(pos, 1)/*?}*/) return;
 
         int age = getAge(state);
-        float growthSpeed = getGrowthSpeed(state, level, pos);
+        float growthSpeed = getGrowthSpeed(/*? if neoforge {*/state/*?} else {*//*this*//*?}*/, level, pos); // NeoForge passes the state
 
         if (level.getRawBrightness(pos, 0) >= 9) {
             // Growth logic for the current block
@@ -164,6 +164,9 @@ public class ErbapipaCropBlock extends CropBlock {
     }
 
     @Override
+    //? if <1.20.5 {
+    /*public boolean isValidBonemealTarget(LevelReader level, BlockPos pos, BlockState state, boolean isClient) {
+    *///?} else
     public boolean isValidBonemealTarget(LevelReader level, BlockPos pos, BlockState state) {
         BlockState aboveState = level.getBlockState(pos.above());
 
@@ -203,7 +206,7 @@ public class ErbapipaCropBlock extends CropBlock {
             if (aboveState.is(this)) {
                 // Fertilize existing upper part
                 BonemealableBlock growable = (BonemealableBlock) aboveState.getBlock();
-                if (growable.isValidBonemealTarget(level, abovePos, aboveState)) {
+                if (growable.isValidBonemealTarget(level, abovePos, aboveState/*? if <1.20.5 {*//*, false*//*?}*/)) {
                     growable.performBonemeal(level, random, abovePos, aboveState);
                 }
             } else {
@@ -220,28 +223,44 @@ public class ErbapipaCropBlock extends CropBlock {
         }
     }
 
-    @Override
-    protected void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
-        if (!state.is(newState.getBlock())) {
-            boolean isUpper = state.getValue(UPPER);
-
-            if (isUpper) {
-                // Breaking upper part breaks lower part
-                BlockPos belowPos = pos.below();
-                BlockState belowState = level.getBlockState(belowPos);
-                if (belowState.is(this) && !belowState.getValue(UPPER)) {
-                    level.destroyBlock(belowPos, true);
-                }
-            } else {
-                // Breaking lower part breaks upper part
-                BlockPos abovePos = pos.above();
-                BlockState aboveState = level.getBlockState(abovePos);
-                if (aboveState.is(this) && aboveState.getValue(UPPER)) {
-                    level.destroyBlock(abovePos, true);
-                }
+    /**
+     * Breaking either half of the plant takes the other half with it.
+     *
+     * <p>Before 1.21.5 this hung off {@code onRemove}, which also had to check that the block
+     * really went away rather than just changing state. From 1.21.5 the game calls
+     * {@code affectNeighborsAfterRemoval} only once the block is actually gone, so that check
+     * is no longer ours to make.
+     */
+    private void breakOtherHalf(BlockState state, Level level, BlockPos pos) {
+        if (state.getValue(UPPER)) {
+            BlockPos belowPos = pos.below();
+            BlockState belowState = level.getBlockState(belowPos);
+            if (belowState.is(this) && !belowState.getValue(UPPER)) {
+                level.destroyBlock(belowPos, true);
             }
+        } else {
+            BlockPos abovePos = pos.above();
+            BlockState aboveState = level.getBlockState(abovePos);
+            if (aboveState.is(this) && aboveState.getValue(UPPER)) {
+                level.destroyBlock(abovePos, true);
+            }
+        }
+    }
+
+    //? if <1.21.5 {
+    @Override
+    public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
+        if (!state.is(newState.getBlock())) {
+            breakOtherHalf(state, level, pos);
         }
 
         super.onRemove(state, level, pos, newState, movedByPiston);
     }
+    //?} else {
+    /*@Override
+    protected void affectNeighborsAfterRemoval(BlockState state, ServerLevel level, BlockPos pos, boolean movedByPiston) {
+        breakOtherHalf(state, level, pos);
+        super.affectNeighborsAfterRemoval(state, level, pos, movedByPiston);
+    }
+    *///?}
 }

@@ -11,6 +11,7 @@ import me.shedaniel.rei.api.client.registry.category.CategoryRegistry;
 import me.shedaniel.rei.api.client.registry.display.DisplayRegistry;
 import me.shedaniel.rei.api.common.category.CategoryIdentifier;
 import me.shedaniel.rei.api.common.util.EntryStacks;
+//? if !fabric
 import me.shedaniel.rei.forge.REIPluginClient;
 
 /**
@@ -18,6 +19,8 @@ import me.shedaniel.rei.forge.REIPluginClient;
  * Adds drying rack, tobacco jar, and cutting board recipe categories to REI.
  * Bundle recipes use vanilla crafting format and appear automatically in REI.
  */
+// (Neo)Forge finds the plugin through this annotation, Fabric through its rei_client entrypoint
+//? if !fabric
 @REIPluginClient
 public class EyPipesREIPlugin implements REIClientPlugin {
 

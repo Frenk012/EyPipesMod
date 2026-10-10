@@ -2,23 +2,34 @@ package frenk.eypipes.integration.epicfight;
 
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
+//? if !fabric {
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModList;
+//?}
 
 /**
  * Guard facade for Epic Fight integration.
  * Safe to reference from anywhere - all EF API calls are isolated in EpicFightAnimations.
+ *
+ * <p>Epic Fight has never released past Minecraft 1.21.1, so EpicFightAnimations is excluded
+ * from the source set on later versions and every method here becomes a no-op there. Common
+ * code can keep calling this unconditionally.
  */
 public class EpicFightCompat {
 
     private static boolean LOADED = false;
 
+    // Epic Fight does not exist on Fabric, which never calls this
+    //? if !fabric {
     public static void init(IEventBus modBus) {
+        //? if neoforge && <1.21.2 {
         LOADED = ModList.get().isLoaded("epicfight");
         if (LOADED) {
             modBus.register(EpicFightAnimations.class);
         }
+        //?}
     }
+    //?}
 
     public static boolean isLoaded() {
         return LOADED;
@@ -27,22 +38,30 @@ public class EpicFightCompat {
     /** Client-side: local player sees animation immediately + packet sent to server */
     public static void playSmokingClient(Player player, boolean isPipe) {
         if (!LOADED) return;
+        //? if neoforge && <1.21.2 {
         EpicFightAnimations.playSmokingClient(player, isPipe);
+        //?}
     }
 
     /** Server-side: broadcasts SPAnimatorControl so all nearby clients see it */
     public static void playSmokingServer(ServerPlayer player, boolean isPipe) {
         if (!LOADED) return;
+        //? if neoforge && <1.21.2 {
         EpicFightAnimations.playSmokingServer(player, isPipe);
+        //?}
     }
 
     public static void stopSmokingClient(Player player) {
         if (!LOADED) return;
+        //? if neoforge && <1.21.2 {
         EpicFightAnimations.stopSmokingClient(player);
+        //?}
     }
 
     public static void stopSmokingServer(ServerPlayer player) {
         if (!LOADED) return;
+        //? if neoforge && <1.21.2 {
         EpicFightAnimations.stopSmokingServer(player);
+        //?}
     }
 }

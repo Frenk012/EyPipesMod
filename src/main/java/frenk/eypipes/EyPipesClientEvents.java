@@ -1,32 +1,39 @@
 package frenk.eypipes;
 
+import frenk.eypipes.client.EyPipesClientCommon;
 import frenk.eypipes.integration.epicfight.EpicFightCompat;
-import frenk.eypipes.registries.ModDataComponents;
 import frenk.eypipes.registries.ModItems;
-import net.minecraft.ChatFormatting;
-import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
+//? if forge {
+/*import net.neoforged.fml.common.Mod;
+import net.neoforged.neoforge.event.TickEvent;
+*///?} else {
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
+//?}
 import net.neoforged.neoforge.event.entity.living.LivingEntityUseItemEvent;
 import net.neoforged.neoforge.event.entity.player.ItemTooltipEvent;
 
 /**
- * Client-side game bus event handlers for EyPipes.
- * These events are on the NeoForge game bus, not the mod bus.
+ * Client-side game bus event handlers for EyPipes on (Neo)Forge; the behaviour itself lives in
+ * {@link EyPipesClientCommon}, which the Fabric client entry point calls too.
  */
-@EventBusSubscriber(modid = EyPipes.MOD_ID, bus = EventBusSubscriber.Bus.GAME, value = Dist.CLIENT)
+//? if forge {
+/*@Mod.EventBusSubscriber(modid = EyPipes.MOD_ID, value = Dist.CLIENT)
+*///?} else
+@EventBusSubscriber(modid = EyPipes.MOD_ID, value = Dist.CLIENT)
 public class EyPipesClientEvents {
 
-    /**
-     * Called every client tick - can be used for client-side processing.
-     */
     @SubscribeEvent
+    //? if forge {
+    /*public static void onClientTick(TickEvent.ClientTickEvent event) {
+        if (event.phase != TickEvent.Phase.END) return;
+    *///?} else
     public static void onClientTick(ClientTickEvent.Post event) {
-        // Client tick processing if needed
+        EyPipesClientCommon.onClientTickEnd();
     }
 
     @SubscribeEvent
@@ -34,9 +41,9 @@ public class EyPipesClientEvents {
         if (!EpicFightCompat.isLoaded()) return;
         if (!(event.getEntity() instanceof Player player)) return;
         ItemStack stack = event.getItem();
-        if (isPipeItem(stack)) {
+        if (ModItems.isPipe(stack)) {
             EpicFightCompat.playSmokingClient(player, true);
-        } else if (isCigarItem(stack)) {
+        } else if (ModItems.isCigar(stack)) {
             EpicFightCompat.playSmokingClient(player, false);
         }
     }
@@ -45,7 +52,7 @@ public class EyPipesClientEvents {
     public static void onItemUseStop(LivingEntityUseItemEvent.Stop event) {
         if (!EpicFightCompat.isLoaded()) return;
         if (!(event.getEntity() instanceof Player player)) return;
-        if (isPipeItem(event.getItem()) || isCigarItem(event.getItem())) {
+        if (ModItems.isPipe(event.getItem()) || ModItems.isCigar(event.getItem())) {
             EpicFightCompat.stopSmokingClient(player);
         }
     }
@@ -54,79 +61,14 @@ public class EyPipesClientEvents {
     public static void onItemUseFinish(LivingEntityUseItemEvent.Finish event) {
         if (!EpicFightCompat.isLoaded()) return;
         if (!(event.getEntity() instanceof Player player)) return;
-        if (isPipeItem(event.getItem()) || isCigarItem(event.getItem())) {
+        if (ModItems.isPipe(event.getItem()) || ModItems.isCigar(event.getItem())) {
             EpicFightCompat.stopSmokingClient(player);
         }
     }
 
-    private static boolean isPipeItem(ItemStack stack) {
-        return stack.is(ModItems.PIPE.get())
-            || stack.is(ModItems.WOODEN_PIPE.get())
-            || stack.is(ModItems.CLAY_PIPE.get())
-            || stack.is(ModItems.CORN_COB_PIPE.get())
-            || stack.is(ModItems.MEERSCHAUM_PIPE.get())
-            || stack.is(ModItems.BRIAR_PIPE.get())
-            || stack.is(ModItems.CHERRY_PIPE.get())
-            || stack.is(ModItems.CALABASH_PIPE.get())
-            || stack.is(ModItems.CHURCHWARD_PIPE.get())
-            || stack.is(ModItems.BENT_PIPE.get());
-    }
-
-    private static boolean isCigarItem(ItemStack stack) {
-        return stack.is(ModItems.CIGAR.get());
-    }
-
-    /**
-     * Add fermentation level tooltip to fermentable items.
-     */
+    /** Adds the fermentation quality to dried and cut herbs. */
     @SubscribeEvent
     public static void onItemTooltip(ItemTooltipEvent event) {
-        ItemStack stack = event.getItemStack();
-
-        // Check if item is a fermentable herb (dried or cutted variants)
-        if (isFermentableItem(stack)) {
-            // Check if it has a fermentation level
-            if (stack.has(ModDataComponents.FERMENTATION_LEVEL.get())) {
-                int level = stack.get(ModDataComponents.FERMENTATION_LEVEL.get());
-                String qualityName = ModDataComponents.getQualityName(level);
-                ChatFormatting color = getQualityColor(level);
-
-                // Add quality tooltip
-                event.getToolTip().add(Component.translatable("tooltip.eypipes.quality", qualityName)
-                        .withStyle(color));
-
-                // Add multiplier info
-                float multiplier = ModDataComponents.getQualityMultiplier(level);
-                String multiplierText = String.format("%.1fx", multiplier);
-                event.getToolTip().add(Component.translatable("tooltip.eypipes.effect_multiplier", multiplierText)
-                        .withStyle(ChatFormatting.GRAY));
-            }
-        }
-    }
-
-    /**
-     * Check if an item can be fermented / has fermentation data.
-     */
-    private static boolean isFermentableItem(ItemStack stack) {
-        return stack.is(ModItems.ERBAPIPA_DRIED.get()) ||
-               stack.is(ModItems.ERBAPIPA_CUTTED.get()) ||
-               stack.is(ModItems.VALERIANA_DRIED.get()) ||
-               stack.is(ModItems.VALERIANA_CUTTED.get()) ||
-               stack.is(ModItems.GINSENG_DRIED.get()) ||
-               stack.is(ModItems.GINSENG_CUTTED.get()) ||
-               stack.is(ModItems.SALVIA_DRIED.get()) ||
-               stack.is(ModItems.SALVIA_CUTTED.get());
-    }
-
-    /**
-     * Get color for quality level.
-     */
-    private static ChatFormatting getQualityColor(int level) {
-        return switch (level) {
-            case ModDataComponents.QUALITY_FRESH -> ChatFormatting.WHITE;
-            case ModDataComponents.QUALITY_AGED -> ChatFormatting.YELLOW;
-            case ModDataComponents.QUALITY_FERMENTED -> ChatFormatting.GOLD;
-            default -> ChatFormatting.GRAY; // DRIED
-        };
+        EyPipesClientCommon.appendQualityTooltip(event.getItemStack(), event.getToolTip());
     }
 }

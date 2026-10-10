@@ -3,16 +3,13 @@ package frenk.eypipes.particle;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.*;
 import net.minecraft.core.particles.SimpleParticleType;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 
 /**
  * Ember particle effect - Small glowing orange particles rising from pipe bowl.
  * Features rising motion, brightness flickering, and short lifespan.
  * NEW particle type for enhanced visual effects.
  */
-@OnlyIn(Dist.CLIENT)
-public class EmberParticle extends TextureSheetParticle {
+public class EmberParticle extends EyPipesParticle {
     private final SpriteSet spriteSet;
     private final float baseRed;
     private final float baseGreen;
@@ -42,7 +39,10 @@ public class EmberParticle extends TextureSheetParticle {
 
         this.gravity = -0.01F; // Slight upward float
 
+        //? if <1.21.9 {
         this.pickSprite(spriteSet);
+        //?} else
+        /*this.setSpriteFromAge(spriteSet);*/
     }
 
     @Override
@@ -67,10 +67,6 @@ public class EmberParticle extends TextureSheetParticle {
         }
     }
 
-    @Override
-    public ParticleRenderType getRenderType() {
-        return ParticleRenderType.PARTICLE_SHEET_TRANSLUCENT;
-    }
 
     @Override
     public int getLightColor(float partialTick) {
@@ -78,16 +74,13 @@ public class EmberParticle extends TextureSheetParticle {
         return 0xF000F0; // Full brightness
     }
 
-    @OnlyIn(Dist.CLIENT)
-    public static class Provider implements ParticleProvider<SimpleParticleType> {
-        private final SpriteSet spriteSet;
-
+    public static class Provider extends EyPipesParticleProvider {
         public Provider(SpriteSet spriteSet) {
-            this.spriteSet = spriteSet;
+            super(spriteSet);
         }
 
         @Override
-        public Particle createParticle(SimpleParticleType type, ClientLevel level,
+        protected Particle create(ClientLevel level,
                 double x, double y, double z, double velX, double velY, double velZ) {
             return new EmberParticle(level, x, y, z, velX, velY, velZ, spriteSet);
         }

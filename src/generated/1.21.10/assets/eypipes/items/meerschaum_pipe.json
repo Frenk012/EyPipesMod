@@ -1,0 +1,9 @@
+{
+  "model": {
+    "type": "minecraft:special",
+    "base": "eypipes:item/meerschaum_pipe",
+    "model": {
+      "type": "geckolib:geckolib"
+    }
+  }
+}

@@ -15,6 +15,7 @@ import mezz.jei.api.registration.IRecipeRegistration;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
+//? if >=1.20.2
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeManager;
 
@@ -60,17 +61,17 @@ public class EyPipesJEIPlugin implements IModPlugin {
 
         // Register drying recipes from data-driven JSON
         List<DryingRecipe> dryingRecipes = recipeManager.getAllRecipesFor(ModRecipes.DRYING_TYPE.get())
-                .stream().map(RecipeHolder::value).toList();
+                /*? if >=1.20.2 {*/.stream().map(RecipeHolder::value).toList()/*?}*/;
         registration.addRecipes(DRYING_TYPE, dryingRecipes);
 
         // Register fermenting recipes from data-driven JSON
         List<FermentingRecipe> fermentingRecipes = recipeManager.getAllRecipesFor(ModRecipes.FERMENTING_TYPE.get())
-                .stream().map(RecipeHolder::value).toList();
+                /*? if >=1.20.2 {*/.stream().map(RecipeHolder::value).toList()/*?}*/;
         registration.addRecipes(FERMENTING_TYPE, fermentingRecipes);
 
         // Register cutting board recipes from data-driven JSON
         List<CuttingBoardRecipe> cuttingBoardRecipes = recipeManager.getAllRecipesFor(ModRecipes.CUTTING_BOARD_TYPE.get())
-                .stream().map(RecipeHolder::value).toList();
+                /*? if >=1.20.2 {*/.stream().map(RecipeHolder::value).toList()/*?}*/;
         registration.addRecipes(CUTTING_BOARD_TYPE, cuttingBoardRecipes);
 
         // Bundle recipes use vanilla crafting format and appear automatically in JEI

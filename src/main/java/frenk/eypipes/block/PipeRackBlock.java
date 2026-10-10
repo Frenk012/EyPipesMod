@@ -1,5 +1,7 @@
 package frenk.eypipes.block;
 
+import frenk.eypipes.compat.Interactions;
+//? if >=1.20.5
 import com.mojang.serialization.MapCodec;
 import frenk.eypipes.block.entity.PipeRackBlockEntity;
 import frenk.eypipes.registries.ModBlockEntities;
@@ -7,7 +9,10 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.Containers;
 import net.minecraft.world.InteractionHand;
+//? if >=1.20.5 && <1.21.2 {
 import net.minecraft.world.ItemInteractionResult;
+//?} else
+//import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
@@ -20,7 +25,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.minecraft.world.level.block.state.properties.DirectionProperty;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -32,8 +37,9 @@ import org.jetbrains.annotations.Nullable;
  */
 public class PipeRackBlock extends BaseEntityBlock {
 
+    //? if >=1.20.5
     public static final MapCodec<PipeRackBlock> CODEC = simpleCodec(PipeRackBlock::new);
-    public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
+    public static final EnumProperty<Direction> FACING = BlockStateProperties.HORIZONTAL_FACING;
 
     // Shapes for different orientations - thin rack against wall
     private static final VoxelShape SHAPE_NORTH = Block.box(0, 2, 14, 16, 14, 16);
@@ -46,10 +52,12 @@ public class PipeRackBlock extends BaseEntityBlock {
         this.registerDefaultState(this.stateDefinition.any().setValue(FACING, Direction.NORTH));
     }
 
+    //? if >=1.20.5 {
     @Override
     protected MapCodec<? extends BaseEntityBlock> codec() {
         return CODEC;
     }
+    //?}
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
@@ -63,7 +71,7 @@ public class PipeRackBlock extends BaseEntityBlock {
     }
 
     @Override
-    protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
+    public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
         return switch (state.getValue(FACING)) {
             case SOUTH -> SHAPE_SOUTH;
             case EAST -> SHAPE_EAST;
@@ -79,20 +87,25 @@ public class PipeRackBlock extends BaseEntityBlock {
     }
 
     @Override
-    protected RenderShape getRenderShape(BlockState state) {
+    public RenderShape getRenderShape(BlockState state) {
         return RenderShape.MODEL;
     }
 
     @Override
-    protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos,
-                                               Player player, InteractionHand hand, BlockHitResult hitResult) {
+    //? if <1.20.5 {
+    /*public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
+        ItemStack stack = player.getItemInHand(hand);
+    *///?} elif <1.21.2 {
+    protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
+    //?} else
+    //protected InteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
         if (level.isClientSide()) {
-            return ItemInteractionResult.SUCCESS;
+            return Interactions.itemSuccess();
         }
 
         BlockEntity blockEntity = level.getBlockEntity(pos);
         if (!(blockEntity instanceof PipeRackBlockEntity pipeRack)) {
-            return ItemInteractionResult.FAIL;
+            return Interactions.itemFail();
         }
 
         ItemStack heldItem = player.getItemInHand(hand);
@@ -107,7 +120,7 @@ public class PipeRackBlock extends BaseEntityBlock {
                 level.sendBlockUpdated(pos, state, state, Block.UPDATE_ALL);
                 pipeRack.setChanged();
 
-                return ItemInteractionResult.CONSUME;
+                return Interactions.itemConsume();
             }
         }
         // If player's hand is empty, try to remove an item
@@ -122,27 +135,22 @@ public class PipeRackBlock extends BaseEntityBlock {
                 level.sendBlockUpdated(pos, state, state, Block.UPDATE_ALL);
                 pipeRack.setChanged();
 
-                return ItemInteractionResult.SUCCESS;
+                return Interactions.itemSuccess();
             }
         }
 
-        return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+        return Interactions.itemPassToBlock();
     }
 
+    //? if <1.21.5 {
     @Override
-    protected void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
+    public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
         if (!state.is(newState.getBlock())) {
-            BlockEntity blockEntity = level.getBlockEntity(pos);
-            if (blockEntity instanceof PipeRackBlockEntity pipeRack) {
-                // Drop all items stored in the pipe rack
-                ItemStack[] items = pipeRack.getAllItems();
-                for (ItemStack itemStack : items) {
-                    if (!itemStack.isEmpty()) {
-                        Containers.dropItemStack(level, pos.getX(), pos.getY(), pos.getZ(), itemStack);
-                    }
-                }
+            if (level.getBlockEntity(pos) instanceof PipeRackBlockEntity pipeRack) {
+                pipeRack.dropContents(level, pos);
             }
             super.onRemove(state, level, pos, newState, movedByPiston);
         }
     }
+    //?}
 }

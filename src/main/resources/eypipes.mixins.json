@@ -3,11 +3,8 @@
   "minVersion": "0.8",
   "package": "frenk.eypipes.mixin",
   "compatibilityLevel": "JAVA_21",
-  "refmap": "eypipes.refmap.json",
   "mixins": [],
-  "client": [
-    "client.BipedModelMixin"
-  ],
+  "client": [MIXIN_CLIENT_LIST],
   "injectors": {
     "defaultRequire": 1
   }

@@ -6,6 +6,7 @@ import me.shedaniel.rei.api.common.display.Display;
 import me.shedaniel.rei.api.common.entry.EntryIngredient;
 import me.shedaniel.rei.api.common.util.EntryIngredients;
 import net.minecraft.resources.ResourceLocation;
+//? if >=1.20.2
 import net.minecraft.world.item.crafting.RecipeHolder;
 
 import java.util.Collections;
@@ -23,9 +24,14 @@ public class FermentingDisplay implements Display {
     private final int targetQuality;
     private final String qualityLabel;
 
+    //? if >=1.20.2 {
     public FermentingDisplay(RecipeHolder<FermentingRecipe> recipeHolder) {
         FermentingRecipe recipe = recipeHolder.value();
         this.id = recipeHolder.id();
+    //?} else {
+    /*public FermentingDisplay(FermentingRecipe recipe) {
+        this.id = recipe.getId();
+    *///?}
         this.input = EntryIngredients.ofIngredient(recipe.getInput());
         this.output = EntryIngredients.of(recipe.getOutput());
         this.targetQuality = recipe.getTargetQuality();

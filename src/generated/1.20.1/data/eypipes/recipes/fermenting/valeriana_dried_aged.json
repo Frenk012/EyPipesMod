@@ -1,0 +1,10 @@
+{
+  "type": "eypipes:fermenting",
+  "ingredient": {
+    "item": "eypipes:valeriana_dried"
+  },
+  "result": {
+    "count": 1,
+    "item": "eypipes:valeriana_dried"
+  }
+}

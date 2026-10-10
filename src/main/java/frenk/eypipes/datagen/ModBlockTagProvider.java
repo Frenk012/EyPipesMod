@@ -6,6 +6,7 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.data.PackOutput;
 import net.minecraft.tags.BlockTags;
 import net.neoforged.neoforge.common.data.BlockTagsProvider;
+//? if <1.21.2
 import net.neoforged.neoforge.common.data.ExistingFileHelper;
 
 import java.util.concurrent.CompletableFuture;
@@ -16,10 +17,18 @@ import java.util.concurrent.CompletableFuture;
  */
 public class ModBlockTagProvider extends BlockTagsProvider {
 
+    // ExistingFileHelper was deleted from NeoForge. The boundary below is set at 1.21.2 because
+    // that is where the datagen rework began; only 1.21.1 and 1.21.10 have been verified.
+    //? if <1.21.2 {
     public ModBlockTagProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> lookupProvider,
             ExistingFileHelper existingFileHelper) {
         super(output, lookupProvider, EyPipes.MOD_ID, existingFileHelper);
     }
+    //?} else {
+    /*public ModBlockTagProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> lookupProvider) {
+        super(output, lookupProvider, EyPipes.MOD_ID);
+    }
+    *///?}
 
     @Override
     protected void addTags(HolderLookup.Provider provider) {

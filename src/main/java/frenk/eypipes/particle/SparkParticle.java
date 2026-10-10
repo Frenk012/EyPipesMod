@@ -3,16 +3,13 @@ package frenk.eypipes.particle;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.*;
 import net.minecraft.core.particles.SimpleParticleType;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 
 /**
  * Spark particle effect - Bright, energetic sparks that pop and fade quickly.
  * Features rapid color shifts between orange/yellow/white, erratic motion, and bloom effect.
  * Creates a magical, fiery appearance when smoking the pipe.
  */
-@OnlyIn(Dist.CLIENT)
-public class SparkParticle extends TextureSheetParticle {
+public class SparkParticle extends EyPipesParticle {
     private final float baseScale;
     private final float flickerRate;
     private final double initialVelY;
@@ -56,7 +53,10 @@ public class SparkParticle extends TextureSheetParticle {
 
         this.hasPhysics = true;
 
+        //? if <1.21.9 {
         this.pickSprite(spriteSet);
+        //?} else
+        /*this.setSpriteFromAge(spriteSet);*/
     }
 
     @Override
@@ -101,10 +101,6 @@ public class SparkParticle extends TextureSheetParticle {
         return a + (b - a) * Math.max(0, Math.min(1, t));
     }
 
-    @Override
-    public ParticleRenderType getRenderType() {
-        return ParticleRenderType.PARTICLE_SHEET_TRANSLUCENT;
-    }
 
     @Override
     public int getLightColor(float partialTick) {
@@ -112,16 +108,13 @@ public class SparkParticle extends TextureSheetParticle {
         return 0xF000F0;
     }
 
-    @OnlyIn(Dist.CLIENT)
-    public static class Provider implements ParticleProvider<SimpleParticleType> {
-        private final SpriteSet spriteSet;
-
+    public static class Provider extends EyPipesParticleProvider {
         public Provider(SpriteSet spriteSet) {
-            this.spriteSet = spriteSet;
+            super(spriteSet);
         }
 
         @Override
-        public Particle createParticle(SimpleParticleType type, ClientLevel level,
+        protected Particle create(ClientLevel level,
                 double x, double y, double z, double velX, double velY, double velZ) {
             return new SparkParticle(level, x, y, z, velX, velY, velZ, spriteSet);
         }

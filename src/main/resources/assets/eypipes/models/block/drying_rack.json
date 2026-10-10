@@ -1,5 +1,5 @@
 {
-    "parent": "minecraft:block/orientable",
+    "parent": "minecraft:block/block",
     "textures": {
         "0": "eypipes:block/drying_rack",
         "particle": "eypipes:block/drying_rack"
