@@ -6,7 +6,7 @@ plugins {
 val mc = sc.current.version
 val modId = property("mod.id") as String
 
-version = "${property("mod.version")}+$mc"
+version = "${property("mod.version")}+$mc-neoforge"
 group = property("mod.group") as String
 base.archivesName = modId
 
